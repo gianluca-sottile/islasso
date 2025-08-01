@@ -1,4 +1,40 @@
 url: ~
 template:
   bootstrap: 5
+  bootswatch: flatly
 
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [github]
+  components:
+    intro:
+      text: "Get Started"
+      href: articles/islasso-intro.html
+    reference:
+      text: "Reference"
+      href: reference/index.html
+    articles:
+      text: "Vignettes"
+      menu:
+        - text: "Introduction to islasso"
+          href: articles/islasso-intro.html
+    news:
+      text: "Changelog"
+      href: news/index.html
+    github:
+      icon: fa-github
+      href: https://github.com/gianluca-sottile/islasso
+      aria-label: GitHub repository
+
+authors:
+  sidebar:
+    - name: Gianluca Sottile
+      url: https://gianluca-sottile.github.io
+
+home:
+  title: "islasso"
+  description: "Induced Smoothed Lasso for high-dimensional regression and hypothesis testing."
+
+news:
+  cran_dates: true
