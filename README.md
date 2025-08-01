@@ -1,5 +1,8 @@
 # **Induced Smoothed Lasso** <img src="man/figures/logo.png" align="right" height="120" alt="" />
 
+[![CRAN version](https://www.r-pkg.org/badges/version/islasso)](https://cran.r-project.org/package=islasso)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/islasso)](https://cran.r-project.org/package=islasso)
+
 ## 📦 Installation
 
 You can install the development version of `islasso` from GitHub:
@@ -15,8 +18,6 @@ Once installed, load the package:
 library(islasso)
 ```
 
----
-
 ## 🔍 Description
 
 `islasso` implements the **Induced Smoothed Lasso**, a robust and interpretable approach for hypothesis testing in high-dimensional linear and generalized linear models.
@@ -29,8 +30,6 @@ Key features include:
 - Automatic selection of active variables
 - Visualization tools powered by `ggplot2`
 
----
-
 ## 🚀 Quick Example
 
 ```r
@@ -41,29 +40,21 @@ summary(mod)
 plot(mod)
 ```
 
----
-
 ## 📚 Documentation
 
 - 📘 Function reference: `?islasso`
 - 📄 Vignette: `vignette("islasso-intro")`
 - 🌐 Website: [https://gianluca-sottile.github.io/islasso](https://gianluca-sottile.github.io/islasso)
 
----
-
 ## 📖 References
 
 > Cilluffo G, Sottile G, La Grutta S, Muggeo V (2020). *The Induced Smoothed lasso: A practical framework for hypothesis testing in high dimensional regression.* 
 > Statistical Methods in Medical Research_, *29*(3), 765-777. [doi:10.1177/0962280219842890](https://doi.org/10.1177/0962280219842890)
 
----
-
 ## 🤝 Contributing
 
 Feel free to open issues, suggest improvements, or submit pull requests.  
 Bug reports and feature requests are welcome!
-
----
 
 ## 📜 License
 
