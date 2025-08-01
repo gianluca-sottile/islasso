@@ -1,5 +1,7 @@
 ## **Induced Smoothed Lasso for R** <img src="man/figures/logo.png" align="right" height="120" alt="" />
 
+<br><br>
+
 ## 📦 Installation
 
 You can install the development version of `islasso` from GitHub:
