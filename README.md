@@ -1,6 +1,4 @@
-## **Induced Smoothed Lasso for R** <img src="man/figures/logo.png" align="right" height="120" alt="" />
-
-<br><br>
+# **Induced Smoothed Lasso** <img src="man/figures/logo.png" align="right" height="120" alt="" />
 
 ## 📦 Installation
 
