@@ -1,7 +1,9 @@
 url: https://gianluca-sottile.github.io/islasso
 template:
   bootstrap: 5
-  bootswatch: flatly
+  bootswatch: simplex
+  light-switch: true
+  math-rendering: katex
 
 navbar:
   structure:

@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   islasso-intro: islasso-intro.html
-last_built: 2025-08-01T14:28Z
+last_built: 2025-08-01T14:50Z
 urls:
   reference: https://gianluca-sottile.github.io/islasso/reference
   article: https://gianluca-sottile.github.io/islasso/articles

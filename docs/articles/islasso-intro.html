@@ -11,7 +11,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -21,7 +22,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">islasso</a>
 
@@ -91,23 +92,15 @@ bibliography.</p>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐲</mi><mo>=</mo><mi>𝐗</mi><mi>β</mi><mo>+</mo><mi>𝛜</mi></mrow><annotation encoding="application/x-tex">\mathbf{y} = \mathbf{X}\beta + \mathbf{\epsilon}</annotation></semantics></math>
-be the linear model of interest with usual zero-means and homoscedastic
-errors. As usual,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐲</mi><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>y</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{y} = (y_1,\ldots,y_n)^T</annotation></semantics></math>
-is the response vector,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐗</mi><annotation encoding="application/x-tex">\mathbf{X}</annotation></semantics></math>
-is the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">n \times p</annotation></semantics></math>
-design matrix (having
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
-quite large) with regression coefficients
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛃</mi><annotation encoding="application/x-tex">\mathbf{\beta}</annotation></semantics></math>.
-When interest lies in selecting the non-noise covariates and estimating
-the relevant effect, one assumes the lasso penalized objective function
-(Tibshirani, 1996),
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mi>𝐲</mi><mo>−</mo><mi>𝐗</mi><mi>𝛃</mi><msubsup><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>λ</mi><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mi>𝛃</mi><msub><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">\frac{1}{2}||\mathbf{y}-\mathbf{X}\mathbf{\beta}||_2^2+\lambda||\mathbf{\beta}||_1</annotation></semantics></math></p>
+<p>Let <span class="math inline">\mathbf{y} = \mathbf{X}\beta +
+\mathbf{\epsilon}</span> be the linear model of interest with usual
+zero-means and homoscedastic errors. As usual, <span class="math inline">\mathbf{y} = (y_1,\ldots,y_n)^T</span> is the
+response vector, <span class="math inline">\mathbf{X}</span> is the
+<span class="math inline">n \times p</span> design matrix (having <span class="math inline">p</span> quite large) with regression coefficients
+<span class="math inline">\mathbf{\beta}</span>. When interest lies in
+selecting the non-noise covariates and estimating the relevant effect,
+one assumes the lasso penalized objective function (Tibshirani, 1996),
+<span class="math display">\frac{1}{2}||\mathbf{y}-\mathbf{X}\mathbf{\beta}||_2^2+\lambda||\mathbf{\beta}||_1</span></p>
 </div>
 <div class="section level2">
 <h2 id="the-r-functions">The R functions<a class="anchor" aria-label="anchor" href="#the-r-functions"></a>
@@ -169,8 +162,7 @@ islasso</strong></p>
 the paper. The <em>lambda</em> argument in <em>islasso.fit</em> and
 <em>islasso</em> specifies the positive tuning parameter in the
 penalized objective. Any non-negative value can be provided, but if
-missing, it is computed via
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>-fold
+missing, it is computed via <span class="math inline">K</span>-fold
 cross validation by the function <em>cv.glmnet()</em> from package
 <strong>glmnet</strong>. The number of folds being used can be specified
 via the argument <em>nfolds</em> of the auxiliary function
@@ -183,22 +175,20 @@ computed based on <em>nlambda</em> and <em>lambda.min.ratio</em>.</p>
 <h2 id="a-worked-example-the-diabetes-data-set">A worked example: the Diabetes data set<a class="anchor" aria-label="anchor" href="#a-worked-example-the-diabetes-data-set"></a>
 </h2>
 <p>We use the well-known <strong>diabetes</strong> dataset available in
-the <strong>lars</strong> package. The data refer to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>442</mn></mrow><annotation encoding="application/x-tex">n = 442</annotation></semantics></math>
-patients enrolled to investigate a measure of disease progression one
-year after the baseline. There are ten covariates, (age, sex, bmi (body
-mass index), map (average blood pressure) and several blood serum
-measurements (tc, ldl, hdl, tch, ltg, glu). The matrix <em>x2</em> in
-the dataframe also includes second-order terms, namely first-order
-interactions between covariates, and quadratic terms for the continuous
-variables.</p>
+the <strong>lars</strong> package. The data refer to <span class="math inline">n = 442</span> patients enrolled to investigate a
+measure of disease progression one year after the baseline. There are
+ten covariates, (age, sex, bmi (body mass index), map (average blood
+pressure) and several blood serum measurements (tc, ldl, hdl, tch, ltg,
+glu). The matrix <em>x2</em> in the dataframe also includes second-order
+terms, namely first-order interactions between covariates, and quadratic
+terms for the continuous variables.</p>
 <p>To select the important terms in the regression equation we could
 simply apply the lasso using the R package <strong>glmnet</strong></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gianluca-sottile.github.io/islasso/">islasso</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: glmnet</span></span>
 <span><span class="co">#&gt; Loading required package: Matrix</span></span>
-<span><span class="co">#&gt; Loaded glmnet 4.1-8</span></span>
+<span><span class="co">#&gt; Loaded glmnet 4.1-10</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co"><span style="color: #00BBBB;">#&gt; +----------------------------------------------+</span></span></span>
 <span><span class="co"><span style="color: #00BBBB;">#&gt; |          Welcome to *islasso*                |</span></span></span>
@@ -218,9 +208,8 @@ simply apply the lasso using the R package <strong>glmnet</strong></p>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">a1</span>, <span class="st">"lambda.min"</span>, exact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">b</span><span class="op">[</span><span class="va">b</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 7</span></span></code></pre></div>
-<p>Ten-fold cross validation “selects”
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo></mrow><annotation encoding="application/x-tex">\lambda=</annotation></semantics></math>
-3.797. corresponding to 7 non null coefficients</p>
+<p>Ten-fold cross validation “selects” <span class="math inline">\lambda=</span> 3.797. corresponding to 7 non null
+coefficients</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">[</span><span class="va">b</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "(Intercept)" "lcavol"      "lweight"     "age"         "lbph"       </span></span>
@@ -347,11 +336,10 @@ islasso model.</p>
 <span><span class="co">#&gt; Lambda: 1.531</span></span></code></pre></div>
 <p>The <strong>summary</strong> method quickly returns the main output
 of the fitted model, including point estimates, standard errors and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>-values.
-Visualizing estimates for all covariates could be somewhat inconvenient,
-especially when the number of covariates is large, thus we decide to
-print estimates only if the pvalue is less than a threshold value. We
-use <em>0.10</em></p>
+<span class="math inline">p</span>-values. Visualizing estimates for all
+covariates could be somewhat inconvenient, especially when the number of
+covariates is large, thus we decide to print estimates only if the
+pvalue is less than a threshold value. We use <em>0.10</em></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">out2</span>, pval <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -388,15 +376,14 @@ complexity</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">out2</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">hi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 8.006674</span></span></code></pre></div>
 <p>and the corresponding residual degrees of freedom () as reported
-above. The Wald test (column <em>z value</em>) and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>-values
-can be used to assess important or significant covariates. Results
-suggest that variables bmi, map, hdl and ltg to predict the measure of
-diabetes progression, while sex and two interactions age:sex and bmi:map
-are borderline informative. Just to be clear, another way to obtain a
-similar result without computing the regularization path, is to use the
-function <em>aic.islasso</em> which requires a preliminary islasso fit
-object and a specification of the criterion to be used. Hence</p>
+above. The Wald test (column <em>z value</em>) and <span class="math inline">p</span>-values can be used to assess important or
+significant covariates. Results suggest that variables bmi, map, hdl and
+ltg to predict the measure of diabetes progression, while sex and two
+interactions age:sex and bmi:map are borderline informative. Just to be
+clear, another way to obtain a similar result without computing the
+regularization path, is to use the function <em>aic.islasso</em> which
+requires a preliminary islasso fit object and a specification of the
+criterion to be used. Hence</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lambda.bic2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aic.islasso.html">aic.islasso</a></span><span class="op">(</span><span class="va">out2</span>, method <span class="op">=</span> <span class="st">"AIC"</span>, interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -462,12 +449,12 @@ object and a specification of the criterion to be used. Hence</p>
 <p>Comparisons between methods to select the tuning parameter and
 further discussions are out of the scope of this short note. We conclude
 this note by emphasizing that <strong>islasso</strong> also accepts the
-so-called elastic-net penalty, such that
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mi>𝐲</mi><mo>−</mo><mrow><mi>𝐗</mi><mi>𝛃</mi></mrow><msubsup><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>λ</mi><mo stretchy="false" form="prefix">{</mo><mi>α</mi><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mi>𝛃</mi><msubsup><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mn>1</mn><mrow></mrow></msubsup><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mi>𝛃</mi><msubsup><mrow><mo stretchy="true" form="prefix">|</mo><mo stretchy="true" form="postfix">|</mo></mrow><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">
-\frac{1}{2}||\mathbf{y}- \mathbf{X\beta}||_2^{2}+\lambda \{ \alpha ||\mathbf{\beta} ||^{}_1 + \frac{1}{2}(1-\alpha) ||\mathbf{\beta} ||^{2}_2 \}
-</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>≤</mo><mi>α</mi><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0\le \alpha\le 1</annotation></semantics></math>
-is the mixing parameter to be specified in <em>islasso()</em> and
+so-called elastic-net penalty, such that <span class="math display">
+\frac{1}{2}||\mathbf{y}- \mathbf{X\beta}||_2^{2}+\lambda \{ \alpha
+||\mathbf{\beta} ||^{}_1 + \frac{1}{2}(1-\alpha) ||\mathbf{\beta}
+||^{2}_2 \}
+</span> where <span class="math inline">0\le \alpha\le 1</span> is the
+mixing parameter to be specified in <em>islasso()</em> and
 <em>islasso.path()</em> via the argument <em>alpha</em>, e.g.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># update the islasso path to fit an elastic-net model</span></span>
