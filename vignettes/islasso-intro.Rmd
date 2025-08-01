@@ -1,0 +1,193 @@
+---
+title: "islasso-intro"
+author:
+  - Gianluca Sottile
+  - Giovanna Cilluffo
+  - Vito M.R. Muggeo
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{An Introduction to islasso}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Abstract
+In this short note we present and briefly discuss the R package islasso dealing with regression models having a large number of covariates. Estimation is carried out by penalizing the coefficients via a quasi-lasso penalty, wherein the nonsmooth lasso penalty is replaced by its smooth counterpart determined iteratively by data according to the induced smoothing idea. The package includes functions to estimate the model and to test for linear hypothesis on linear combinations of relevant coefficients. We illustrate R code throughout a worked example, by avoiding intentionally to report details and extended bibliography.
+
+# Introduction
+Let $\mathbf{y} = \mathbf{X}\beta + \mathbf{\epsilon}$ be the linear model of interest with usual zero-means and homoscedastic errors. As usual, $\mathbf{y} = (y_1,\ldots,y_n)^T$ is the response vector, $\mathbf{X}$ is the $n \times p$ design matrix (having $p$ quite large) with regression coefficients $\mathbf{\beta}$. When interest lies in selecting the non-noise covariates and estimating the relevant effect, one assumes the lasso penalized objective function (Tibshirani, 1996),
+$$\frac{1}{2}||\mathbf{y}-\mathbf{X}\mathbf{\beta}||_2^2+\lambda||\mathbf{\beta}||_1$$
+
+# The R functions
+The main function of the package are _islasso()_ where the user supplies the model formula as in the usual _lm_ or _glm_ functions, i.e.
+
+```{r, dont-eval, eval=FALSE}
+islasso(formula, family = gaussian, lambda, alpha = 1, data, weights, subset,
+        offset, unpenalized, contrasts = NULL, control = is.control())
+```
+
+and _islasso.path_ used to fit the regularization path via the induced smoothed lasso framework, i.e.
+
+```{r, dont-eval-1, eval=FALSE}
+islasso.path(formula, family = gaussian, lambda = NULL, nlambda = 100, 
+             lambda.min.ratio = ifelse(nobs < nvars, 1E-3, 1E-05), alpha = 1, 
+             data, weights, subset, offset, unpenalized, contrasts = NULL, control = is.control())
+```
+
+_family_ accepts specification of family and link function as in Table 1, _lambda_ is the tuning parameter, _alpha_ is elastic-net mixing parameter, _nlambda_ is the number of lambda values, _lambda.min.ratio_ is the smallest value for lambda (as a fraction of lambda.max), and _unpenalized_ allows to indicate covariates with unpenalized coefficients.
+
+__Table 1. Families and link functions allowed in islasso__
+
+| family | link |
+|:-------|:----:|
+| gaussian | identity |
+| binomial | logit, probit |
+| poisson | log |
+| gamma | identity, log, inverse |
+
+The fitter functions are \verb|islasso.fit()| and \verb|islasso.path.fit()| which reads as
+
+```{r, dont-eval1, eval=FALSE}
+islasso.fit(X, y, family = gaussian(), lambda, alpha = 1, intercept = FALSE, 
+            weights = NULL, offset = NULL, unpenalized = NULL, control = is.control()) 
+```
+
+and
+
+```{r, dont-eval1-1, eval=FALSE}
+islasso.path.fit(X, y, family = gaussian(), lambda, nlambda, lambda.min.ratio, 
+                 alpha = 1, intercept = FALSE, weights = NULL, offset = NULL, 
+                 unpenalized = NULL, control = is.control()) 
+```
+
+whose actually implements the estimating algorithm as described in the paper. The _lambda_ argument in _islasso.fit_ and _islasso_ specifies the positive tuning parameter in the penalized objective. Any non-negative value can be provided, but if missing, it is computed via $K$-fold cross validation by the function _cv.glmnet()_ from package __glmnet__. The number of folds being used can be specified via the argument _nfolds_ of the auxiliary function _is.control()_. The _lambda_ argument in _islasso.path.fit_ and _islasso.path_ specifies the sequence of positive tuning parameters, user supplied or automatically computed based on _nlambda_ and _lambda.min.ratio_.
+
+# A worked example: the Diabetes data set
+We use the well-known __diabetes__ dataset available in the __lars__ package. The data refer to $n = 442$ patients enrolled to investigate a measure of disease progression one year after the baseline. There are ten covariates, (age, sex, bmi (body mass index), map (average blood pressure) and several blood serum measurements (tc, ldl, hdl, tch, ltg, glu). The matrix _x2_ in the dataframe also includes second-order terms, namely first-order interactions between covariates, and quadratic terms for the continuous variables. 
+
+To select the important terms in the regression equation we could simply apply the lasso using the R package __glmnet__
+
+```{r}
+library(islasso)
+
+data("Prostate", package = "islasso")
+x <- model.matrix(lpsa ~ ., data = Prostate)[, -1]
+y <- Prostate$lpsa
+a1 <- cv.glmnet(x, y, family = "gaussian")
+n <- nrow(Prostate)
+a1$lambda.min * n
+
+b <- drop(coef(a1, "lambda.min", exact = TRUE))
+length(b[b != 0])
+```
+
+Ten-fold cross validation "selects" $\lambda=$ `r round(a1$lambda.min * n, 3)`. corresponding to `r length(b[b != 0])` non null coefficients
+
+```{r, fold.source = TRUE}
+names(b[b != 0])
+```
+
+The last three estimates are
+
+```{r}
+tail(b[b != 0], n = 3)
+```
+
+A reasonable question is if all the "selected" coefficients are significant in the model. Unfortunately lasso regression does not return standard errors due to nonsmoothness of objective, and some alternative approaches have been proposed., including the  (Lockhart et al., 2013). Among the (few) strategies, including the 'covariance test', the 'post-selection inference' and the '(modified) residual bootstrap', here we illustrate the R package __islasso__ implementing the recent `quasi' lasso approach based on the induced smoothing idea (Brown and Wang, 2005) as discussed in Cilluffo et al. (2019) 
+
+While the optimal lambda could be selected (without supplying any value to _lambda_), we use optimal value minimizing a specific criterion chosen between AIC, BIC, AICc, BIC, GCV or GIC. From version 1.4.0 of the R package __islasso__ optimal strategy is to built the regularization path
+
+```{r}
+out <- islasso.path(lpsa ~ ., data = Prostate, nlambda = 50L, family = gaussian())
+out
+```
+
+and then to choose the best tuning parameter through the one of the criteria listed above using the function _GoF.islasso.path_, e.g.,
+
+```{r}
+lmb.best <- GoF.islasso.path(out)
+lmb.best$lambda.min
+```
+
+Using also the regularization path is very usefull to have more insights about coefficients, standard errors and gradient profile
+
+```{r}
+p1 <- plot(out, yvar = "coefficients")
+p2 <- plot(out, yvar = "se")
+p3 <- plot(out, yvar = "gradient")
+gridExtra::grid.arrange(p1, p2, p3, ncol = 1L)
+```
+
+Once selected the best lambda value minimizing for example the AIC criterion, the last step of the strategy consists on fitting a new islasso model.
+
+```{r}
+lambda.bic <- lmb.best$lambda.min["AIC"]
+out2 <- islasso(lpsa ~ ., data = Prostate, lambda = lambda.bic, family = gaussian())
+out2
+```
+
+The __summary__ method quickly returns the main output of the fitted model, including point estimates, standard errors and $p$-values. Visualizing estimates for all covariates could be somewhat inconvenient, especially when the number of covariates is large, thus we decide to print estimates only if the pvalue is less than a threshold value. We use _0.10_
+
+```{r}
+summary(out2, pval = 0.10)
+```
+
+In addition to the usual information printed by the summary method, the output also includes the column _Df_ representing the degrees of freedom of each coefficient. Their sum is used to quantify the model complexity 
+
+```{r}
+sum(out2$internal$hi)
+```
+
+and the corresponding residual degrees of freedom (`r out$internal$n - out$rank`) as reported above. The Wald test (column _z value_) and $p$-values can be used to assess important or significant covariates. Results suggest that variables bmi, map, hdl and ltg to predict the measure of diabetes progression, while sex and two interactions age:sex and bmi:map are borderline informative. Just to be clear, another way to obtain a similar result without computing the regularization path, is to use the function _aic.islasso_ which requires a preliminary islasso fit object and a specification of the criterion to be used. Hence
+
+```{r}
+lambda.bic2 <- aic.islasso(out2, method = "AIC", interval = c(.1, 50))
+out3 <- update(out2, lambda = lambda.bic2)
+summary(out3, pval = .10)
+```
+
+Comparisons between methods to select the tuning parameter and further discussions are out of the scope of this short note. We conclude this note by emphasizing that __islasso__ also accepts the so-called elastic-net penalty, such that 
+$$
+\frac{1}{2}||\mathbf{y}- \mathbf{X\beta}||_2^{2}+\lambda \{ \alpha ||\mathbf{\beta} ||^{}_1 + \frac{1}{2}(1-\alpha) ||\mathbf{\beta} ||^{2}_2 \}
+$$ 
+where $0\le \alpha\le 1$ is the mixing parameter to be specified in _islasso()_ and _islasso.path()_ via the argument _alpha_, e.g.
+
+```{r}
+# update the islasso path to fit an elastic-net model
+out4 <- update(out, alpha = .5)
+out4
+
+# some diagnostic plot
+p4 <- plot(out4, yvar = "coefficients")
+p5 <- plot(out4, yvar = "se")
+gridExtra::grid.arrange(p4, p5, ncol = 1L)
+
+# select the best tuning parameter
+lmb.best2 <- GoF.islasso.path(out4)
+lmb.best2$lambda.min
+
+# fit a new islasso model with elastic-net penalty
+lambda.bic3 <- lmb.best2$lambda.min["AIC"]
+out5 <- update(out2, alpha = .5, lambda = lambda.bic3)
+summary(out5, pval = .10)
+
+# or select the best tuning parameter using AIC with an islasso object
+lambda.bic4 <- aic.islasso(out5, method = "AIC", interval = c(.1, 100))
+out6 <- update(out5, lambda = lambda.bic4)
+summary(out6, pval = .10)
+```
+
+# References
+
++ Tibshirani R. _Regression shrinkage and selection via the lasso_. J R Stat Soc: Series B 1996; 58: 267–288
++ Cilluffo, G, Sottile, G, La Grutta, S and Muggeo, VMR (2019) _The Induced Smoothed lasso: A practical framework for hypothesis testing in high dimensional regression_. Statistical Methods in Medical Research, online doi: 10.1177/0962280219842890.
++ Brown B and Wang Y. _Standard errors and covariance matrices for smoothed rank estimators_. Biometrika 2005; 92:
+149–158.
