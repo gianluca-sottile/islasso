@@ -164,6 +164,12 @@ Sottile G., Cilluffo G., Muggeo V.M.R. (2019)
 Technical Report. DOI: 10.13140/RG.2.2.16360.11521
 }
 \seealso{
+Useful links:
+\itemize{
+  \item \url{https://gianluca-sottile.github.io/islasso/}
+}
+
+
 \code{\link{summary.islasso}}, \code{\link{predict.islasso}}, \code{\link{logLik.islasso}}
 }
 \author{
