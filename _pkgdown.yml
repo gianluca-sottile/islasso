@@ -16,11 +16,11 @@ navbar:
     reference:
       text: "Reference"
       href: reference/index.html
-    # articles:
-    #   text: "Vignettes"
-    #   menu:
-    #     - text: "Introduction to islasso"
-    #       href: articles/islasso-intro.html
+    articles:
+      text: "Vignettes"
+      menu:
+        - text: "Introduction to islasso"
+          href: articles/islasso-intro.html
     news:
       text: "Changelog"
       href: news/index.html
