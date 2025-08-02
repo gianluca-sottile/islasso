@@ -70,8 +70,23 @@ islasso.path.fit(X, y, family = gaussian(), lambda, nlambda, lambda.min.ratio,
 
 whose actually implements the estimating algorithm as described in the paper. The _lambda_ argument in _islasso.fit_ and _islasso_ specifies the positive tuning parameter in the penalized objective. Any non-negative value can be provided, but if missing, it is computed via $K$-fold cross validation by the function _cv.glmnet()_ from package __glmnet__. The number of folds being used can be specified via the argument _nfolds_ of the auxiliary function _is.control()_. The _lambda_ argument in _islasso.path.fit_ and _islasso.path_ specifies the sequence of positive tuning parameters, user supplied or automatically computed based on _nlambda_ and _lambda.min.ratio_.
 
-# A worked example: the Diabetes data set
-We use the well-known __diabetes__ dataset available in the __lars__ package. The data refer to $n = 442$ patients enrolled to investigate a measure of disease progression one year after the baseline. There are ten covariates, (age, sex, bmi (body mass index), map (average blood pressure) and several blood serum measurements (tc, ldl, hdl, tch, ltg, glu). The matrix _x2_ in the dataframe also includes second-order terms, namely first-order interactions between covariates, and quadratic terms for the continuous variables. 
+# A worked example: the Prostate data set
+The `Prostate` dataset is a well-known benchmark in regression analysis and variable selection, originally published by Stamey et al. (1989). It contains clinical measurements from 97 male patients diagnosed with prostate cancer.
+
+The primary goal is to model the level of **prostate-specific antigen (PSA)** based on several predictive variables, including:
+
+- `lcavol`: log cancer volume  
+- `lweight`: log prostate weight  
+- `age`: patient’s age  
+- `lbph`: log benign prostatic hyperplasia amount  
+- `svi`: seminal vesicle invasion  
+- `lcp`: log capsular penetration  
+- `gleason`: Gleason score (histological grade of tumor)  
+- `pgg45`: percent of Gleason scores 4 or 5  
+
+The response variable is `lpsa`, the logarithm of PSA levels.
+
+This dataset is particularly useful for testing due to its moderate size and the presence of multicollinearity among predictors.
 
 To select the important terms in the regression equation we could simply apply the lasso using the R package __glmnet__
 
@@ -103,7 +118,7 @@ tail(b[b != 0], n = 3)
 
 A reasonable question is if all the "selected" coefficients are significant in the model. Unfortunately lasso regression does not return standard errors due to nonsmoothness of objective, and some alternative approaches have been proposed., including the  (Lockhart et al., 2013). Among the (few) strategies, including the 'covariance test', the 'post-selection inference' and the '(modified) residual bootstrap', here we illustrate the R package __islasso__ implementing the recent `quasi' lasso approach based on the induced smoothing idea (Brown and Wang, 2005) as discussed in Cilluffo et al. (2019) 
 
-While the optimal lambda could be selected (without supplying any value to _lambda_), we use optimal value minimizing a specific criterion chosen between AIC, BIC, AICc, BIC, GCV or GIC. From version 1.4.0 of the R package __islasso__ optimal strategy is to built the regularization path
+While the optimal lambda could be selected (without supplying any value to _lambda_), we use optimal value minimizing a specific criterion chosen between AIC, BIC, AICc, eBIC, GCV or GIC. From version 1.4.0 of the R package __islasso__ optimal strategy is to built the regularization path
 
 ```{r}
 out <- islasso.path(lpsa ~ ., data = Prostate, nlambda = 50L, family = gaussian())
@@ -129,8 +144,8 @@ gridExtra::grid.arrange(p1, p2, p3, ncol = 1L)
 Once selected the best lambda value minimizing for example the AIC criterion, the last step of the strategy consists on fitting a new islasso model.
 
 ```{r}
-lambda.bic <- lmb.best$lambda.min["AIC"]
-out2 <- islasso(lpsa ~ ., data = Prostate, lambda = lambda.bic, family = gaussian())
+lambda.aic <- lmb.best$lambda.min["AIC"]
+out2 <- islasso(lpsa ~ ., data = Prostate, lambda = lambda.aic, family = gaussian())
 out2
 ```
 
@@ -146,11 +161,11 @@ In addition to the usual information printed by the summary method, the output a
 sum(out2$internal$hi)
 ```
 
-and the corresponding residual degrees of freedom (`r out$internal$n - out$rank`) as reported above. The Wald test (column _z value_) and $p$-values can be used to assess important or significant covariates. Results suggest that variables bmi, map, hdl and ltg to predict the measure of diabetes progression, while sex and two interactions age:sex and bmi:map are borderline informative. Just to be clear, another way to obtain a similar result without computing the regularization path, is to use the function _aic.islasso_ which requires a preliminary islasso fit object and a specification of the criterion to be used. Hence
+and the corresponding residual degrees of freedom (`r out$internal$n - out$rank`) as reported above. The Wald test (column _z value_) and $p$-values can be used to assess important or significant covariates. Results suggest that variables `lcavol`, `lweight` and `svi` are informative to predict the measure of the logarithm of PSA levels, while `lbph` is borderline informative. Just to be clear, another way to obtain a similar result without computing the regularization path, is to use the function _aic.islasso_ which requires a preliminary islasso fit object and a specification of the criterion to be used. Hence
 
 ```{r}
-lambda.bic2 <- aic.islasso(out2, method = "AIC", interval = c(.1, 50))
-out3 <- update(out2, lambda = lambda.bic2)
+lambda.aic2 <- aic.islasso(out2, method = "AIC", interval = c(.1, 50))
+out3 <- update(out2, lambda = lambda.aic2)
 summary(out3, pval = .10)
 ```
 
@@ -175,13 +190,13 @@ lmb.best2 <- GoF.islasso.path(out4)
 lmb.best2$lambda.min
 
 # fit a new islasso model with elastic-net penalty
-lambda.bic3 <- lmb.best2$lambda.min["AIC"]
-out5 <- update(out2, alpha = .5, lambda = lambda.bic3)
+lambda.aic3 <- lmb.best2$lambda.min["AIC"]
+out5 <- update(out2, alpha = .5, lambda = lambda.aic3)
 summary(out5, pval = .10)
 
 # or select the best tuning parameter using AIC with an islasso object
-lambda.bic4 <- aic.islasso(out5, method = "AIC", interval = c(.1, 100))
-out6 <- update(out5, lambda = lambda.bic4)
+lambda.aic4 <- aic.islasso(out5, method = "AIC", interval = c(.1, 100))
+out6 <- update(out5, lambda = lambda.aic4)
 summary(out6, pval = .10)
 ```
 
