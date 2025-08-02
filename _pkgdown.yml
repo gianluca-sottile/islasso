@@ -1,7 +1,7 @@
 url: https://gianluca-sottile.github.io/islasso
 template:
   bootstrap: 5
-  bootswatch: simplex
+  bootswatch: yeti
   light-switch: true
   math-rendering: katex
 
@@ -16,11 +16,11 @@ navbar:
     reference:
       text: "Reference"
       href: reference/index.html
-    articles:
-      text: "Vignettes"
-      menu:
-        - text: "Introduction to islasso"
-          href: articles/islasso-intro.html
+    # articles:
+    #   text: "Vignettes"
+    #   menu:
+    #     - text: "Introduction to islasso"
+    #       href: articles/islasso-intro.html
     news:
       text: "Changelog"
       href: news/index.html

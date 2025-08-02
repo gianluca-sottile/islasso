@@ -38,9 +38,9 @@
 <li class="active nav-item"><a class="nav-link" href="../articles/islasso-intro.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><a class="dropdown-item" href="../articles/islasso-intro.html">Introduction to islasso</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/islasso-intro.html">An Introduction to islasso</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -67,7 +67,7 @@ Cilluffo</h4>
                         <h4 data-toc-skip class="author">Vito M.R.
 Muggeo</h4>
             
-            <h4 data-toc-skip class="date">August 01, 2025</h4>
+            <h4 data-toc-skip class="date">August 02, 2025</h4>
       
 
       <div class="d-none name"><code>islasso-intro.Rmd</code></div>
@@ -172,16 +172,45 @@ sequence of positive tuning parameters, user supplied or automatically
 computed based on <em>nlambda</em> and <em>lambda.min.ratio</em>.</p>
 </div>
 <div class="section level2">
-<h2 id="a-worked-example-the-diabetes-data-set">A worked example: the Diabetes data set<a class="anchor" aria-label="anchor" href="#a-worked-example-the-diabetes-data-set"></a>
+<h2 id="a-worked-example-the-prostate-data-set">A worked example: the Prostate data set<a class="anchor" aria-label="anchor" href="#a-worked-example-the-prostate-data-set"></a>
 </h2>
-<p>We use the well-known <strong>diabetes</strong> dataset available in
-the <strong>lars</strong> package. The data refer to <span class="math inline">n = 442</span> patients enrolled to investigate a
-measure of disease progression one year after the baseline. There are
-ten covariates, (age, sex, bmi (body mass index), map (average blood
-pressure) and several blood serum measurements (tc, ldl, hdl, tch, ltg,
-glu). The matrix <em>x2</em> in the dataframe also includes second-order
-terms, namely first-order interactions between covariates, and quadratic
-terms for the continuous variables.</p>
+<p>The <code>Prostate</code> dataset is a well-known benchmark in
+regression analysis and variable selection, originally published by
+Stamey et al. (1989). It contains clinical measurements from 97 male
+patients diagnosed with prostate cancer.</p>
+<p>The primary goal is to model the level of <strong>prostate-specific
+antigen (PSA)</strong> based on several predictive variables,
+including:</p>
+<ul>
+<li>
+<code>lcavol</code>: log cancer volume<br>
+</li>
+<li>
+<code>lweight</code>: log prostate weight<br>
+</li>
+<li>
+<code>age</code>: patient’s age<br>
+</li>
+<li>
+<code>lbph</code>: log benign prostatic hyperplasia amount<br>
+</li>
+<li>
+<code>svi</code>: seminal vesicle invasion<br>
+</li>
+<li>
+<code>lcp</code>: log capsular penetration<br>
+</li>
+<li>
+<code>gleason</code>: Gleason score (histological grade of
+tumor)<br>
+</li>
+<li>
+<code>pgg45</code>: percent of Gleason scores 4 or 5</li>
+</ul>
+<p>The response variable is <code>lpsa</code>, the logarithm of PSA
+levels.</p>
+<p>This dataset is particularly useful for testing due to its moderate
+size and the presence of multicollinearity among predictors.</p>
 <p>To select the important terms in the regression equation we could
 simply apply the lasso using the R package <strong>glmnet</strong></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -230,7 +259,7 @@ recent `quasi’ lasso approach based on the induced smoothing idea (Brown
 and Wang, 2005) as discussed in Cilluffo et al. (2019)</p>
 <p>While the optimal lambda could be selected (without supplying any
 value to <em>lambda</em>), we use optimal value minimizing a specific
-criterion chosen between AIC, BIC, AICc, BIC, GCV or GIC. From version
+criterion chosen between AIC, BIC, AICc, eBIC, GCV or GIC. From version
 1.4.0 of the R package <strong>islasso</strong> optimal strategy is to
 built the regularization path</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -315,12 +344,12 @@ insights about coefficients, standard errors and gradient profile</p>
 criterion, the last step of the strategy consists on fitting a new
 islasso model.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lambda.bic</span> <span class="op">&lt;-</span> <span class="va">lmb.best</span><span class="op">$</span><span class="va">lambda.min</span><span class="op">[</span><span class="st">"AIC"</span><span class="op">]</span></span>
-<span><span class="va">out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.html">islasso</a></span><span class="op">(</span><span class="va">lpsa</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Prostate</span>, lambda <span class="op">=</span> <span class="va">lambda.bic</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">lambda.aic</span> <span class="op">&lt;-</span> <span class="va">lmb.best</span><span class="op">$</span><span class="va">lambda.min</span><span class="op">[</span><span class="st">"AIC"</span><span class="op">]</span></span>
+<span><span class="va">out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.html">islasso</a></span><span class="op">(</span><span class="va">lpsa</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Prostate</span>, lambda <span class="op">=</span> <span class="va">lambda.aic</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">out2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.bic, </span></span>
+<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.aic, </span></span>
 <span><span class="co">#&gt;     data = Prostate)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients:</span></span>
@@ -344,7 +373,7 @@ pvalue is less than a threshold value. We use <em>0.10</em></p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">out2</span>, pval <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.bic, </span></span>
+<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.aic, </span></span>
 <span><span class="co">#&gt;     data = Prostate)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Residuals:</span></span>
@@ -377,15 +406,16 @@ complexity</p>
 <span><span class="co">#&gt; [1] 8.006674</span></span></code></pre></div>
 <p>and the corresponding residual degrees of freedom () as reported
 above. The Wald test (column <em>z value</em>) and <span class="math inline">p</span>-values can be used to assess important or
-significant covariates. Results suggest that variables bmi, map, hdl and
-ltg to predict the measure of diabetes progression, while sex and two
-interactions age:sex and bmi:map are borderline informative. Just to be
-clear, another way to obtain a similar result without computing the
-regularization path, is to use the function <em>aic.islasso</em> which
-requires a preliminary islasso fit object and a specification of the
-criterion to be used. Hence</p>
+significant covariates. Results suggest that variables
+<code>lcavol</code>, <code>lweight</code> and <code>svi</code> are
+informative to predict the measure of the logarithm of PSA levels, while
+<code>lbph</code> is borderline informative. Just to be clear, another
+way to obtain a similar result without computing the regularization
+path, is to use the function <em>aic.islasso</em> which requires a
+preliminary islasso fit object and a specification of the criterion to
+be used. Hence</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lambda.bic2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aic.islasso.html">aic.islasso</a></span><span class="op">(</span><span class="va">out2</span>, method <span class="op">=</span> <span class="st">"AIC"</span>, interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">lambda.aic2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aic.islasso.html">aic.islasso</a></span><span class="op">(</span><span class="va">out2</span>, method <span class="op">=</span> <span class="st">"AIC"</span>, interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Optimization through AIC</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -418,11 +448,11 @@ criterion to be used. Hence</p>
 <span><span class="co">#&gt; lambda =    1.3398 AIC =   217.96822 </span></span>
 <span><span class="co">#&gt; lambda =    1.3399 AIC =   217.97010 </span></span>
 <span><span class="co">#&gt; lambda =    1.3400 AIC =   217.96475</span></span>
-<span><span class="va">out3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">out2</span>, lambda <span class="op">=</span> <span class="va">lambda.bic2</span><span class="op">)</span></span>
+<span><span class="va">out3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">out2</span>, lambda <span class="op">=</span> <span class="va">lambda.aic2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">out3</span>, pval <span class="op">=</span> <span class="fl">.10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.bic2, </span></span>
+<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.aic2, </span></span>
 <span><span class="co">#&gt;     data = Prostate)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Residuals:</span></span>
@@ -534,12 +564,12 @@ mixing parameter to be specified in <em>islasso()</em> and
 <span><span class="co">#&gt;  3.061814  5.377894 42.422996  6.488685  5.377894  5.377894</span></span>
 <span></span>
 <span><span class="co"># fit a new islasso model with elastic-net penalty</span></span>
-<span><span class="va">lambda.bic3</span> <span class="op">&lt;-</span> <span class="va">lmb.best2</span><span class="op">$</span><span class="va">lambda.min</span><span class="op">[</span><span class="st">"AIC"</span><span class="op">]</span></span>
-<span><span class="va">out5</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">out2</span>, alpha <span class="op">=</span> <span class="fl">.5</span>, lambda <span class="op">=</span> <span class="va">lambda.bic3</span><span class="op">)</span></span>
+<span><span class="va">lambda.aic3</span> <span class="op">&lt;-</span> <span class="va">lmb.best2</span><span class="op">$</span><span class="va">lambda.min</span><span class="op">[</span><span class="st">"AIC"</span><span class="op">]</span></span>
+<span><span class="va">out5</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">out2</span>, alpha <span class="op">=</span> <span class="fl">.5</span>, lambda <span class="op">=</span> <span class="va">lambda.aic3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">out5</span>, pval <span class="op">=</span> <span class="fl">.10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.bic3, </span></span>
+<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.aic3, </span></span>
 <span><span class="co">#&gt;     alpha = 0.5, data = Prostate)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Residuals:</span></span>
@@ -565,7 +595,7 @@ mixing parameter to be specified in <em>islasso()</em> and
 <span><span class="co">#&gt; Number of Newton-Raphson iterations: 10</span></span>
 <span></span>
 <span><span class="co"># or select the best tuning parameter using AIC with an islasso object</span></span>
-<span><span class="va">lambda.bic4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aic.islasso.html">aic.islasso</a></span><span class="op">(</span><span class="va">out5</span>, method <span class="op">=</span> <span class="st">"AIC"</span>, interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">lambda.aic4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aic.islasso.html">aic.islasso</a></span><span class="op">(</span><span class="va">out5</span>, method <span class="op">=</span> <span class="st">"AIC"</span>, interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.1</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Optimization through AIC</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -601,11 +631,11 @@ mixing parameter to be specified in <em>islasso()</em> and
 <span><span class="co">#&gt; lambda =    2.6972 AIC =   218.04733 </span></span>
 <span><span class="co">#&gt; lambda =    2.6973 AIC =   218.04122 </span></span>
 <span><span class="co">#&gt; lambda =    2.6972 AIC =   218.04045</span></span>
-<span><span class="va">out6</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">out5</span>, lambda <span class="op">=</span> <span class="va">lambda.bic4</span><span class="op">)</span></span>
+<span><span class="va">out6</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">out5</span>, lambda <span class="op">=</span> <span class="va">lambda.aic4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">out6</span>, pval <span class="op">=</span> <span class="fl">.10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.bic4, </span></span>
+<span><span class="co">#&gt; islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.aic4, </span></span>
 <span><span class="co">#&gt;     alpha = 0.5, data = Prostate)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Residuals:</span></span>
