@@ -1,8 +1,8 @@
 Package: islasso
 Type: Package
 Title: The Induced Smoothed Lasso
-Version: 1.6.0
-Date: 2025-07-30
+Version: 1.6.1
+Date: 2025-08-17
 Authors@R: c(person("Gianluca", "Sottile", role=c("aut", "cre"), email = "gianluca.sottile@unipa.it"),
 	     person("Giovanna", "Cilluffo", role=c("aut", "ctb")),
 	     person("Vito MR", "Muggeo", role=c("aut", "ctb")))

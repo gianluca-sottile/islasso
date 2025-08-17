@@ -14,8 +14,8 @@ NULL
 #' \tabular{ll}{
 #' Package: \tab islasso\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.6.0\cr
-#' Date: \tab 2025-07-30\cr
+#' Version: \tab 1.6.1\cr
+#' Date: \tab 2025-08-17\cr
 #' License: \tab GPL-2\cr
 #' }
 #'
