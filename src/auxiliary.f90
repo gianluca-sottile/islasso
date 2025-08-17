@@ -1,10 +1,54 @@
-subroutine inv_posdef(n, a, ainv, info, work)
+subroutine cov_from_hess_spd(p, hess, xtx, cov, hi, info)
+  implicit none
+  integer, intent(in)    :: p
+  integer, intent(out)   :: info
+  double precision, intent(in)  :: hess(p,p), xtx(p,p)
+  double precision, intent(out) :: cov(p,p), hi(p)
+
+  double precision :: R(p,p)
+  integer :: k
+
+  ! Copio H e fattorizzo Cholesky (UPLO='U': H = R^T R, con R triang. sup.)
+  R = hess
+  call DPOTRF('U', p, R, p, info)
+  if (info /= 0) return
+
+  ! Parto da XtX e faccio due solve "a sinistra" per ottenere H^{-1}*XtX
+  cov = xtx
+  call DTRSM('L','U','T','N', p, p, 1.0d0, R, p, cov, p)   ! cov := R^{-T} * cov
+  call DTRSM('L','U','N','N', p, p, 1.0d0, R, p, cov, p)   ! cov := R^{-1} * cov = H^{-1}*XtX
+
+  ! Salvo la diagonale dell’hat (come nel tuo codice: diag(H^{-1}*XtX))
+  do k = 1, p
+     hi(k) = cov(k,k)
+  end do
+
+  ! Ora post-moltiplico per H^{-1} = R^{-1} R^{-T} con due solve "a destra"
+  call DTRSM('R','U','N','N', p, p, 1.0d0, R, p, cov, p)   ! cov := cov * R^{-1}
+  call DTRSM('R','U','T','N', p, p, 1.0d0, R, p, cov, p)   ! cov := cov * R^{-T}
+
+  ! Simmetrizzazione numerica (per eliminare errori d’arrotondamento)
+  call symmetrize_upper(p, cov)
+end subroutine cov_from_hess_spd
+
+subroutine symmetrize_upper(n, A)
+  implicit none
+  integer, intent(in) :: n
+  double precision, intent(inout) :: A(n,n)
+  integer :: i, j
+  do j = 1, n
+     do i = j+1, n
+        A(i,j) = A(j,i)
+     end do
+  end do
+end subroutine symmetrize_upper
+
+subroutine inv_posdef(n, a, ainv, info)
   implicit none
   integer, intent(in) :: n
   integer, intent(out) :: info
   double precision, intent(in) :: a(n,n)
   double precision, intent(out) :: ainv(n,n)
-  double precision, intent(inout) :: work(*)
 
   ! Copia A in AINV
   ainv = a

@@ -15,7 +15,7 @@ double precision :: xtw(p,n), xtx(p,p), grad(p), hess(p,p), invH(p,p), pen(p)
 ! internal variables
 integer :: i, j, k, info
 double precision :: X_orig(n,p), xm(p), xse(p), xtwy(p), lmbd0, lambdaadapt(p)
-double precision :: theta0(p), cov0(p,p), se0(p), s2, hat_matrix(p,p), redf, ind, ind2
+double precision :: theta0(p), cov0(p,p), se0(p), s2, redf, ind, ind2 !,hat_matrix(p,p)
 
 ! Add workspace arrays for LAPACK
 double precision, allocatable :: work(:)
@@ -65,10 +65,10 @@ do i = 1, itmaxse
     call rchkusr()
     if(trace.eq.9) call islasso_trace2_3(i)
 
-    if((adaptive.eq.1).and.(i.gt.5)) then
+    if((adaptive.eq.1).and.(i.gt.10)) then
       do k = 1, p
         hi(k) = max(min(hi(k), 1.0d0), 0.00001d0)
-        lambdaadapt(k) = lambda(k) * (1 - hi(k)) / hi(k)
+        lambdaadapt(k) = lambda(k) * (1.0d0 / hi(k)**2 - 1.0d0)
       end do
     end if
 
@@ -76,7 +76,9 @@ do i = 1, itmaxse
     ! computing mixture parameters c
     if((estpi.eq.1).and.(i.gt.5)) then
         call logitlinkinv(abs(theta0 / se0), p, pi)
-        pi = 0.75d0 * (2.d0 * pi - 1.d0) + 0.25d0
+        !pi = 0.75d0 * (2.d0 * pi - 1.d0) + 0.25d0
+        !pi = abs(theta0 / se0) / (1.d0 + abs(theta0 / se0))
+        !pi = 0.9d0 * pi + 0.1d0
     end if
 
     do j = 1, itmax
@@ -117,23 +119,21 @@ do i = 1, itmaxse
 
     ! updating components for variance covariance matrix
     call hessian(theta, se0, lambdaadapt, xtx, pi, p, hess, alpha)
-
-    call inv_posdef(p, hess, invH, info, ipiv, work)
-
-    !! More efficient matrix inversion using LAPACK
     !call inv_lapack(p, hess, invH, info, ipiv, work)
+    !call inv_posdef(p, hess, invH, info, ipiv, work)
+    call cov_from_hess_spd(p, hess, xtx, cov, hi, info)
     if(info.ne.0) then
         conv = 2
         exit
     end if
 
-    call DGEMM('N', 'N', p, p, p, 1.d0, invH, p, xtx, p, 0.d0, hat_matrix, p)
-    call DGEMM('N', 'N', p, p, p, 1.d0, hat_matrix, p, invH, p, 0.d0, cov, p)
+    !call DGEMM('N', 'N', p, p, p, 1.d0, invH, p, xtx, p, 0.d0, hat_matrix, p)
+    !call DGEMM('N', 'N', p, p, p, 1.d0, hat_matrix, p, invH, p, 0.d0, cov, p)
     cov = cov0 + 0.1d0 * (cov - cov0)
 
-    do k = 1, p
-      hi(k) = hat_matrix(k,k)
-    end do
+    !do k = 1, p
+    !  hi(k) = hat_matrix(k,k)
+    !end do
 
     edf = sum(hi)
     redf = n - edf
@@ -225,7 +225,7 @@ double precision :: xtw(p,n), xtx(p,p), grad(p), hess(p,p), invH(p,p), pen(p)
 ! internal variables
 integer :: i, j, k, info
 double precision :: X_orig(n,p), xm(p), xse(p), xtwz(p), z(n), lmbd0, lambdaadapt(p)
-double precision :: theta0(p), cov0(p,p), se0(p), s2, hat_matrix(p,p), redf, ind, ind2
+double precision :: theta0(p), cov0(p,p), se0(p), s2, redf, ind, ind2 !, hat_matrix(p,p)
 
 ! Add workspace arrays for LAPACK
 integer, allocatable :: ipiv(:)
@@ -278,10 +278,10 @@ do i = 1, itmaxse
     call rchkusr()
 
     ! Update adaptive lambda if enabled
-    if((adaptive.eq.1) .and. (i.gt.5)) then
+    if((adaptive.eq.1) .and. (i.gt.10)) then
         do k = 1, p
             hi(k) = max(min(hi(k), 1.0d0), 0.00001d0)
-            lambdaadapt(k) = lambda(k) * (1 - hi(k)) / hi(k)
+            lambdaadapt(k) = lambda(k) * (1.0d0 / hi(k)**2 - 1.0d0)
         end do
     end if
 
@@ -289,7 +289,9 @@ do i = 1, itmaxse
     ! Update mixture parameters if needed
     if((estpi.eq.1) .and. (i.gt.5)) then
         call logitlinkinv(abs(theta0 / se0), p, pi)
-        pi = 0.75d0 * (2.d0 * pi - 1.d0) + 0.25d0
+        !pi = 0.75d0 * (2.d0 * pi - 1.d0) + 0.25d0
+        !pi = abs(theta0 / se0) / (1.d0 + abs(theta0 / se0))
+        !pi = 0.9d0 * pi + 0.1d0
     end if
 
     ! Inner IWLS iteration
@@ -342,20 +344,21 @@ do i = 1, itmaxse
     ! Update covariance matrix
     call hessian(theta, se0, lambdaadapt, xtx, pi, p, hess, alpha)
     !call inv_lapack(p, hess, invH, info, ipiv, work)
-    call inv_posdef(p, hess, invH, info, ipiv, work)
+    !call inv_posdef(p, hess, invH, info, ipiv, work)
+    call cov_from_hess_spd(p, hess, xtx, cov, hi, info)
     if(info.ne.0) then
         conv = 2
         exit
     end if
 
-    call DGEMM('N', 'N', p, p, p, 1.d0, invH, p, xtx, p, 0.d0, hat_matrix, p)
-    call DGEMM('N', 'N', p, p, p, 1.d0, hat_matrix, p, invH, p, 0.d0, cov, p)
+    !call DGEMM('N', 'N', p, p, p, 1.d0, invH, p, xtx, p, 0.d0, hat_matrix, p)
+    !call DGEMM('N', 'N', p, p, p, 1.d0, hat_matrix, p, invH, p, 0.d0, cov, p)
     cov = cov0 + 0.1d0 * (cov - cov0)
 
     ! Extract hat matrix diagonal
-    do k = 1, p
-        hi(k) = hat_matrix(k,k)
-    end do
+    !do k = 1, p
+    !    hi(k) = hat_matrix(k,k)
+    !end do
 
     edf = sum(hi)
     redf = n - edf
