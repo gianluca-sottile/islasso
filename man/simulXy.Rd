@@ -68,3 +68,9 @@ o <- islasso(y ~ ., data = sim$data, family = gaussian())
 summary(o, pval = 0.05)
 
 }
+\seealso{
+\code{\link{islasso}}, \code{\link{islasso.path}}
+}
+\author{
+Gianluca Sottile \email{gianluca.sottile@unipa.it}
+}

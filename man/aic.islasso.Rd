@@ -81,7 +81,7 @@ lambda_ebic <- aic.islasso(o, interval = c(0.1, 30), method = "BIC", g = 0.5)
 
 }
 \seealso{
-\code{\link{islasso}}, \code{\link{islasso.fit}}, \code{\link{summary.islasso}}, \code{\link{logLik.islasso}}, \code{\link{predict.islasso}}
+\code{\link{islasso}}, \code{\link{islasso.path}}, \code{\link{is.control}}, \code{\link{simulXy}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

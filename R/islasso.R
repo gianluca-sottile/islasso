@@ -757,7 +757,7 @@ islasso.fit <- function(X, y, family=gaussian, lambda, alpha=1, intercept=FALSE,
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
-#' @seealso \code{\link{islasso}}
+#' @seealso \code{\link{islasso}}, \code{\link{islasso.path}}
 #'
 #' @export
 is.control <- function(
@@ -820,7 +820,7 @@ is.control <- function(
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
-#' @seealso \code{\link{islasso}}, \code{\link{islasso.fit}}, \code{\link{summary.islasso}}, \code{\link{logLik.islasso}}, \code{\link{predict.islasso}}
+#' @seealso \code{\link{islasso}}, \code{\link{islasso.path}}, \code{\link{is.control}}, \code{\link{simulXy}}
 #'
 #' @examples
 #' set.seed(1)

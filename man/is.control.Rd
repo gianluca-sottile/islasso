@@ -57,7 +57,7 @@ A list of control parameters for use in \code{\link{islasso}}.
 Auxiliary function used to configure and customize the fitting process of \code{\link{islasso}} models.
 }
 \seealso{
-\code{\link{islasso}}
+\code{\link{islasso}}, \code{\link{islasso.path}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

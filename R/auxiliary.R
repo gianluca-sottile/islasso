@@ -73,6 +73,10 @@ qqNorm <- function(x,
 #' \item{beta}{True regression coefficients used}
 #' \item{eta}{Linear predictor}
 #'
+#' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
+#'
+#' @seealso \code{\link{islasso}}, \code{\link{islasso.path}}
+#'
 #' @examples
 #' n <- 100; p <- 100
 #' beta <- c(runif(10, -3, 3), rep(0, p - 10))

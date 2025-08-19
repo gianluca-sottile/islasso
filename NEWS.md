@@ -1,9 +1,10 @@
 # islasso 1.6.1 (2025-08-17)
 
-- Created github page and website.
-- Created introductory vignette.
-- Fortran routines updated.
-- Some bugs fixed.
+- Added a GitHub repository and project website.
+- Introduced an introductory vignette.
+- Optimized and modernized Fortran routines, improving computational speed.
+- Updated documentation and manuals.
+- Fixed minor bugs.
 
 # islasso 1.6.0 (2025-07-30)
 

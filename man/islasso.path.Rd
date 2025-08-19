@@ -138,8 +138,8 @@ Sottile G., Cilluffo G., Muggeo V.M.R. (2019).
 Technical Report. DOI: 10.13140/RG.2.2.16360.11521
 }
 \seealso{
-\code{\link{islasso}}, \code{\link{summary.islasso.path}}, \code{\link{coef.islasso.path}},
-         \code{\link{predict.islasso.path}}, \code{\link{GoF.islasso.path}}
+\code{\link{plot.islasso.path}}, \code{\link{predict.islasso.path}}, \code{\link{summary.islasso.path}},
+         \code{\link{is.control}}, \code{\link{GoF.islasso.path}}, \code{\link{islasso}}, \code{\link{simulXy}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

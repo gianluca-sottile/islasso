@@ -49,8 +49,8 @@
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
-#' @seealso \code{\link{islasso}}, \code{\link{summary.islasso.path}}, \code{\link{coef.islasso.path}},
-#'          \code{\link{predict.islasso.path}}, \code{\link{GoF.islasso.path}}
+#' @seealso \code{\link{plot.islasso.path}}, \code{\link{predict.islasso.path}}, \code{\link{summary.islasso.path}},
+#'          \code{\link{is.control}}, \code{\link{GoF.islasso.path}}, \code{\link{islasso}}, \code{\link{simulXy}}
 #'
 #' @examples
 #' n <- 100; p <- 30; p1 <- 10  # number of nonzero coefficients
