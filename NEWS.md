@@ -2,7 +2,7 @@
 
 - Added a GitHub repository and project website.
 - Introduced an introductory vignette.
-- Optimized and modernized Fortran routines, improving computational speed.
+- Optimized and modernized Fortran routines, improving computational speed (2x).
 - Updated documentation and manuals.
 - Fixed minor bugs.
 
