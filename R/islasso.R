@@ -50,7 +50,9 @@
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
-#' @seealso \code{\link{summary.islasso}}, \code{\link{predict.islasso}}, \code{\link{logLik.islasso}}
+#' @seealso \code{\link{confint.islasso}}, \code{\link{plot.islasso}}, \code{\link{predict.islasso}},
+#'          \code{\link{summary.islasso}}, \code{\link{is.control}}, \code{\link{aic.islasso}},
+#'          \code{\link{anova.islasso}}, \code{\link{islasso.path}}, \code{\link{simulXy}}
 #'
 #' @keywords models regression
 #'

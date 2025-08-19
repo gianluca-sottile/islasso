@@ -170,7 +170,9 @@ Useful links:
 }
 
 
-\code{\link{summary.islasso}}, \code{\link{predict.islasso}}, \code{\link{logLik.islasso}}
+\code{\link{confint.islasso}}, \code{\link{plot.islasso}}, \code{\link{predict.islasso}},
+         \code{\link{summary.islasso}}, \code{\link{is.control}}, \code{\link{aic.islasso}},
+         \code{\link{anova.islasso}}, \code{\link{islasso.path}}, \code{\link{simulXy}}
 }
 \author{
 Gianluca Sottile, based on preliminary work by Vito Muggeo.
