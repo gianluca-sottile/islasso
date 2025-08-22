@@ -52,7 +52,8 @@
 #'
 #' @seealso \code{\link{confint.islasso}}, \code{\link{plot.islasso}}, \code{\link{predict.islasso}},
 #'          \code{\link{summary.islasso}}, \code{\link{is.control}}, \code{\link{aic.islasso}},
-#'          \code{\link{anova.islasso}}, \code{\link{islasso.path}}, \code{\link{simulXy}}
+#'          \code{\link{anova.islasso}}, \code{\link{relax.islasso}}, \code{\link{islasso.path}},
+#'          \code{\link{simulXy}}
 #'
 #' @keywords models regression
 #'
@@ -72,6 +73,7 @@
 #' deviance(o)
 #' AIC(o)
 #' logLik(o)
+#' summary(relax.islasso(o), pval = 0.05)
 #'
 #' \dontrun{
 #' # for the interaction
@@ -998,4 +1000,81 @@ aic.islasso <- function(
   lambda.min <- opt_result$minimum
 
   return(lambda.min)
+}
+
+#' Relaxed islasso model fitting
+#'
+#' Fits a relaxed \code{islasso} model by unpenalizing a subset of variables
+#' selected either by statistical significance or by explicit user specification.
+#'
+#' @param fit An object of class \code{islasso}, representing a fitted model.
+#' @param id Optional. Either:
+#'   \itemize{
+#'     \item A numeric vector of indices referring to variables to be kept unpenalized, or
+#'     \item A character vector of variable names to be kept unpenalized.
+#'   }
+#'   If not provided, selection is based on the significance level given in \code{alpha}.
+#' @param pval Significance threshold (default \code{0.05}). Variables with p-values
+#'   less than or equal to \code{pval} are selected if \code{id} is missing.
+#' @param ... Further arguments passed to \code{update}.
+#'
+#' @details
+#' The function creates a new \code{islasso} model where the selected variables
+#' are excluded from penalization. Selection can be made either through
+#' explicit variable indices/names via \code{id}, or automatically
+#' by thresholding p-values using \code{alpha}.
+#'
+#' @return
+#' An object of class \code{islasso}, representing the updated relaxed model.
+#'
+#' @examples
+#' \dontrun{
+#' fit <- islasso(y ~ x1 + x2 + x3, data = dat)
+#' # Relaxed model keeping only variables with p <= 0.01
+#' fit_relaxed <- relax.islasso(fit, alpha = 0.01)
+#'
+#' # Relaxed model keeping variable "x1" unpenalized
+#' fit_relaxed2 <- relax.islasso(fit, id = "x1")
+#' }
+#'
+#' @export
+relax.islasso <- function(fit, id = NULL, pval = 0.05, ...) {
+  intercept <- fit$internal$intercept
+  p <- fit$internal$p - intercept
+
+  # --- Variable selection ---
+  if (is.null(id)) {
+    coefs <- summary(fit)$coef
+    id <- which(coefs[, 5L] <= pval) - intercept
+  } else {
+    if (is.character(id)) {
+      varnames <- variable.names(fit)[-intercept]
+      id <- pmatch(id, varnames, duplicates.ok = TRUE)
+      if (anyNA(id))
+        stop("Some variable names in 'id' were not matched to model variables.")
+    }
+    if (!is.numeric(id) || any(id < 1 | id > p)) {
+      stop(sprintf("Values in 'id' must be between 1 and %d.", p))
+    }
+  }
+
+  # Prevent model saturation
+  if (length(id) >= p) {
+    stop("All variables selected: relaxed model would saturate.
+         Consider reducing 'id' or using a stricter p-value.")
+  }
+
+  # --- Build unpenalized set ---
+  unpenalized <- fit$internal$unpenalized[-intercept]
+  unpenalized[id] <- TRUE
+
+  # --- Refit with relaxed penalty ---
+  new.fit <- update(
+    fit,
+    unpenalized = which(unpenalized),
+    lambda = .Machine$double.xmax,
+    ...
+  )
+
+  new.fit
 }

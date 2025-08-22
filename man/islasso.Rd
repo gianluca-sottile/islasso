@@ -119,6 +119,7 @@ residuals(o)
 deviance(o)
 AIC(o)
 logLik(o)
+summary(relax.islasso(o), pval = 0.05)
 
 \dontrun{
 # for the interaction
@@ -172,7 +173,8 @@ Useful links:
 
 \code{\link{confint.islasso}}, \code{\link{plot.islasso}}, \code{\link{predict.islasso}},
          \code{\link{summary.islasso}}, \code{\link{is.control}}, \code{\link{aic.islasso}},
-         \code{\link{anova.islasso}}, \code{\link{islasso.path}}, \code{\link{simulXy}}
+         \code{\link{anova.islasso}}, \code{\link{relax.islasso}}, \code{\link{islasso.path}},
+         \code{\link{simulXy}}
 }
 \author{
 Gianluca Sottile, based on preliminary work by Vito Muggeo.

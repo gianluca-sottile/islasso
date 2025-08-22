@@ -1,10 +1,14 @@
 # islasso 1.6.1 (2025-08-17)
 
-- Added a GitHub repository and project website.
-- Introduced an introductory vignette.
-- Optimized and modernized Fortran routines, improving computational speed (2x).
-- Updated documentation and manuals.
-- Fixed minor bugs.
+- Created GitHub page and website.
+- Created introductory vignette.
+- Fortran routines updated and speeded up (~2x).
+- Manuals updated.
+- Added new function `relax.islasso()`, which allows fitting a relaxed islasso model by 
+  selecting variables to remain unpenalized. Variables can be specified either by 
+  name or by index, or automatically selected according to a significance level (`alpha`).
+  This extension provides additional flexibility in post-selection inference.
+- Some bugs fixed.
 
 # islasso 1.6.0 (2025-07-30)
 
