@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">islasso</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,6 +135,14 @@
 <dd><p>Linear predictor</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="islasso.html">islasso</a></code>, <code><a href="islasso.path.html">islasso.path</a></code></p></div>
+    </div>
+    <div class="section level2">
+    <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
+    <p>Gianluca Sottile <a href="mailto:gianluca.sottile@unipa.it">gianluca.sottile@unipa.it</a></p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -149,29 +157,29 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Residuals:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Min      1Q  Median      3Q     Max </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.9777 -0.5928 -0.0602  0.5340  2.2449 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.0207 -0.5354 -0.1112  0.5046  2.0074 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error      Df z value Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -0.1159     0.1258   1.000  -0.921  0.35708    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X1            0.3477     0.1402   0.976   2.480  0.01315 *  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X2           -2.3120     0.1492   1.000 -15.497  &lt; 2e-16 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X3           -0.4404     0.1437   0.995  -3.064  0.00218 ** </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X4            1.3065     0.1457   1.000   8.967  &lt; 2e-16 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X5           -2.0609     0.1443   1.000 -14.280  &lt; 2e-16 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X6           -0.5635     0.1448   1.000  -3.892 9.96e-05 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X7            1.2906     0.1399   1.000   9.225  &lt; 2e-16 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X8            1.8948     0.1490   1.000  12.719  &lt; 2e-16 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X9           -1.0072     0.1515   1.000  -6.649 2.96e-11 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> X10          -2.1626     0.1500   1.000 -14.418  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -0.1159     0.1144   1.000  -1.013  0.31097    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1           -0.5340     0.1295   1.000  -4.125 3.71e-05 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X2            1.3127     0.1331   1.000   9.861  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X3           -1.9439     0.1324   1.000 -14.677  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X4           -0.7204     0.1402   1.000  -5.137 2.79e-07 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X5            1.1275     0.1313   1.000   8.589  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X6            1.9117     0.1363   1.000  14.029  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X7           -0.9386     0.1307   1.000  -7.181 6.94e-13 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X8           -2.1288     0.1376   1.000 -15.467  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X9            0.4326     0.1361   0.997   3.178  0.00148 ** </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X20          -0.2560     0.1267   0.929  -2.021  0.04328 *  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Dispersion parameter for gaussian family taken to be 1.583274)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Dispersion parameter for gaussian family taken to be 1.308101)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Null deviance: 2492.536  on 99.00  degrees of freedom</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Residual deviance:   92.352  on 58.33  degrees of freedom</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AIC: 175.69</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Lambda: 11.472</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Null deviance: 1928.071  on 99.00  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual deviance:   77.121  on 58.96  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AIC: 159.21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Lambda: 10.063</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of Newton-Raphson iterations: 102</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

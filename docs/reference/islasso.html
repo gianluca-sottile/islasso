@@ -13,7 +13,7 @@ and Wald-based inference."><meta property="og:image" content="https://gianluca-s
 
     <a class="navbar-brand me-2" href="../index.html">islasso</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -153,7 +153,7 @@ and Wald-based inference.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
-<table class="table table"><tr><td>Package:</td><td>islasso</td></tr><tr><td>Type:</td><td>Package</td></tr><tr><td>Version:</td><td>1.6.0</td></tr><tr><td>Date:</td><td>2025-07-30</td></tr><tr><td>License:</td><td>GPL-2</td></tr></table><p><code>islasso</code> fits generalized linear models with an L1 penalty on selected coefficients.
+<table class="table table"><tr><td>Package:</td><td>islasso</td></tr><tr><td>Type:</td><td>Package</td></tr><tr><td>Version:</td><td>1.6.1</td></tr><tr><td>Date:</td><td>2025-08-17</td></tr><tr><td>License:</td><td>GPL-2</td></tr></table><p><code>islasso</code> fits generalized linear models with an L1 penalty on selected coefficients.
 It returns both point estimates and full covariance matrices, enabling standard error-based inference.
 Related methods include: <code><a href="summary.islasso.html">summary.islasso</a></code>, <code><a href="predict.islasso.html">predict.islasso</a></code>, <code>logLik.islasso</code>, <code>deviance.islasso</code>, and <code>residuals.islasso</code>.</p>
 <p><code><a href="islasso.path.html">islasso.path</a></code> fits regularization paths using the Induced Smoothed Lasso.
@@ -179,7 +179,10 @@ Technical Report. DOI: 10.13140/RG.2.2.16360.11521</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://gianluca-sottile.github.io/islasso/">https://gianluca-sottile.github.io/islasso/</a></p></li>
-</ul><p><code><a href="summary.islasso.html">summary.islasso</a></code>, <code><a href="predict.islasso.html">predict.islasso</a></code>, <code>logLik.islasso</code></p></div>
+</ul><p><code><a href="confint.islasso.html">confint.islasso</a></code>, <code><a href="plot.islasso.html">plot.islasso</a></code>, <code><a href="predict.islasso.html">predict.islasso</a></code>,
+         <code><a href="summary.islasso.html">summary.islasso</a></code>, <code><a href="is.control.html">is.control</a></code>, <code><a href="aic.islasso.html">aic.islasso</a></code>,
+         <code><a href="anova.islasso.html">anova.islasso</a></code>, <code><a href="relax.islasso.html">relax.islasso</a></code>, <code><a href="islasso.path.html">islasso.path</a></code>,
+         <code><a href="simulXy.html">simulXy</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -386,6 +389,8 @@ Maintainer: <a href="mailto:gianluca.sottile@unipa.it">gianluca.sottile@unipa.it
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 109.7844</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">o</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'log Lik.' -19.86406 (df=35.02813)</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="relax.islasso.html">relax.islasso</a></span><span class="op">(</span><span class="va">o</span><span class="op">)</span>, pval <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'object' in selecting a method for function 'summary': object 'sim1' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># for the interaction</span></span></span>
