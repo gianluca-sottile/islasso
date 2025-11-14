@@ -13,7 +13,7 @@ Description: An implementation of the induced smoothing (IS) idea to lasso regul
 License: GPL (>= 2)
 Encoding: UTF-8
 URL: https://gianluca-sottile.github.io/islasso/
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 NeedsCompilation: yes
 Author: Gianluca Sottile [aut, cre],
   Giovanna Cilluffo [aut, ctb],
