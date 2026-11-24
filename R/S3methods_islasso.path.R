@@ -1,6 +1,7 @@
 ### S3 methods for islasso.path class
 
 interpolate <- function(y1, y2, x1, x2, x.new) {
+  if (x1 == x2) return(y1)
   m <- (y2 - y1) / (log(x2) - log(x1))
   y1 + m * (log(x.new) - log(x1))
 }
@@ -93,7 +94,7 @@ summary.islasso.path <- function(object, pval = 1, use.t = FALSE, lambda, ...) {
 
     # Find indices for interpolation
     id1 <- rev(which(lambda >= lambda.seq))[1]
-    id2 <- which(lambda < lambda.seq)[1]
+    id2 <- which(lambda <= lambda.seq)[1]
 
     # Handle edge cases
     if (any(is.na(c(id1, id2)))) {
@@ -133,6 +134,7 @@ summary.islasso.path <- function(object, pval = 1, use.t = FALSE, lambda, ...) {
   }
 
   # Prepare model statistics
+  dev0 <- if (nlambda == 1) object$Info[1, "deviance"] else deviance.islasso.path(object, lambda = lambda)
   n <- object$Input$n
   p <- object$Input$p
 
@@ -174,10 +176,10 @@ summary.islasso.path <- function(object, pval = 1, use.t = FALSE, lambda, ...) {
     aic = aic,
     lambda = lambda,
     nulldev = nulldev,
-    dev = logLik,
+    dev = dev0,
     df.null = nulldf,
     df.res = nulldf - (df0 - 1 * object$Input$intercept),
-    family = object$Input$family$family,
+    family = object$family$family,
     iter = iter,
     pval = pval,
     temp = temp,
@@ -753,7 +755,7 @@ predict.islasso.path <- function(object,
     # Interpolate coefficients for each lambda value
     for (i in seq_len(nlmb)) {
       id1 <- rev(which(lambda[i] >= lambda.seq))[1]
-      id2 <- which(lambda[i] < lambda.seq)[1]
+      id2 <- which(lambda[i] <= lambda.seq)[1]
       beta[, i] <- interpolate(object$Coef[id1,],
                                object$Coef[id2,],
                                lambda.seq[id1],
@@ -811,7 +813,7 @@ coef.islasso.path <- function(object, lambda, ...) {
   }
 
   id1 <- rev(which(lambda >= lambda.seq))[1]
-  id2 <- which(lambda < lambda.seq)[1]
+  id2 <- which(lambda <= lambda.seq)[1]
   interpolate(object$Coef[id1, ], object$Coef[id2, ],
               lambda.seq[id1], lambda.seq[id2], lambda)
 }
@@ -834,7 +836,7 @@ fitted.islasso.path <- function(object, lambda, ...) {
   }
 
   id1 <- rev(which(lambda >= lambda.seq))[1]
-  id2 <- which(lambda < lambda.seq)[1]
+  id2 <- which(lambda <= lambda.seq)[1]
   interpolate(object$Fitted.values[id1, ], object$Fitted.values[id2, ],
               lambda.seq[id1], lambda.seq[id2], lambda)
 }
@@ -860,7 +862,7 @@ residuals.islasso.path <- function(object, type = c("working", "response", "devi
     }
 
     id1 <- rev(which(lambda >= lambda.seq))[1]
-    id2 <- which(lambda < lambda.seq)[1]
+    id2 <- which(lambda <= lambda.seq)[1]
     res <- interpolate(object$Residuals[id1, ], object$Residuals[id2, ],
                        lambda.seq[id1], lambda.seq[id2], lambda)
     mu <- interpolate(object$Fitted.values[id1, ], object$Fitted.values[id2, ],
@@ -896,7 +898,7 @@ deviance.islasso.path <- function(object, lambda, ...) {
   }
 
   id1 <- rev(which(lambda >= lambda.seq))[1]
-  id2 <- which(lambda < lambda.seq)[1]
+  id2 <- which(lambda <= lambda.seq)[1]
   interpolate(object$Info[id1, "deviance"], object$Info[id2, "deviance"],
               lambda.seq[id1], lambda.seq[id2], lambda)[[1]]
 }
@@ -920,7 +922,7 @@ logLik.islasso.path <- function(object, lambda, ...) {
     }
 
     id1 <- rev(which(lambda >= lambda.seq))[1]
-    id2 <- which(lambda < lambda.seq)[1]
+    id2 <- which(lambda <= lambda.seq)[1]
     ll <- interpolate(object$Info[id1, "logLik"], object$Info[id2, "logLik"],
                       lambda.seq[id1], lambda.seq[id2], lambda)
     df <- interpolate(object$Info[id1, "df"], object$Info[id2, "df"],
@@ -929,7 +931,7 @@ logLik.islasso.path <- function(object, lambda, ...) {
                        lambda.seq[id1], lambda.seq[id2], lambda)
   }
 
-  out <- list(loglik = ll, df = df, object = object, phi = object$phi)
+  out <- list(loglik = ll, df = df, object = object, phi = phi)
   class(out) <- "logLik.islasso.path"
   out
 }

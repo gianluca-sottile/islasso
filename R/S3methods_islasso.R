@@ -246,7 +246,6 @@ plot.islasso <- function(x, ...) {
 
   # Extract model components
   family <- x$family
-  nX <- model.matrix(x)
   y <- x$y
   eta <- x$linear.predictors
   mu <- x$fitted.values
@@ -256,18 +255,11 @@ plot.islasso <- function(x, ...) {
   pea <- residuals(x, type = "pearson")
   spea <- pea / sqrt(x$dispersion)
 
-  # Calculate hat matrix and related statistics
-  w2 <- x$weights
-  invH <- x$internal$invH
-
-  w <- sqrt(w2)
-  WX <- nX * w
-
-  H <- WX %*% invH %*% t(WX)
-  h <- diag(H)
+  # observation leverages from the sandwich Hessian
+  h <- .is_leverage(x)
   p <- x$rank
-  rp <- spea / sqrt(1 - h)
-  rd <- sdev / sqrt(1 - h)
+  rp <- spea / sqrt(pmax(1 - h, .Machine$double.eps))
+  rd <- sdev / sqrt(pmax(1 - h, .Machine$double.eps))
   res <- sign(sdev) * sqrt(sdev^2 + h * rp^2)
 
   # For QQ plot
@@ -284,8 +276,8 @@ plot.islasso <- function(x, ...) {
     diff(qnorm(c(0.25, 0.75))) *
     (qq_line$theoretical - qnorm(0.25))
 
-  # For link function
-  zmod <- eta + (y - mu) / w2
+  # working response
+  zmod <- eta + x$residuals
   lm_result <- lm(zmod ~ eta)
   link_line <- data.frame(
     eta = c(min(eta), max(eta))
@@ -332,11 +324,8 @@ plot.islasso <- function(x, ...) {
          title = "Link function") +
     theme_bw()
 
-  # Arrange the four plots in a 2x2 grid using gridExtra
-  grid_plot <- gridExtra::grid.arrange(p1, p2, p3, p4, ncol = 2)
-
-  # Return the arranged plot
-  return(grid_plot)
+  .is_arrange(list(p1, p2, p3, p4), ncol = 2L)
+  invisible(list(p1, p2, p3, p4))
 }
 
 #' Prediction Method for islasso Objects
@@ -403,7 +392,7 @@ predict.islasso <- function(object, newdata = NULL,
   if (type == "coefficients") {
     fit <- coef(object)
     if (se.fit) {
-      ci.fit <- ci.fitted.islasso(object, X, ci,
+      ci.fit <- ci.fitted.islasso(object, ci = ci,
                                   type.ci = type.ci,
                                   conf.level = level,
                                   only.ci = TRUE)
@@ -640,19 +629,17 @@ variable.names.islasso <- function(object, ...) {
 }
 
 #' @export
-influence.islasso <- function(model, do.coef = TRUE, ...) {
-  # Calculate influence measures
-  res <- is.influence(model, do.coef = do.coef, ...)
-
-  # Extract Pearson residuals
-  pRes <- na.omit(residuals(model, type = "pearson"))[model$prior.weights != 0]
-  pRes <- naresid(model$na.action, pRes)
-
-  # Rename fields for consistency
-  names(res)[names(res) == "wt.res"] <- "dev.res"
-
-  # Return combined results
-  c(res, list(pear.res = pRes))
+influence.islasso <- function(model, do.coef = FALSE, ...) {
+  h <- .is_leverage(model)
+  pr <- residuals(model, type = "pearson")
+  dr <- residuals(model, type = "deviance")
+  rdf <- model$df.residual
+  phi <- model$dispersion
+  # leave-one-out dispersion (as in lm.influence), from the Pearson residuals
+  sigma <- sqrt(pmax((phi * rdf - pr^2 / pmax(1 - h, .Machine$double.eps)) / max(rdf - 1, 1), 0))
+  out <- list(hat = h, sigma = sigma, dev.res = dr, pear.res = pr)
+  if (do.coef) warning("'do.coef' is not available for islasso models", call. = FALSE)
+  out
 }
 
 #' @export
@@ -692,7 +679,6 @@ rstandard.islasso <- function(model,
 
 #' @export
 rstudent.islasso <- function(model, infl = influence(model, do.coef = FALSE), ...) {
-  # Calculate studentized residuals
   r <- infl$dev.res
   r <- sign(r) * sqrt(r^2 + (infl$hat * infl$pear.res^2)/(1 - infl$hat))
 
