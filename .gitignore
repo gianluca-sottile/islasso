@@ -1,0 +1,13 @@
+.Rproj.user
+inst/doc
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+.quarto
+docs
+/doc/
+/Meta/
+src/*.o
+src/*.so
+src/*.dll

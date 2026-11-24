@@ -1,0 +1,28 @@
+bibentry(bibtype = "Article",
+  title        = "The Induced Smoothed lasso: A practical framework for hypothesis testing in high dimensional regression",
+  author       = c(person(given = "Giovanna", family = "Cilluffo"),
+                   person(given = "Gianluca", family = "Sottile"),
+                   person(given = "Stefania", family = "La Grutta"),
+		   person(given = "Vito MR", family = "Muggeo")),
+  journal      = "Statistical Methods in Medical Research",
+  year         = "2020",
+  volume       = "29",
+  number       = "3",
+  pages        = "765--777",
+  doi          = "10.1177/0962280219842890",
+  header       = "To cite islasso in publications use:"
+)
+
+bibentry(bibtype = "Manual",
+  title        = "The R package islasso: estimation and hypothesis testing in lasso regression",
+  author       = c(person(given = "Giovanna", family = "Cilluffo"),
+                   person(given = "Gianluca", family = "Sottile"),
+		   person(given = "Vito MR", family = "Muggeo")),
+  journal      = "Researchgate",
+  year         = "2019",
+  volume       = "0",
+  number       = "0",
+  pages        = "1--10",
+  doi          = "10.13140/RG.2.2.16360.11521",
+  header       = "To cite islasso manual in publications use:"
+)
