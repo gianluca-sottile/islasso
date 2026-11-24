@@ -46,3 +46,36 @@ home:
 
 news:
   cran_dates: true
+
+reference:
+  - title: "Fitting"
+    contents:
+      - islasso
+      - islasso.path
+      - is.control
+  - title: "Tuning parameter selection"
+    contents:
+      - GoF.islasso.path
+      - aic.islasso
+  - title: "Inference and post-processing"
+    contents:
+      - summary.islasso
+      - summary.islasso.path
+      - confint.islasso
+      - anova.islasso
+      - relax.islasso
+      - predict.islasso
+      - predict.islasso.path
+  - title: "Plots"
+    contents:
+      - plot.islasso
+      - plot.islasso.path
+  - title: "Data and simulation"
+    contents:
+      - simulXy
+      - Prostate
+      - breast
+      - diabetes
+  - title: "Package"
+    contents:
+      - islasso-package
