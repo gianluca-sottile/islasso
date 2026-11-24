@@ -4,10 +4,25 @@
 #' induced smoothing paradigm, which yields point estimates, standard errors and Wald
 #' tests for all the coefficients.
 #'
-#' @aliases islasso print.islasso islasso.fit vcov.islasso deviance.islasso residuals.islasso
-#'   logLik.islasso model.matrix.islasso cooks.distance.islasso extractAIC.islasso
-#'   family.islasso formula.islasso influence.islasso model.frame.islasso nobs.islasso
-#'   rstandard.islasso rstudent.islasso variable.names.islasso weights.islasso
+#' @aliases islasso
+#' @aliases print.islasso
+#' @aliases islasso.fit
+#' @aliases vcov.islasso
+#' @aliases deviance.islasso
+#' @aliases residuals.islasso
+#' @aliases logLik.islasso
+#' @aliases model.matrix.islasso
+#' @aliases cooks.distance.islasso
+#' @aliases extractAIC.islasso
+#' @aliases family.islasso
+#' @aliases formula.islasso
+#' @aliases influence.islasso
+#' @aliases model.frame.islasso
+#' @aliases nobs.islasso
+#' @aliases rstandard.islasso
+#' @aliases rstudent.islasso
+#' @aliases variable.names.islasso
+#' @aliases weights.islasso
 #'
 #' @param formula a symbolic description of the model (see [stats::formula()]).
 #' @param family the error distribution and link function: a family object, a family

@@ -3,9 +3,16 @@
 #' Fits the induced smoothed lasso (or elastic net) over a grid of values of the tuning
 #' parameter, with warm starts.
 #'
-#' @aliases islasso.path print.islasso.path islasso.path.fit coef.islasso.path
-#'   deviance.islasso.path fitted.islasso.path residuals.islasso.path
-#'   logLik.islasso.path print.logLik.islasso.path model.matrix.islasso.path
+#' @aliases islasso.path
+#' @aliases print.islasso.path
+#' @aliases islasso.path.fit
+#' @aliases coef.islasso.path
+#' @aliases deviance.islasso.path
+#' @aliases fitted.islasso.path
+#' @aliases residuals.islasso.path
+#' @aliases logLik.islasso.path
+#' @aliases print.logLik.islasso.path
+#' @aliases model.matrix.islasso.path
 #'
 #' @inheritParams islasso
 #' @param lambda optional vector of values of the tuning parameter; by default a sequence
