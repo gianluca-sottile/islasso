@@ -50,6 +50,9 @@ static void *isl_alloc(size_t n, size_t sz) { void *p = calloc(n > 0 ? n : 1, sz
 #define ALLOC_I(n) ((int *) isl_alloc((size_t) (n), sizeof(int)))
 #define FREE(x) free(x)
 #define CHECK_INTERRUPT()
+#define VMAX_DECL
+#define VMAX_GET()
+#define VMAX_SET()
 #else
 #ifndef USE_FC_LEN_T
 #define USE_FC_LEN_T
@@ -68,6 +71,9 @@ static int *isl_alloc_i(size_t n) { return (int *) R_alloc(n > 0 ? n : 1, sizeof
 #define ALLOC_I(n) isl_alloc_i((size_t) (n))
 #define FREE(x) ((void) (x))
 #define CHECK_INTERRUPT() R_CheckUserInterrupt()
+#define VMAX_DECL const void *isl_vmax;
+#define VMAX_GET() isl_vmax = vmaxget()
+#define VMAX_SET() vmaxset(isl_vmax)
 #endif
 
 #define ISL_EPS 1e-5            /* sd of the "zero mass" mixture component */
@@ -579,6 +585,110 @@ int isl_vcov(int mode, int n, int p, const double *G, const double *X, const dou
     return info;
 }
 
+/*
+ * Complete induced-smoothing fit for the Gaussian family with identity link (fixed X'X):
+ * alternates the inner solver and the damped update of the sandwich diagonal exactly as the
+ * R driver (.is_fit_single) and islasso <= 1.6.2.  On entry theta, v (unscaled variances) and
+ * cm are the starting values; on exit they hold the final estimates.
+ * Outputs: se (final), se_used (scales used in the last inner solve), vn (last undamped
+ * diagonal), h (pseudo hat values), lam (penalty, possibly adaptive), phi, iterations.
+ * Returns 0 = converged, 1 = maximum number of iterations, 2 = numerical failure.
+ */
+int isl_gauss(int mode, int method, int n, int p, const double *G, const double *bz, double zz,
+              const double *X, const double *z, double *theta, double *v, double *cm,
+              const double *lam0, double alpha, double sigma2, double nok, double tol, int itmax,
+              int estc, int adaptive, double *se, double *se_used, double *vn, double *h,
+              double *lam, double *phi, int *iter, int *inner_tot, double *ind_out,
+              int *inner_info)
+{
+    double *se0 = ALLOC_D(p), *colss = ALLOC_D(p), *D = ALLOC_D(p), *Gth = ALLOC_D(p);
+    double *r = mode == 1 ? ALLOC_D(n) : NULL;
+    double d1 = 1.0, d0 = 0.0, dm1 = -1.0, ind = NAN, s2 = sigma2 > 0.0 ? sigma2 : 1.0;
+    int one = 1, conv = 0, i = 0, info = 0;
+    VMAX_DECL
+    for (int j = 0; j < p; j++) {
+        se0[j] = sqrt(v[j]);
+        lam[j] = lam0[j];
+        h[j] = 1.0;
+        double c2;
+        if (mode == 0) c2 = G[j + (size_t) j * p];
+        else {
+            c2 = 0.0;
+            const double *xj = X + (size_t) j * n;
+            for (int k = 0; k < n; k++) c2 += xj[k] * xj[k];
+        }
+        colss[j] = c2 > 2.220446e-16 ? c2 : 2.220446e-16;
+    }
+    *inner_tot = 0;
+    *inner_info = 0;
+    while (i < itmax) {
+        i++;
+        if (adaptive && i > 10) {
+            for (int j = 0; j < p; j++) {
+                double hh = h[j] > 1.0 ? 1.0 : (h[j] < 1e-5 ? 1e-5 : h[j]);
+                lam[j] = lam0[j] * (1.0 / (hh * hh) - 1.0);
+            }
+        }
+        if (estc && i > 5) {
+            for (int j = 0; j < p; j++) {
+                double t = fabs(theta[j] / se0[j]);
+                cm[j] = 1.0 / (1.0 + exp(-t));
+            }
+        }
+        memcpy(se_used, se0, (size_t) p * sizeof(double));
+        VMAX_GET();
+        int it = isl_inner(mode, method, n, p, G, bz, X, z, theta, se0, cm, lam, alpha, tol, itmax,
+                           vn, h, D, &info);
+        VMAX_SET();
+        *inner_tot += it;
+        *inner_info = info;
+        int bad = (info == 2);
+        for (int j = 0; j < p && !bad; j++) if (!isfinite(theta[j])) bad = 1;
+        if (bad) { conv = 2; break; }
+        /* residual sum of squares */
+        double rss = 0.0;
+        if (mode == 0) {
+            F77_CALL(dsymv)("L", &p, &d1, G, &p, theta, &one, &d0, Gth, &one FCONE);
+            for (int j = 0; j < p; j++) rss += theta[j] * (Gth[j] - 2.0 * bz[j]);
+            rss += zz;
+            if (rss < 0.0) rss = 0.0;
+        } else {
+            memcpy(r, z, (size_t) n * sizeof(double));
+            F77_CALL(dgemv)("N", &n, &p, &dm1, X, &n, theta, &one, &d1, r, &one FCONE);
+            for (int k = 0; k < n; k++) rss += r[k] * r[k];
+        }
+        double edf = 0.0;
+        for (int j = 0; j < p; j++) {
+            v[j] = v[j] + 0.1 * (vn[j] - v[j]);
+            edf += h[j];
+        }
+        double redf = nok - edf;
+        if (redf <= 1e-12) redf = 1.0;
+        if (sigma2 <= 0.0) s2 = rss / redf;
+        ind = 0.0;
+        for (int j = 0; j < p; j++) {
+            double sj = s2 * v[j] > 0.0 ? sqrt(s2 * v[j]) : 0.0;
+            double fl = 1e-8 * sqrt(s2 / colss[j]);
+            if (sj < fl) sj = fl;
+            double dj = fabs(sj - se0[j]);
+            if (dj > ind) ind = dj;
+            se[j] = sj;
+            se0[j] = sj;
+        }
+        CHECK_INTERRUPT();
+        if (ind <= 10.0 * tol) break;
+        if (i >= itmax) { conv = 1; break; }
+    }
+    if (conv == 2) memcpy(se, se0, (size_t) p * sizeof(double));
+    *phi = s2;
+    *iter = i;
+    *ind_out = ind;
+    FREE(se0); FREE(colss); FREE(D); FREE(Gth);
+    if (r) { FREE(r); }
+    (void) d0;
+    return conv;
+}
+
 /* quadratic form b' H^-1 G H^-1 b of the unscaled sandwich (e.g. variance of a linear
  * combination), without forming the p x p matrix.  Returns NAN on failure. */
 double isl_quad(int mode, int n, int p, const double *G, const double *X, const double *theta,
@@ -719,6 +829,52 @@ SEXP C_is_quad(SEXP mode_, SEXP G_, SEXP X_, SEXP theta_, SEXP se_, SEXP c_, SEX
     }
     return ScalarReal(isl_quad(mode, n, p, G, X, REAL(theta_), REAL(se_), REAL(c_), REAL(lam_),
                                asReal(alpha_), REAL(b_)));
+}
+
+SEXP C_is_gauss(SEXP mode_, SEXP method_, SEXP G_, SEXP bz_, SEXP zz_, SEXP X_, SEXP z_,
+                SEXP theta_, SEXP v_, SEXP cm_, SEXP lam_, SEXP alpha_, SEXP sigma2_, SEXP nok_,
+                SEXP tol_, SEXP itmax_, SEXP estc_, SEXP adaptive_)
+{
+    int mode = get_int(mode_), p = length(theta_), n = 0;
+    const double *G = NULL, *bz = NULL, *X = NULL, *z = NULL;
+    if (p < 1) error("empty coefficient vector");
+    if (!isReal(theta_) || !isReal(v_) || !isReal(cm_) || !isReal(lam_) ||
+        length(v_) != p || length(cm_) != p || length(lam_) != p) error("invalid input");
+    if (mode == 0) {
+        if (!isReal(G_) || !isReal(bz_) || XLENGTH(G_) != (R_xlen_t) p * p || length(bz_) != p)
+            error("invalid dense input");
+        G = REAL(G_); bz = REAL(bz_);
+    } else {
+        if (!isReal(X_) || !isReal(z_)) error("invalid input");
+        n = length(z_);
+        if (XLENGTH(X_) != (R_xlen_t) n * p) error("dimension mismatch");
+        X = REAL(X_); z = REAL(z_);
+    }
+    const char *nms[] = {"theta", "v", "cm", "se", "se.used", "vn", "h", "lam", "dispersion",
+                         "iter", "inner_iter", "tol", "inner_info", "conv"};
+    SEXP out = PROTECT(allocVector(VECSXP, 14));
+    SEXP th = PROTECT(duplicate(theta_)), v = PROTECT(duplicate(v_)), cm = PROTECT(duplicate(cm_));
+    SEXP se = PROTECT(allocVector(REALSXP, p)), seu = PROTECT(allocVector(REALSXP, p));
+    SEXP vn = PROTECT(allocVector(REALSXP, p)), h = PROTECT(allocVector(REALSXP, p));
+    SEXP lam = PROTECT(allocVector(REALSXP, p));
+    double phi = 0.0, ind = 0.0;
+    int iter = 0, itot = 0, iinfo = 0;
+    int conv = isl_gauss(mode, get_int(method_), n, p, G, bz, asReal(zz_), X, z, REAL(th), REAL(v),
+                         REAL(cm), REAL(lam_), asReal(alpha_), asReal(sigma2_), asReal(nok_),
+                         asReal(tol_), get_int(itmax_), asLogical(estc_), asLogical(adaptive_),
+                         REAL(se), REAL(seu), REAL(vn), REAL(h), REAL(lam), &phi, &iter, &itot,
+                         &ind, &iinfo);
+    SET_VECTOR_ELT(out, 0, th); SET_VECTOR_ELT(out, 1, v); SET_VECTOR_ELT(out, 2, cm);
+    SET_VECTOR_ELT(out, 3, se); SET_VECTOR_ELT(out, 4, seu); SET_VECTOR_ELT(out, 5, vn);
+    SET_VECTOR_ELT(out, 6, h); SET_VECTOR_ELT(out, 7, lam);
+    SET_VECTOR_ELT(out, 8, ScalarReal(phi)); SET_VECTOR_ELT(out, 9, ScalarInteger(iter));
+    SET_VECTOR_ELT(out, 10, ScalarInteger(itot)); SET_VECTOR_ELT(out, 11, ScalarReal(ind));
+    SET_VECTOR_ELT(out, 12, ScalarInteger(iinfo)); SET_VECTOR_ELT(out, 13, ScalarInteger(conv));
+    SEXP nm = PROTECT(allocVector(STRSXP, 14));
+    for (int k = 0; k < 14; k++) SET_STRING_ELT(nm, k, mkChar(nms[k]));
+    setAttrib(out, R_NamesSymbol, nm);
+    UNPROTECT(10);
+    return out;
 }
 
 SEXP C_is_penalty(SEXP theta_, SEXP se_, SEXP c_, SEXP lam_, SEXP alpha_)

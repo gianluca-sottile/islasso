@@ -52,3 +52,14 @@ test_that("GLM path and p > n path", {
   expect_true(all(is.finite(o2$SE)))
   expect_equal(ncol(o2$Coef), 61L)
 })
+
+test_that("each model of the path coincides with islasso() at the same lambda", {
+  d <- sim_gaus()
+  o <- islasso.path(y ~ ., data = d$data, nlambda = 8)
+  lam <- o$Info[, "lambda"]
+  for (k in c(2, 5, 7)) {
+    f <- islasso(y ~ ., data = d$data, lambda = lam[k])
+    expect_equal(unname(o$Info[k, "df"]), f$rank, tolerance = 5e-3)
+    expect_equal(unname(o$Coef[k, ]), unname(coef(f)), tolerance = 5e-3)
+  }
+})

@@ -74,3 +74,15 @@ test_that("constant covariates are detected by the standardisation", {
   expect_equal(st$xs[3:5], c(1, 1, 1))
   expect_equal(st$xm[3:5], c(0, 0, 0))
 })
+
+test_that("compiled Gaussian loop and R reference engine give the same fit", {
+  skip_if_not(islasso:::.is_native())
+  d <- sim_gaus()
+  o1 <- islasso(y ~ ., data = d$data, lambda = 8)
+  old <- options(islasso.engine = "R")
+  on.exit(options(old))
+  o2 <- islasso(y ~ ., data = d$data, lambda = 8)
+  expect_equal(coef(o1), coef(o2), tolerance = 1e-8)
+  expect_equal(o1$se, o2$se, tolerance = 1e-8)
+  expect_equal(o1$iter, o2$iter)
+})

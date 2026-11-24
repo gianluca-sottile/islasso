@@ -160,7 +160,8 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
 
   theta <- null$theta
   theta[theta == 0] <- 1e-5
-  v0 <- if (is.null(setting$V0)) rep(0.01, nvars) else rep_len(diag(as.matrix(setting$V0)), nvars)
+  v_init <- if (is.null(setting$V0)) rep(0.01, nvars) else rep_len(diag(as.matrix(setting$V0)), nvars)
+  v0 <- v_init
   cm <- setting$c
 
   out_coef <- out_se <- out_w <- out_grad <- matrix(NA_real_, nlambda, nvars)
@@ -184,9 +185,12 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
       out_info[k, c(1L, 8L)] <- c(lambda[k], 2)
       next
     }
+    # warm start of the estimates only: the standard errors (and mixture weights) restart from
+    # their initial values, so that every model of the path coincides with islasso() at the same
+    # lambda (the induced-smoothing fixed point for the null coefficients depends on the
+    # starting standard errors)
     theta <- fit$theta
-    v0 <- fit$v
-    cm <- fit$cm
+    cm_k <- fit$cm
     beta <- .is_theta2beta(theta, st$xm, st$xs, intercept)
     se <- sqrt(fit$dispersion * fit$v) / st$xs
     if (intercept && nvars > 1L) {
@@ -194,7 +198,7 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
       # variance a' Vstd a with Vstd = phi * diag(sqrt(v / vn)) S diag(sqrt(v / vn)), S = sandwich
       a <- .is_intercept_row(st$xm, st$xs)
       b <- a * ifelse(fit$vn > 0, sqrt(fit$v / fit$vn), 0)
-      q <- .is_quad(fit$mode, fit$G, fit$Xt, theta, fit$se.used, cm, fit$lam, prep$alpha, b)
+      q <- .is_quad(fit$mode, fit$G, fit$Xt, theta, fit$se.used, cm_k, fit$lam, prep$alpha, b)
       se[1L] <- sqrt(fit$dispersion * max(q, 0))
     }
     eta <- drop(prep$X %*% beta) + prep$offset
@@ -210,11 +214,11 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     }
     w <- prep$weights * me^2 / family$variance(mu)
     w[!is.finite(w)] <- 0
-    pz <- .is_penalty_R(theta, fit$se.used, cm, fit$lam, prep$alpha)
+    pz <- .is_penalty_R(theta, fit$se.used, cm_k, fit$lam, prep$alpha)
     gstd <- -drop(crossprod(Xs, w * (prep$y - mu) / me)) + pz$gradient
     out_coef[k, ] <- beta
     out_se[k, ] <- se
-    out_w[k, ] <- cm
+    out_w[k, ] <- cm_k
     out_grad[k, ] <- .is_grad_back(gstd, st$xm, st$xs, intercept)
     out_info[k, ] <- c(lambda[k], df, fit$dispersion, dev, -ll / 2, fit$iter, fit$tol, fit$conv)
     # criteria as in islasso(): family$aic (dispersion included) + penalty on df

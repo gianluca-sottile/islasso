@@ -293,6 +293,24 @@
   }
   colss <- if (mode == 0L) pmax(diag(G), .Machine$double.eps) else pmax(colSums(Xt^2), .Machine$double.eps)
 
+  # Gaussian family: the whole fixed-point iteration runs in compiled code
+  if (gaus && trace == 0L && .is_native()) {
+    out <- .Call(C_is_gauss, as.integer(mode), as.integer(method), G, bz, sum(zt^2), Xt, zt,
+                 as.double(theta), as.double(v0), as.double(cm), as.double(lam), as.double(alpha),
+                 as.double(sigma2), as.double(nok), as.double(tol), as.integer(itmax), estc, adaptive)
+    if (out$conv == 2L)
+      stop("safe exit from the IS-lasso algorithm after a numerical failure; try a different value of 'lambda'",
+           call. = FALSE)
+    if (out$inner_info %in% c(1L, 3L))
+      warning("the inner iterations did not fully converge at the last step; consider increasing 'itmax'",
+              call. = FALSE)
+    eta <- drop(Xs %*% out$theta) + offset
+    return(list(theta = out$theta, se = out$se, se.used = out$se.used, vn = out$vn, v = out$v,
+                cm = out$cm, lam = out$lam, h = out$h, edf = sum(out$h), dispersion = out$dispersion,
+                conv = out$conv, iter = out$iter, inner_iter = out$inner_iter, tol = out$tol,
+                eta = eta, Xt = Xt, zt = zt, G = G, mode = mode, w = weights))
+  }
+
   conv <- 0L
   h <- rep(1, p)
   ind <- ind2 <- NA_real_
