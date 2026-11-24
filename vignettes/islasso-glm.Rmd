@@ -1,0 +1,92 @@
+---
+title: "Generalised linear models and families in islasso"
+author:
+  - Gianluca Sottile
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generalised linear models and families in islasso}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+From version 1.7.0 the generalised linear models are fitted by iteratively reweighted least squares
+(IRLS) driven by the `family` object, exactly as in `glm()`: any family with the components
+`linkinv`, `mu.eta`, `variance` and `dev.resids` can be used, including all the links of the
+standard families, the `quasi` families and, for instance, `MASS::negative.binomial()` with known
+$\theta$. At each iteration the working weights $w_i = \mu'(\eta_i)^2/V(\mu_i)$ and the working
+response $z_i = \eta_i + (y_i - \mu_i)/\mu'(\eta_i)$ define the weighted least squares problem
+solved by the induced smoothed lasso; the step is halved whenever the linear predictor leaves the
+valid region of the family.
+
+The dispersion parameter is fixed to one for the binomial, Poisson and negative binomial families
+and is otherwise estimated by the Pearson statistic divided by the residual degrees of freedom,
+$n - \sum_j h_j$.
+
+```{r}
+library(islasso)
+set.seed(1)
+n <- 200; p <- 30
+X <- matrix(rnorm(n * p), n, p, dimnames = list(NULL, paste0("X", 1:p)))
+eta <- -0.3 + 0.8 * X[, 1] - 0.6 * X[, 2] + 0.4 * X[, 3]
+```
+
+# Binomial responses with different links
+
+```{r}
+d <- data.frame(y = rbinom(n, 1, pnorm(eta)), X)
+fit.probit <- islasso(y ~ ., data = d, family = binomial(link = "probit"), lambda = 4)
+summary(fit.probit, pval = 0.05)
+fit.cloglog <- islasso(y ~ ., data = d, family = binomial(link = "cloglog"), lambda = 4)
+coef(fit.cloglog)[1:5]
+```
+
+With a (practically) null tuning parameter the estimates coincide with those of `glm()`:
+
+```{r}
+f0 <- islasso(y ~ X1 + X2 + X3, data = d, family = binomial(link = "probit"), lambda = 1e-8)
+g0 <- glm(y ~ X1 + X2 + X3, data = d, family = binomial(link = "probit"))
+cbind(islasso = coef(f0), glm = coef(g0))
+```
+
+# Counts: Poisson with an offset, quasi-Poisson and negative binomial
+
+```{r}
+expo <- runif(n, 1, 3)
+mu <- expo * exp(eta)
+d2 <- data.frame(y = rpois(n, mu), X, expo = expo)
+fit.pois <- islasso(y ~ . - expo + offset(log(expo)), data = d2, family = poisson(), lambda = 5)
+summary(fit.pois, pval = 0.05)
+
+fit.qp <- islasso(y ~ . - expo + offset(log(expo)), data = d2, family = quasipoisson(), lambda = 5)
+fit.qp$dispersion
+```
+
+```{r, eval = requireNamespace("MASS", quietly = TRUE)}
+d3 <- data.frame(y = MASS::rnegbin(n, mu = exp(1 + eta), theta = 2), X)
+fit.nb <- islasso(y ~ ., data = d3, family = MASS::negative.binomial(theta = 2), lambda = 5)
+summary(fit.nb, pval = 0.05)
+```
+
+# Positive continuous responses
+
+```{r}
+d4 <- data.frame(y = rgamma(n, shape = 4, scale = exp(1 + 0.5 * eta) / 4), X)
+fit.gamma <- islasso(y ~ ., data = d4, family = Gamma(link = "log"), lambda = 3)
+fit.ig <- islasso(y ~ ., data = d4, family = inverse.gaussian(link = "log"), lambda = 3)
+round(cbind(Gamma = coef(fit.gamma), inv.gaussian = coef(fit.ig))[1:6, ], 3)
+c(Gamma = fit.gamma$dispersion, inv.gaussian = fit.ig$dispersion)
+```
+
+# Regularisation path
+
+`islasso.path()` accepts the same families; the information criteria use the log-likelihood when
+the family provides one (`family$aic`), and the deviance otherwise.
+
+```{r}
+path <- islasso.path(y ~ ., data = d, family = binomial(link = "probit"), nlambda = 20)
+GoF.islasso.path(path, plot = FALSE)$lambda.min
+```

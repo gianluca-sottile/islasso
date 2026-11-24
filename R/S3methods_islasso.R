@@ -194,7 +194,7 @@ print.summary.islasso <- function(x, digits = max(3L, getOption("digits") - 3L),
   # Print model fit statistics
   cat("AIC: ", format(x$aic, digits = max(4L, digits + 1L)),
       "\nLambda: ", format(x$lambda, digits = max(4L, digits + 1L)),
-      "\n\nNumber of Newton-Raphson iterations: ", x$iter, "\n\n",
+      "\n\nNumber of IS iterations: ", x$iter, "\n\n",
       sep = "")
 
   invisible(x)
@@ -532,22 +532,19 @@ deviance.islasso <- function(object, ...) {
 
 #' @export
 logLik.islasso <- function(object, ...) {
-  if (!missing(...)) {
-    warning("extra arguments discarded")
-  }
-
-  # Determine degrees of freedom based on family
-  fam <- family(object)$family
+  if (!missing(...)) warning("extra arguments discarded", call. = FALSE)
+  family <- family(object)
   p <- object$rank
-  if (fam %in% c("gaussian", "Gamma", "inverse.gaussian")) {
-    p <- p + 1
-  }
-
-  # Calculate log-likelihood from AIC
-  val <- p - object$aic/2
-
-  # Add attributes
-  attr(val, "nobs") <- sum(!is.na(object$residuals))
+  disp <- family$family %in% c("gaussian", "Gamma", "inverse.gaussian")
+  if (disp) p <- p + 1
+  # log-likelihood from the family's AIC function (NA for quasi families)
+  ntr <- object$internal$n.trials
+  if (is.null(ntr)) ntr <- rep(1, length(object$y))
+  aicf <- if (is.function(family$aic)) tryCatch(
+    family$aic(object$y, ntr, object$fitted.values, object$prior.weights, object$deviance),
+    error = function(e) NA_real_) else NA_real_
+  val <- if (is.finite(aicf)) -aicf / 2 + disp else NA_real_
+  attr(val, "nobs") <- sum(object$prior.weights != 0)
   attr(val, "df") <- p
   class(val) <- "logLik"
   val

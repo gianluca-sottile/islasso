@@ -20,30 +20,39 @@ library(islasso)
 
 ## 🔍 Description
 
-`islasso` implements the **Induced Smoothed Lasso**, a robust and interpretable approach for hypothesis testing in high-dimensional linear and generalized linear models.
+`islasso` implements the **Induced Smoothed Lasso** (Cilluffo et al., 2020): the non-smooth lasso
+(or elastic-net) penalty is replaced by its expectation under the approximate sampling distribution
+of the estimator, so that standard errors (sandwich formula), Wald tests, confidence intervals and
+general linear hypotheses are available for **all** the coefficients.
 
-Key features include:
+Key features:
 
-- Efficient Fortran backend for fast computation
-- Support for Gaussian, Binomial, Poisson, and Gamma families
-- Smoothed penalization for stable inference
-- Automatic selection of active variables
-- Visualization tools powered by `ggplot2`
+- numerical core in C (BLAS/LAPACK): majorise–minimise or Newton iterations on a smooth convex
+  objective, only the diagonal of the sandwich during the iterations, Woodbury identities when
+  `p > 2n` (cost `O(n^2 p)` instead of `O(p^3)`);
+- any GLM family and link accepted by `glm()` (binomial with logit/probit/cloglog/cauchit/log,
+  Poisson, Gamma, inverse Gaussian, quasi families, negative binomial, ...);
+- regularisation paths with warm starts and tuning-parameter selection by cross-validation or
+  information criteria (AIC, BIC, AICc, eBIC, GCV, GIC);
+- relaxed fits, general linear hypotheses, diagnostic plots (`ggplot2`).
 
 ## 🚀 Quick Example
 
 ```r
-set.seed(123)
-sim <- simulXy(n = 100, p = 20, family = "gaussian")
-mod <- islasso(y ~ ., data = sim$data)
-summary(mod)
-plot(mod)
+sim <- simulXy(n = 100, p = 50, beta = c(rep(1, 5), rep(0, 45)), seed = 1)
+mod <- islasso(y ~ ., data = sim$data, control = is.control(seed = 1))  # lambda by 5-fold CV
+summary(mod, pval = 0.05)
+confint(mod, parm = 2:6)
+
+path <- islasso.path(y ~ ., data = sim$data, nlambda = 50)
+GoF.islasso.path(path)$lambda.min
 ```
 
 ## 📚 Documentation
 
 - 📘 Function reference: `?islasso`
-- 📄 Vignette: `vignette("islasso-intro")`
+- 📄 Vignettes: `vignette("islasso-intro")`, `vignette("islasso-methodology")`,
+  `vignette("islasso-glm")`, `vignette("islasso-highdim")`
 - 🌐 Website: [https://gianluca-sottile.github.io/islasso](https://gianluca-sottile.github.io/islasso)
 
 ## 📖 References
@@ -58,4 +67,4 @@ Bug reports and feature requests are welcome!
 
 ## 📜 License
 
-<a href="https://cran.r-project.org/web/packages/islasso/index.html">islasso</a> © 2019 by <a href="https://gianlucasottile.rbind.io">Gianluca Sottile</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
+GPL (>= 2)

@@ -21,6 +21,12 @@ navbar:
       menu:
         - text: "Introduction to islasso"
           href: articles/islasso-intro.html
+        - text: "Methodology and algorithm"
+          href: articles/islasso-methodology.html
+        - text: "GLMs and families"
+          href: articles/islasso-glm.html
+        - text: "High-dimensional data"
+          href: articles/islasso-highdim.html
     news:
       text: "Changelog"
       href: news/index.html

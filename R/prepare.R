@@ -281,7 +281,7 @@
     gradient = gradient, hi = hi, intercept = intercept, unpenalized = unp,
     nms = nms, estc = setting$estpai, lmbd.interval = start$interval,
     theta = fit$theta, se.std = fit$se, v = fit$v, c = fit$cm, lam = fit$lam, xm = xm, xs = xs,
-    mode = fit$mode, inner.iter = fit$inner_iter, tol = fit$tol, conv = fit$conv, pen = pen,
+    aic.ok = is.finite(aicv), mode = fit$mode, inner.iter = fit$inner_iter, tol = fit$tol, conv = fit$conv, pen = pen,
     n.trials = prep$n
   )
   structure(list(

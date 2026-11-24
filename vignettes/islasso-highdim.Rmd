@@ -1,0 +1,62 @@
+---
+title: "High-dimensional data and computational aspects"
+author:
+  - Gianluca Sottile
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{High-dimensional data and computational aspects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+The induced smoothed lasso works with full $p \times p$ matrices (the derivative of the smoothed
+estimating equation and the sandwich covariance matrix), so its cost grows with the number of
+covariates. This vignette summarises how **islasso** keeps the computations manageable.
+
+# Cost per iteration
+
+| step | until 1.6.2 | from 1.7.0, $p \le 2n$ | from 1.7.0, $p > 2n$ |
+|:-----|:-----------:|:-----------------:|:----------------:|
+| estimating equation at fixed s.e. | damped fixed point, one $p\times p$ Cholesky per step | undamped MM (or Newton) steps, one Cholesky per step | $n \times n$ factorisations (Woodbury), $O(n^2p)$ |
+| standard errors | full sandwich, $\approx 4.3\,p^3$ flops | diagonal only, $\approx p^3$ flops | diagonal only, $O(n^2p)$ |
+| $X^\top W X$ (Gaussian path) | recomputed at every $\lambda$ | computed once | not needed |
+| full covariance matrix | every iteration | once, at convergence | once, $O(np^2)$ |
+
+The number of steps needed to solve the estimating equation is also smaller, because the
+majorise–minimise iterations are not damped any more (`inner = "mm"`, default) or use Newton's
+method (`inner = "newton"`).
+
+# An example with $p \gg n$
+
+```{r}
+library(islasso)
+n <- 60; p <- 600
+beta <- c(2, -2, 1.5, -1.5, 1, rep(0, p - 5))
+sim <- simulXy(n = n, p = p, beta = beta, seed = 1, rho = 0.3)
+system.time(fit <- islasso(y ~ ., data = sim$data, lambda = 10))
+fit$internal$mode   # 1 = Woodbury back end
+summary(fit, pval = 0.01)
+```
+
+The same model with the dense back end (one $601 \times 601$ factorisation per step):
+
+```{r}
+system.time(fit.d <- islasso(y ~ ., data = sim$data, lambda = 10,
+                             control = is.control(solver = "dense")))
+max(abs(coef(fit) - coef(fit.d)))
+```
+
+# Practical advice
+
+* Use `islasso.path()` to explore the tuning parameter: models are fitted with warm starts, from the
+  largest to the smallest value of `lambda`, and with the Gaussian family $X^\top W X$ is computed
+  once.
+* `control = is.control(inner = "newton")` usually needs fewer factorisations when $p$ is large.
+* An optimised BLAS/LAPACK library (OpenBLAS, Apple Accelerate, Intel MKL) speeds up all the
+  computations, since the numerical core relies on BLAS level 3 and LAPACK routines.
+* The full covariance matrix is $p \times p$: with tens of thousands of covariates its storage
+  (8 bytes per entry) becomes the limiting factor.

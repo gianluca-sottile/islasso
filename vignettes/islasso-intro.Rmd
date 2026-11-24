@@ -38,22 +38,25 @@ and _islasso.path_ used to fit the regularization path via the induced smoothed 
 
 ```{r, dont-eval-1, eval=FALSE}
 islasso.path(formula, family = gaussian, lambda = NULL, nlambda = 100, 
-             lambda.min.ratio = ifelse(nobs < nvars, 1E-3, 1E-05), alpha = 1, 
+             lambda.min.ratio = ifelse(nobs < nvars, 1E-2, 1E-04), alpha = 1, 
              data, weights, subset, offset, unpenalized, contrasts = NULL, control = is.control())
 ```
 
 _family_ accepts specification of family and link function as in Table 1, _lambda_ is the tuning parameter, _alpha_ is elastic-net mixing parameter, _nlambda_ is the number of lambda values, _lambda.min.ratio_ is the smallest value for lambda (as a fraction of lambda.max), and _unpenalized_ allows to indicate covariates with unpenalized coefficients.
 
-__Table 1. Families and link functions allowed in islasso__
+__Table 1. Some families and link functions available in islasso__ (from version 1.7.0 any
+family object accepted by `glm()` can be used; see the vignette *GLMs and families*)
 
 | family | link |
 |:-------|:----:|
 | gaussian | identity |
-| binomial | logit, probit |
-| poisson | log |
-| gamma | identity, log, inverse |
+| binomial, quasibinomial | logit, probit, cauchit, log, cloglog |
+| poisson, quasipoisson | log, identity, sqrt |
+| Gamma | inverse, identity, log |
+| inverse.gaussian | 1/mu^2, inverse, identity, log |
+| `MASS::negative.binomial(theta)` | log, sqrt, identity |
 
-The fitter functions are \verb|islasso.fit()| and \verb|islasso.path.fit()| which reads as
+The fitter functions are \verb|islasso.fit()| and \verb|islasso.path.fit()| which read as
 
 ```{r, dont-eval1, eval=FALSE}
 islasso.fit(X, y, family = gaussian(), lambda, alpha = 1, intercept = FALSE, 
@@ -68,7 +71,7 @@ islasso.path.fit(X, y, family = gaussian(), lambda, nlambda, lambda.min.ratio,
                  unpenalized = NULL, control = is.control()) 
 ```
 
-whose actually implements the estimating algorithm as described in the paper. The _lambda_ argument in _islasso.fit_ and _islasso_ specifies the positive tuning parameter in the penalized objective. Any non-negative value can be provided, but if missing, it is computed via $K$-fold cross validation by the function _cv.glmnet()_ from package __glmnet__. The number of folds being used can be specified via the argument _nfolds_ of the auxiliary function _is.control()_. The _lambda_ argument in _islasso.path.fit_ and _islasso.path_ specifies the sequence of positive tuning parameters, user supplied or automatically computed based on _nlambda_ and _lambda.min.ratio_.
+which actually implement the estimating algorithm as described in the paper. The _lambda_ argument in _islasso.fit_ and _islasso_ specifies the positive tuning parameter in the penalized objective. Any non-negative value can be provided, but if missing, it is computed via $K$-fold cross validation by the function _cv.glmnet()_ from package __glmnet__. The number of folds being used can be specified via the argument _nfolds_ of the auxiliary function _is.control()_. The _lambda_ argument in _islasso.path.fit_ and _islasso.path_ specifies the sequence of positive tuning parameters, user supplied or automatically computed based on _nlambda_ and _lambda.min.ratio_.
 
 # A worked example: the Prostate data set
 The `Prostate` dataset is a well-known benchmark in regression analysis and variable selection, originally published by Stamey et al. (1989). It contains clinical measurements from 97 male patients diagnosed with prostate cancer.
@@ -96,7 +99,8 @@ library(islasso)
 data("Prostate", package = "islasso")
 x <- model.matrix(lpsa ~ ., data = Prostate)[, -1]
 y <- Prostate$lpsa
-a1 <- cv.glmnet(x, y, family = "gaussian")
+set.seed(1)
+a1 <- glmnet::cv.glmnet(x, y, family = "gaussian")
 n <- nrow(Prostate)
 a1$lambda.min * n
 
@@ -104,7 +108,7 @@ b <- drop(coef(a1, "lambda.min", exact = TRUE))
 length(b[b != 0])
 ```
 
-Ten-fold cross validation "selects" $\lambda=$ `r round(a1$lambda.min * n, 3)`. corresponding to `r length(b[b != 0])` non null coefficients
+Ten-fold cross-validation "selects" $\lambda=$ `r round(a1$lambda.min * n, 3)`. corresponding to `r length(b[b != 0])` non null coefficients
 
 ```{r, fold.source = TRUE}
 names(b[b != 0])
@@ -116,7 +120,7 @@ The last three estimates are
 tail(b[b != 0], n = 3)
 ```
 
-A reasonable question is if all the "selected" coefficients are significant in the model. Unfortunately lasso regression does not return standard errors due to nonsmoothness of objective, and some alternative approaches have been proposed., including the  (Lockhart et al., 2013). Among the (few) strategies, including the 'covariance test', the 'post-selection inference' and the '(modified) residual bootstrap', here we illustrate the R package __islasso__ implementing the recent `quasi' lasso approach based on the induced smoothing idea (Brown and Wang, 2005) as discussed in Cilluffo et al. (2019) 
+A reasonable question is if all the "selected" coefficients are significant in the model. Unfortunately lasso regression does not return standard errors due to nonsmoothness of objective, and some alternative approaches have been proposed., including the  (Lockhart et al., 2013). Among the (few) strategies, including the 'covariance test', the 'post-selection inference' and the '(modified) residual bootstrap', here we illustrate the R package __islasso__ implementing the recent `quasi' lasso approach based on the induced smoothing idea (Brown and Wang, 2005) as discussed in Cilluffo et al. (2020).
 
 While the optimal lambda could be selected (without supplying any value to _lambda_), we use optimal value minimizing a specific criterion chosen between AIC, BIC, AICc, eBIC, GCV or GIC. From version 1.4.0 of the R package __islasso__ optimal strategy is to built the regularization path
 
@@ -128,17 +132,16 @@ out
 and then to choose the best tuning parameter through the one of the criteria listed above using the function _GoF.islasso.path_, e.g.,
 
 ```{r}
-lmb.best <- GoF.islasso.path(out)
+lmb.best <- GoF.islasso.path(out, plot = FALSE)
 lmb.best$lambda.min
 ```
 
-Using also the regularization path is very usefull to have more insights about coefficients, standard errors and gradient profile
+The regularization path is also very useful to have more insights about coefficients, standard errors and gradient profile
 
-```{r}
-p1 <- plot(out, yvar = "coefficients")
-p2 <- plot(out, yvar = "se")
-p3 <- plot(out, yvar = "gradient")
-gridExtra::grid.arrange(p1, p2, p3, ncol = 1L)
+```{r, fig.width = 7, fig.height = 3.5}
+plot(out, yvar = "coefficients", gof = "AIC")
+plot(out, yvar = "se", gof = "AIC")
+plot(out, yvar = "gradient", gof = "AIC")
 ```
 
 Once selected the best lambda value minimizing for example the AIC criterion, the last step of the strategy consists on fitting a new islasso model.
@@ -161,10 +164,10 @@ In addition to the usual information printed by the summary method, the output a
 sum(out2$internal$hi)
 ```
 
-and the corresponding residual degrees of freedom (`r out$internal$n - out$rank`) as reported above. The Wald test (column _z value_) and $p$-values can be used to assess important or significant covariates. Results suggest that variables `lcavol`, `lweight` and `svi` are informative to predict the measure of the logarithm of PSA levels, while `lbph` is borderline informative. Just to be clear, another way to obtain a similar result without computing the regularization path, is to use the function _aic.islasso_ which requires a preliminary islasso fit object and a specification of the criterion to be used. Hence
+and the corresponding residual degrees of freedom (`r round(out2$df.residual, 2)`) as reported above. The Wald test (column _z value_) and $p$-values can be used to assess important or significant covariates. Results suggest that variables `lcavol`, `lweight` and `svi` are informative to predict the measure of the logarithm of PSA levels, while `lbph` is borderline informative. Just to be clear, another way to obtain a similar result without computing the regularization path, is to use the function _aic.islasso_ which requires a preliminary islasso fit object and a specification of the criterion to be used. Hence
 
 ```{r}
-lambda.aic2 <- aic.islasso(out2, method = "AIC", interval = c(.1, 50))
+lambda.aic2 <- aic.islasso(out2, method = "AIC", interval = c(.1, 50), trace = FALSE)
 out3 <- update(out2, lambda = lambda.aic2)
 summary(out3, pval = .10)
 ```
@@ -180,13 +183,8 @@ where $0\le \alpha\le 1$ is the mixing parameter to be specified in _islasso()_ 
 out4 <- update(out, alpha = .5)
 out4
 
-# some diagnostic plot
-p4 <- plot(out4, yvar = "coefficients")
-p5 <- plot(out4, yvar = "se")
-gridExtra::grid.arrange(p4, p5, ncol = 1L)
-
 # select the best tuning parameter
-lmb.best2 <- GoF.islasso.path(out4)
+lmb.best2 <- GoF.islasso.path(out4, plot = FALSE)
 lmb.best2$lambda.min
 
 # fit a new islasso model with elastic-net penalty
@@ -195,7 +193,7 @@ out5 <- update(out2, alpha = .5, lambda = lambda.aic3)
 summary(out5, pval = .10)
 
 # or select the best tuning parameter using AIC with an islasso object
-lambda.aic4 <- aic.islasso(out5, method = "AIC", interval = c(.1, 100))
+lambda.aic4 <- aic.islasso(out5, method = "AIC", interval = c(.1, 100), trace = FALSE)
 out6 <- update(out5, lambda = lambda.aic4)
 summary(out6, pval = .10)
 ```
@@ -203,6 +201,6 @@ summary(out6, pval = .10)
 # References
 
 + Tibshirani R. _Regression shrinkage and selection via the lasso_. J R Stat Soc: Series B 1996; 58: 267–288
-+ Cilluffo, G, Sottile, G, La Grutta, S and Muggeo, VMR (2019) _The Induced Smoothed lasso: A practical framework for hypothesis testing in high dimensional regression_. Statistical Methods in Medical Research, online doi: 10.1177/0962280219842890.
++ Cilluffo, G, Sottile, G, La Grutta, S and Muggeo, VMR (2020) _The Induced Smoothed lasso: A practical framework for hypothesis testing in high dimensional regression_. Statistical Methods in Medical Research 29(3): 765–777. doi: 10.1177/0962280219842890.
 + Brown B and Wang Y. _Standard errors and covariance matrices for smoothed rank estimators_. Biometrika 2005; 92:
 149–158.

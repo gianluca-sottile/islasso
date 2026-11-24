@@ -237,11 +237,10 @@
     }
     wk <- list(w = weights)
   } else {
+    # first IRLS weights from 'mustart' (as in glm.fit), unless the starting values are given
     eta <- drop(Xs %*% theta) + offset
-    if (!valideta(eta) || !validmu(linkinv(eta)) || any(!is.finite(eta))) {
-      theta[] <- 0
-      if (intercept) theta[1L] <- family$linkfun(sum(weights * y) / sum(weights))
-      eta <- drop(Xs %*% theta) + offset
+    if (is.null(control$b0) || !valideta(eta) || !validmu(linkinv(eta)) || any(!is.finite(eta))) {
+      eta <- family$linkfun(.is_mustart(y, weights, family))
     }
     wk <- irls(eta)
     Xt <- Xs * wk$sw
@@ -328,4 +327,26 @@
   s <- control$solver
   if (is.null(s) || identical(s, "auto")) return(if (p > 2 * n) 1L else 0L)
   if (identical(s, "woodbury")) 1L else 0L
+}
+
+# starting fitted values, as in the 'initialize' expressions of the families in 'stats'
+.is_mustart <- function(y, weights, family) {
+  f <- family$family
+  ybar <- sum(weights * y) / sum(weights)
+  mu <- if (f %in% c("binomial", "quasibinomial")) {
+    (weights * y + 0.5) / (weights + 1)
+  } else if (f %in% c("poisson", "quasipoisson") || grepl("^Negative Binomial", f)) {
+    y + 0.1
+  } else if (f %in% c("Gamma", "inverse.gaussian")) {
+    y
+  } else if (f == "gaussian") {
+    y
+  } else {
+    (y + ybar) / 2
+  }
+  if (!is.function(family$validmu) || isTRUE(family$validmu(mu))) {
+    eta <- family$linkfun(mu)
+    if (all(is.finite(eta)) && (!is.function(family$valideta) || isTRUE(family$valideta(eta)))) return(mu)
+  }
+  rep(ybar, length(y))
 }

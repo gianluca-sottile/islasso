@@ -249,7 +249,7 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
   cat(
     "AIC: ", format(x$aic, digits = max(4L, digits + 1L)),
     "\nLambda: ", format(x$lambda, digits = max(4L, digits + 1L)),
-    "\n\nNumber of Newton-Raphson iterations: ", x$iter, "\n\n",
+    "\n\nNumber of IS iterations: ", x$iter, "\n\n",
     sep = ""
   )
 

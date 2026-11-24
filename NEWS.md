@@ -1,3 +1,61 @@
+# islasso 1.6.2.9000 (development version of 1.7.0)
+
+## Numerical core
+- The Fortran routines have been replaced by a new core written in C on top of the BLAS/LAPACK
+  libraries of R (no Fortran compiler is needed any more to install from source).
+- At fixed standard errors the smoothed estimating equation is the gradient of a smooth convex
+  objective; it is now solved by undamped majorise-minimise iterations (default, the same fixed
+  point as before with about half of the factorisations) or by Newton's method with line search
+  (`is.control(inner = "newton")`).
+- Only the diagonal of the sandwich matrix and the pseudo hat values are computed during the
+  iterations (about 4 times fewer flops per iteration); the full covariance matrix is computed once,
+  at convergence.
+- New Woodbury back end used when the number of columns exceeds twice the number of observations:
+  cost O(n^2 p) instead of O(p^3) per step (`is.control(solver = )`).
+- `islasso.path()` fits the models from the largest to the smallest `lambda` with warm starts,
+  computes X'X once for the Gaussian family, keeps all the models (with a convergence flag, column
+  `conv` of `Info`) and no longer drops covariates permanently from the path.
+- No more large arrays on the stack (possible crashes with large n * p in 1.6.x).
+
+## Models
+- Any family object accepted by `glm()` can be used (all the links of `binomial`, `poisson`,
+  `Gamma`; `inverse.gaussian`; quasi families; `MASS::negative.binomial()`, ...): the IRLS loop is
+  driven by the family object, with step halving when the linear predictor becomes invalid.
+- With `stand = TRUE` the penalty now acts on the standardised coefficients, as in glmnet (whose
+  cross-validation provides `lambda` when it is missing): before, the estimator penalised the
+  coefficients on the original scale while glmnet worked on the standardised ones. Results change
+  for covariates that are not standardised.
+- The scale of `lambda` is `sum(weights)` times the glmnet scale (equal to `n` with unit weights).
+- `is.control(seed = )` is now used (reproducible cross-validation; the RNG state is restored).
+
+## Bug fixes
+- Models without intercept and `stand = TRUE` were centred, changing the model.
+- The probit inverse link had a wrong clamping threshold (8.1e6 instead of 8.13), producing
+  infinite weights for large linear predictors.
+- `aic.islasso()` refitted the model with the IRLS working weights as prior weights; it now
+  optimises over log(lambda).
+- AICc had an extra factor n; GCV is now n * deviance / (n - df)^2.
+- `islasso.path()`: rows of fitted values/residuals could be misaligned with the coefficients when
+  some fit failed.
+- `relax.islasso()` failed for models without intercept and used an infinite `lambda`.
+- `predict(type = "coefficients", se.fit = TRUE)` failed; `summary.islasso.path()` printed the
+  log-likelihood as residual deviance; path methods returned `NA` at the largest `lambda`.
+- An `offset` given as a covariate name removed that covariate from the model.
+- `logLik()` is `NA` for families without likelihood (quasi).
+- The dispersion is protected against non-positive residual degrees of freedom for all families.
+
+## Other changes
+- Influence measures and diagnostic plots use the leverages of the sandwich Hessian (no QR of
+  the augmented design, no n x n hat matrix).
+- glmnet moved from Depends to Imports; the startup banner and the dependencies on cli and
+  gridExtra have been removed.
+- New vignettes: methodology and algorithm, GLMs and families, high-dimensional data.
+- Unit tests (testthat).
+
+# islasso 1.6.2 (2025-11-15)
+
+- Fixed the number of arguments in a call to the internal routine `inv_posdef`.
+
 # islasso 1.6.1 (2025-08-17)
 
 - Created GitHub page and website.
