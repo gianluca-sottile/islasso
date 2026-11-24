@@ -20,7 +20,8 @@
 #' The models are fitted from the largest to the smallest value of `lambda`, each one starting
 #' from the estimates, standard errors and mixture weights of the previous one; with the
 #' Gaussian family the matrix \eqn{X^\top W X} is computed once for the whole path. Every model
-#' is kept in the output, together with its convergence flag (column `conv` of `Info`).
+#' is kept in the output, together with its convergence flag (column `conv` of `Info`), except
+#' those for which the algorithm failed (a warning is given).
 #' The information criteria stored in `GoF` are
 #' \eqn{AIC = -2\ell + 2\,df}, \eqn{BIC = -2\ell + \log(n)\,df},
 #' \eqn{AICc = AIC + 2\,df(df+1)/(n-df-1)}, \eqn{eBIC = -2\ell + \{\log(n) + 2g\log(p)\}\,df},
@@ -107,6 +108,7 @@ islasso.path <- function(formula, family = gaussian(), lambda = NULL, nlambda = 
   fit$data <- data
   fit$contrasts <- attr(model.matrix(mt, mf, contrasts), "contrasts")
   fit$xlevels <- .getXlevels(mt, mf)
+  fit$na.action <- attr(mf, "na.action")
   fit
 }
 
@@ -148,7 +150,6 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     G <- crossprod(Xt)
     bz <- drop(crossprod(Xt, sw * (prep$y - prep$offset)))
   }
-  A <- .is_backmap(st$xm, st$xs, intercept)
 
   theta <- null$theta
   theta[theta == 0] <- 1e-5
@@ -160,6 +161,8 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
   out_gof <- matrix(NA_real_, nlambda, 6L)
   out_eta <- out_mu <- out_res <- matrix(NA_real_, nlambda, nobs)
   ll_ok <- nobs > nvars && is.function(family$aic)
+  nok <- sum(prep$weights > 0)
+  disp <- family$family %in% c("gaussian", "Gamma", "inverse.gaussian")
   trace <- setting$trace
   setting_in <- setting
   setting_in$trace <- 0L
@@ -177,19 +180,15 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     theta <- fit$theta
     v0 <- fit$v
     cm <- fit$cm
-    beta <- drop(A %*% theta)
+    beta <- .is_theta2beta(theta, st$xm, st$xs, intercept)
     se <- sqrt(fit$dispersion * fit$v) / st$xs
     if (intercept && nvars > 1L) {
-      # the intercept on the original scale combines all the standardised coefficients
-      a <- A[1L, ]
-      if (nvars <= 500L) {
-        Vs <- .is_vcov_core(fit$mode, fit$G, fit$Xt, theta, fit$se, cm, lam, prep$alpha)$V
-        d <- sqrt(pmax(diag(Vs), 0))
-        b <- a * ifelse(d > 0, sqrt(fit$v) / d, 0)
-        se[1L] <- sqrt(fit$dispersion * max(sum(b * (Vs %*% b)), 0))
-      } else {
-        se[1L] <- sqrt(fit$dispersion * sum(a^2 * fit$v))
-      }
+      # the intercept on the original scale combines all the standardised coefficients:
+      # variance a' Vstd a with Vstd = phi * diag(sqrt(v / vn)) S diag(sqrt(v / vn)), S = sandwich
+      a <- .is_intercept_row(st$xm, st$xs)
+      b <- a * ifelse(fit$vn > 0, sqrt(fit$v / fit$vn), 0)
+      q <- .is_quad(fit$mode, fit$G, fit$Xt, theta, fit$se.used, cm, fit$lam, prep$alpha, b)
+      se[1L] <- sqrt(fit$dispersion * max(q, 0))
     }
     eta <- drop(prep$X %*% beta) + prep$offset
     mu <- family$linkinv(eta)
@@ -197,20 +196,22 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     dev <- sum(family$dev.resids(prep$y, mu, prep$weights))
     df <- fit$edf
     ll <- dev
+    llfam <- FALSE
     if (ll_ok) {
       a <- tryCatch(family$aic(prep$y, prep$n, mu, prep$weights, dev), error = function(e) NA_real_)
-      if (is.finite(a)) ll <- a
+      if (is.finite(a)) { ll <- a - 2 * disp; llfam <- TRUE }  # -2 loglik (family$aic adds 2 for phi)
     }
     w <- prep$weights * me^2 / family$variance(mu)
     w[!is.finite(w)] <- 0
-    pz <- .is_penalty_R(theta, fit$se, cm, lam, prep$alpha)
+    pz <- .is_penalty_R(theta, fit$se.used, cm, fit$lam, prep$alpha)
     gstd <- -drop(crossprod(Xs, w * (prep$y - mu) / me)) + pz$gradient
     out_coef[k, ] <- beta
     out_se[k, ] <- se
     out_w[k, ] <- cm
-    out_grad[k, ] <- drop(solve(t(A), gstd))
+    out_grad[k, ] <- .is_grad_back(gstd, st$xm, st$xs, intercept)
     out_info[k, ] <- c(lambda[k], df, fit$dispersion, dev, -ll / 2, fit$iter, fit$tol, fit$conv)
-    out_gof[k, ] <- .is_gof(ll, dev, df, nobs, nvars, setting$g)
+    # criteria as in islasso(): family$aic (dispersion included) + penalty on df
+    out_gof[k, ] <- .is_gof(if (llfam) ll + 2 * disp else ll, dev, df, nok, nvars, setting$g)
     out_eta[k, ] <- eta
     out_mu[k, ] <- mu
     out_res[k, ] <- (prep$y - mu) / me
@@ -223,7 +224,7 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
   }
   if (trace > 0L) cat("\n")
   if (any(out_info[, 8L] == 2, na.rm = TRUE))
-    warning("the algorithm failed for some values of lambda (conv = 2 in 'Info')", call. = FALSE)
+    warning("the algorithm failed for some values of lambda, removed from the output", call. = FALSE)
   if (any(out_info[, 8L] == 1, na.rm = TRUE))
     warning("maximum number of iterations reached for some values of lambda (conv = 1 in 'Info')",
             call. = FALSE)

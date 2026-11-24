@@ -7,11 +7,13 @@
 SEXP C_is_inner(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 SEXP C_is_vcov(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 SEXP C_is_penalty(SEXP, SEXP, SEXP, SEXP, SEXP);
+SEXP C_is_quad(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"is_inner", (DL_FUNC) &C_is_inner, 13},
     {"is_vcov", (DL_FUNC) &C_is_vcov, 9},
     {"is_penalty", (DL_FUNC) &C_is_penalty, 5},
+    {"is_quad", (DL_FUNC) &C_is_quad, 9},
     {NULL, NULL, 0}
 };
 

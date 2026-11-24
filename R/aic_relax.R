@@ -45,6 +45,7 @@ aic.islasso <- function(object, method = c("AIC", "BIC", "AICc", "GCV", "GIC"), 
     if (missing(weights)) weights <- NULL
     if (missing(unpenalized)) unpenalized <- NULL
     ny <- if (is.matrix(y)) nrow(y) else length(y)
+    if (!is.null(weights)) ny <- sum(weights > 0)
   } else {
     if (!inherits(object, "islasso")) stop("'object' must be of class 'islasso'", call. = FALSE)
     if (missing(interval)) interval <- object$internal$lmbd.interval
@@ -58,11 +59,11 @@ aic.islasso <- function(object, method = c("AIC", "BIC", "AICc", "GCV", "GIC"), 
     alpha <- object$alpha
     offset <- object$offset
     control <- object$control
-    if (isTRUE(control$estpai)) control$c <- -1 else if (length(control$c) > 1L) control$c <- control$c[1L]
+    if (isTRUE(control$estpai)) control$c <- -1 else if (length(unique(control$c)) == 1L) control$c <- control$c[1L]
     # response and prior weights as given to the original fit
     y <- object$y
     weights <- object$prior.weights
-    ny <- length(y)
+    ny <- sum(weights > 0)
   }
   if (length(interval) != 2L || any(interval <= 0)) stop("'interval' must contain two positive values",
                                                           call. = FALSE)

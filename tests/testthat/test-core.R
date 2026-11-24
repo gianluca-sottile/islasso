@@ -47,3 +47,30 @@ test_that("dense and Woodbury back ends agree (p > n)", {
   expect_equal(V0$hobs, V1$hobs, tolerance = 1e-8)
   expect_equal(diag(V0$V), r0$v, tolerance = 1e-6)
 })
+
+test_that("quadratic form of the sandwich and back-transformations", {
+  set.seed(6)
+  n <- 30; p <- 12
+  X <- matrix(rnorm(n * p), n); z <- X[, 1] + rnorm(n)
+  se <- runif(p, 0.05, 0.2); cm <- rep(0.5, p); lam <- rep(3, p); lam[1] <- 0
+  th <- rnorm(p) * 0.1; b <- rnorm(p)
+  V <- islasso:::.is_vcov_core(0L, crossprod(X), X, th, se, cm, lam, 1)$V
+  q0 <- islasso:::.is_quad(0L, crossprod(X), X, th, se, cm, lam, 1, b)
+  q1 <- islasso:::.is_quad(1L, NULL, X, th, se, cm, lam, 1, b)
+  expect_equal(q0, drop(t(b) %*% V %*% b), tolerance = 1e-8)
+  expect_equal(q1, q0, tolerance = 1e-8)
+  xm <- c(0, rnorm(p - 1)); xs <- c(1, runif(p - 1, 0.5, 2))
+  A <- diag(1 / xs); A[1, -1] <- -xm[-1] / xs[-1]
+  expect_equal(islasso:::.is_theta2beta(th, xm, xs, TRUE), drop(A %*% th))
+  expect_equal(islasso:::.is_beta2theta(drop(A %*% th), xm, xs, TRUE), th)
+  expect_equal(islasso:::.is_Vback(V, xm, xs, TRUE), A %*% V %*% t(A))
+  expect_equal(islasso:::.is_grad_back(b, xm, xs, TRUE), drop(solve(t(A), b)))
+})
+
+test_that("constant covariates are detected by the standardisation", {
+  set.seed(1); n <- 50
+  X <- cbind(a = rnorm(n), k = 0.1, k2 = 1/3, k3 = 7.3)
+  st <- islasso:::.is_standardize(cbind(1, X), rep(c(1, 2), 25), TRUE, TRUE)
+  expect_equal(st$xs[3:5], c(1, 1, 1))
+  expect_equal(st$xm[3:5], c(0, 0, 0))
+})

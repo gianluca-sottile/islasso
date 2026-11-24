@@ -52,7 +52,7 @@
   } else {
     if (!is.numeric(weights) || length(weights) != nobs)
       stop(sprintf("'weights' must be a numeric vector of length %d", nobs), call. = FALSE)
-    weights[is.nan(weights)] <- 0
+    if (anyNA(weights)) stop("'weights' contains missing values", call. = FALSE)
     if (any(weights < 0)) stop("negative weights are not allowed", call. = FALSE)
     if (all(weights == 0)) stop("all the weights are equal to zero", call. = FALSE)
   }
@@ -159,8 +159,7 @@
     b0 <- as.double(setting$b0)
     if (length(b0) != p) stop(sprintf("'b0' must have length %d", p), call. = FALSE)
     # b0 is on the original scale: map to the standardised one
-    A <- .is_backmap(prep$xm, prep$xs, intercept)
-    est <- drop(solve(A, b0))
+    est <- .is_beta2theta(b0, prep$xm, prep$xs, intercept)
     return(list(beta = est, lambda = lambda, interval = NULL))
   }
   xx <- if (intercept) X[, -1L, drop = FALSE] else X
@@ -228,19 +227,18 @@
   setting <- prep$setting
   xm <- prep$xm
   xs <- prep$xs
-  A <- .is_backmap(xm, xs, intercept)
-  beta <- drop(A %*% fit$theta)
+  beta <- .is_theta2beta(fit$theta, xm, xs, intercept)
 
   # covariance: correlation of the sandwich at the solution, variances of the
   # (damped) fixed-point iteration, as in islasso <= 1.6.2
-  Vs <- .is_vcov_core(fit$mode, fit$G, fit$Xt, fit$theta, fit$se, fit$cm, fit$lam, prep$alpha)$V
+  Vs <- .is_vcov_core(fit$mode, fit$G, fit$Xt, fit$theta, fit$se.used, fit$cm, fit$lam, prep$alpha)$V
   d <- sqrt(pmax(diag(Vs), 0))
   R <- Vs / outer(d, d)
   R[!is.finite(R)] <- 0
   diag(R) <- 1
   sv <- sqrt(fit$v)
   Vstd <- fit$dispersion * R * outer(sv, sv)
-  V <- A %*% Vstd %*% t(A)
+  V <- .is_Vback(Vstd, xm, xs, intercept)
   V <- (V + t(V)) / 2
   se <- sqrt(pmax(diag(V), 0))
   dimnames(V) <- list(nms, nms)
@@ -265,9 +263,9 @@
   nulldev <- sum(family$dev.resids(y, wtdmu, weights))
   nulldf <- sum(weights > 0) - as.integer(intercept)
 
-  pz <- .is_penalty_R(fit$theta, fit$se, fit$cm, fit$lam, prep$alpha)
+  pz <- .is_penalty_R(fit$theta, fit$se.used, fit$cm, fit$lam, prep$alpha)
   gstd <- -drop(crossprod(Xs, w * residuals)) + pz$gradient
-  gradient <- drop(solve(t(A), gstd))   # theta = A^{-1} beta, so dF/dbeta = A^{-T} dF/dtheta
+  gradient <- .is_grad_back(gstd, xm, xs, intercept)
   pen <- prep$alpha * pz$P + (1 - prep$alpha) * fit$theta
   pen[prep$unpenalized] <- 0
 
@@ -280,7 +278,7 @@
     n = nobs, p = nvars, lambda.seq = fit$lam, vcov = V, vcov.std = Vstd,
     gradient = gradient, hi = hi, intercept = intercept, unpenalized = unp,
     nms = nms, estc = setting$estpai, lmbd.interval = start$interval,
-    theta = fit$theta, se.std = fit$se, v = fit$v, c = fit$cm, lam = fit$lam, xm = xm, xs = xs,
+    theta = fit$theta, se.std = fit$se.used, v = fit$v, c = fit$cm, lam = fit$lam, xm = xm, xs = xs,
     aic.ok = is.finite(aicv), mode = fit$mode, inner.iter = fit$inner_iter, tol = fit$tol, conv = fit$conv, pen = pen,
     n.trials = prep$n
   )

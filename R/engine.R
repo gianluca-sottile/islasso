@@ -107,6 +107,20 @@
   }
 }
 
+# b' H^-1 G H^-1 b without forming the full matrix
+.is_quad <- function(mode, G, Xt, theta, se, cm, lam, alpha, b) {
+  if (.is_native()) {
+    return(.Call(C_is_quad, as.integer(mode), G, Xt, as.double(theta), as.double(se),
+                 as.double(cm), as.double(lam), as.double(alpha), as.double(b)))
+  }
+  if (is.null(G)) G <- crossprod(Xt)
+  D <- .is_penalty_R(theta, se, cm, lam, alpha)$curvature
+  H <- G
+  diag(H) <- diag(H) + D
+  x <- solve(H, b)
+  sum(x * (G %*% x))
+}
+
 # full unscaled sandwich H^-1 G H^-1 and (optionally) observation leverages
 .is_vcov_core <- function(mode, G, Xt, theta, se, cm, lam, alpha, hobs = FALSE) {
   if (.is_native()) {
@@ -140,14 +154,18 @@
     if (length(idx)) {
       Xi <- X[, idx, drop = FALSE]
       if (intercept) {
-        xm[idx] <- drop(crossprod(w, Xi))
-        xs[idx] <- sqrt(pmax(drop(crossprod(w, Xi^2)) - xm[idx]^2, 0))
+        m <- drop(crossprod(w, Xi))
+        xm[idx] <- m
+        xs[idx] <- sqrt(drop(crossprod(w, sweep(Xi, 2L, m, check.margin = FALSE)^2)))  # two-pass
       } else {
         xs[idx] <- sqrt(drop(crossprod(w, Xi^2)))
       }
-      bad <- !(xs > 1e-10 * pmax(1, abs(xm)))
-      xs[bad] <- 1
-      if (any(bad) && intercept) xm[idx[bad[idx]]] <- 0
+      # constant columns (exactly, among the observations with positive weight)
+      pos <- weights > 0
+      const <- vapply(idx, function(j) { x <- X[pos, j]; all(x == x[1L]) }, logical(1L))
+      bad <- const | !(xs[idx] > 1e-10 * pmax(1, abs(xm[idx])))
+      if (intercept) xm[idx[bad]] <- 0
+      xs[idx[bad]] <- 1
     }
   }
   Xs <- X
@@ -157,13 +175,39 @@
   list(X = Xs, xm = xm, xs = xs)
 }
 
-# map from standardised to original coefficients: beta = A theta
-.is_backmap <- function(xm, xs, intercept) {
-  p <- length(xs)
-  A <- diag(1 / xs, p)
-  if (intercept && p > 1L) A[1L, -1L] <- -xm[-1L] / xs[-1L]
-  A
+# Linear map between standardised (theta) and original (beta) coefficients, beta = A theta,
+# with A = diag(1/xs) plus, with intercept, the first row (1, -xm/xs). Closed forms, O(p) or O(p^2).
+.is_theta2beta <- function(theta, xm, xs, intercept) {
+  beta <- theta / xs
+  if (intercept && length(theta) > 1L) beta[1L] <- theta[1L] - sum(xm[-1L] * theta[-1L] / xs[-1L])
+  beta
 }
+.is_beta2theta <- function(beta, xm, xs, intercept) {
+  theta <- beta * xs
+  if (intercept && length(beta) > 1L) theta[1L] <- beta[1L] + sum(xm[-1L] * beta[-1L])
+  theta
+}
+# A V A'
+.is_Vback <- function(V, xm, xs, intercept) {
+  p <- length(xs)
+  if (intercept && p > 1L) {
+    a <- c(1, -xm[-1L] / xs[-1L])
+    Va <- drop(V %*% a)
+    V[1L, ] <- Va
+    V[, 1L] <- Va
+    V[1L, 1L] <- sum(a * Va)
+  }
+  V / outer(xs, xs)
+}
+# gradient with respect to beta: A^{-T} g (theta = A^{-1} beta, A^{-1} = diag(xs) + first row xm)
+.is_grad_back <- function(g, xm, xs, intercept) {
+  gb <- g * xs
+  if (intercept && length(g) > 1L) gb[-1L] <- gb[-1L] + xm[-1L] * g[1L]
+  gb[1L] <- if (intercept) g[1L] else gb[1L]
+  gb
+}
+# the row of A for the intercept (for the variance of the intercept)
+.is_intercept_row <- function(xm, xs) c(1, -xm[-1L] / xs[-1L])
 
 # ------------------------------------------------------------------------------
 # family helpers
@@ -254,6 +298,9 @@
   ind <- ind2 <- NA_real_
   s2 <- if (sigma2 > 0) sigma2 else 1
   it_tot <- 0L
+  inner_info <- 0L
+  se_used <- se0
+  vn <- v0
   i <- 0L
   if (trace == 1L) cat("\nIS-lasso algorithm (lambda = ", format(max(lam), digits = 5), ")\n", sep = "")
   while (i < itmax) {
@@ -264,8 +311,10 @@
     }
     if (estc && i > 5L) cm <- stats::plogis(abs(theta / se0))
     theta_old <- theta
+    se_used <- se0
     inn <- .is_inner(mode, method, G, bz, Xt, zt, theta, se0, cm, lam, alpha, tol, itmax)
     it_tot <- it_tot + inn$iter
+    inner_info <- inn$info
     if (inn$info == 2L || any(!is.finite(inn$theta))) { conv <- 2L; break }
     theta <- inn$theta
     ind2 <- max(abs(theta - theta_old))
@@ -318,7 +367,11 @@
          call. = FALSE)
   }
   if (trace %in% c(1L, 2L)) cat("Convergence criterion is met.\n\n")
-  list(theta = theta, se = se0, v = v0, cm = cm, lam = lam, h = h, edf = sum(h), dispersion = s2,
+  if (inner_info %in% c(1L, 3L))
+    warning("the inner iterations did not fully converge at the last step (",
+            if (inner_info == 1L) "iteration limit" else "line search", "); consider increasing 'itmax'",
+            call. = FALSE)
+  list(theta = theta, se = se0, se.used = se_used, vn = vn, v = v0, cm = cm, lam = lam, h = h, edf = sum(h), dispersion = s2,
        conv = conv, iter = i, inner_iter = it_tot, tol = ind, eta = eta, Xt = Xt, zt = zt, G = G,
        mode = mode, w = if (gaus) weights else wk$w)
 }

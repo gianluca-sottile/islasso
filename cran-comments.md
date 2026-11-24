@@ -15,4 +15,4 @@ GLM family, bug fixes and new vignettes (see NEWS.md).
 
 ## Reverse dependencies
 
-There are no reverse dependencies on CRAN.
+To be checked with `revdepcheck::revdep_check()` (or `tools::package_dependencies("islasso", reverse = TRUE)`).

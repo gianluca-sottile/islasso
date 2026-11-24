@@ -445,6 +445,7 @@ int isl_inner(int mode, int method, int n, int p, const double *G, const double 
     double pen = isl_pen(p, theta, se, c, lam, alpha, g, Dn, NULL);
     double f = mode == 0 ? dense_F(&ds, theta, pen) : wood_F(&ws, theta, pen);
 
+    int usemm = (method == 0);
     for (it = 1; it <= maxit; it++) {
         CHECK_INTERRUPT();
         if (mode == 0) {
@@ -453,15 +454,14 @@ int isl_inner(int mode, int method, int n, int p, const double *G, const double 
             wood_lossgrad(&ws, gl);
             for (int j = 0; j < p; j++) g[j] += gl[j];
         }
-        if (method == 0) isl_mm_curv(p, theta, se, c, lam, alpha, Ds);
+        if (usemm) isl_mm_curv(p, theta, se, c, lam, alpha, Ds);
         else memcpy(Ds, Dn, (size_t) p * sizeof(double));
-        if (mode == 0) {
-            fact = dense_factor(&ds, Ds);
-            if (fact && method == 1) {        /* Newton: fall back to the MM majoriser */
-                isl_mm_curv(p, theta, se, c, lam, alpha, Ds);
-                fact = dense_factor(&ds, Ds);
-            }
-        } else fact = wood_factor(&ws, Ds);
+        fact = mode == 0 ? dense_factor(&ds, Ds) : wood_factor(&ws, Ds);
+        if (fact && !usemm) {                 /* Newton: fall back to the MM majoriser */
+            usemm = 1;
+            isl_mm_curv(p, theta, se, c, lam, alpha, Ds);
+            fact = mode == 0 ? dense_factor(&ds, Ds) : wood_factor(&ws, Ds);
+        }
         if (fact) { *info = 2; break; }
         double gd = 0.0, dmax = 0.0;
         for (int j = 0; j < p; j++) d[j] = -g[j];
@@ -473,7 +473,7 @@ int isl_inner(int mode, int method, int n, int p, const double *G, const double 
             for (int j = 0; j < p; j++) { d[j] = -g[j]; gd -= g[j] * g[j]; }
         }
         /* MM: full step decreases F in exact arithmetic; backtracking as a safeguard */
-        double step = 1.0, fn = f, sig = method == 0 ? 0.0 : 1e-4;
+        double step = 1.0, fn = f, sig = usemm ? 0.0 : 1e-4;
         int ok = 0;
         for (int ls = 0; ls < 60; ls++) {
             for (int j = 0; j < p; j++) thn[j] = theta[j] + step * d[j];
@@ -483,8 +483,9 @@ int isl_inner(int mode, int method, int n, int p, const double *G, const double 
             step *= 0.5;
         }
         if (!ok) {                             /* restore cached quantities at theta */
-            double pn = isl_pen(p, theta, se, c, lam, alpha, NULL, NULL, NULL);
-            if (mode == 0) dense_F(&ds, theta, pn); else wood_F(&ws, theta, pn);
+            pen = isl_pen(p, theta, se, c, lam, alpha, g, Dn, NULL);
+            f = mode == 0 ? dense_F(&ds, theta, pen) : wood_F(&ws, theta, pen);
+            if (!usemm) { usemm = 1; continue; }   /* Newton stalled: switch to MM steps */
             *info = 3;
             break;
         }
@@ -578,6 +579,40 @@ int isl_vcov(int mode, int n, int p, const double *G, const double *X, const dou
     return info;
 }
 
+/* quadratic form b' H^-1 G H^-1 b of the unscaled sandwich (e.g. variance of a linear
+ * combination), without forming the p x p matrix.  Returns NAN on failure. */
+double isl_quad(int mode, int n, int p, const double *G, const double *X, const double *theta,
+                const double *se, const double *c, const double *lam, double alpha,
+                const double *b)
+{
+    double *D = ALLOC_D(p), *x = ALLOC_D(p), q = 0.0, d1 = 1.0, d0 = 0.0;
+    int one = 1;
+    isl_pen(p, theta, se, c, lam, alpha, NULL, NULL, D);
+    memcpy(x, b, (size_t) p * sizeof(double));
+    if (mode == 0) {
+        dense_t ds; ds.p = p; ds.G = G; ds.L = ALLOC_D((size_t) p * p); ds.Gth = ALLOC_D(p);
+        if (dense_factor(&ds, D)) q = NAN;
+        else {
+            dense_solve(&ds, x);
+            F77_CALL(dsymv)("L", &p, &d1, G, &p, x, &one, &d0, ds.Gth, &one FCONE);
+            for (int j = 0; j < p; j++) q += x[j] * ds.Gth[j];
+        }
+        FREE(ds.L); FREE(ds.Gth);
+    } else {
+        wood_t ws;
+        wood_init(&ws, n, p, X, NULL, lam);
+        if (wood_factor(&ws, D)) q = NAN;
+        else {
+            wood_solve(&ws, x);
+            F77_CALL(dgemv)("N", &n, &p, &d1, X, &n, x, &one, &d0, ws.r, &one FCONE);
+            for (int i = 0; i < n; i++) q += ws.r[i] * ws.r[i];
+        }
+        wood_free(&ws);
+    }
+    FREE(D); FREE(x);
+    return q;
+}
+
 /* penalty, gradient and curvature at given theta (exported for testing and for R) */
 double isl_penalty(int p, const double *th, const double *se, const double *c,
                    const double *lam, double alpha, double *gr, double *D)
@@ -598,7 +633,7 @@ SEXP C_is_inner(SEXP mode_, SEXP method_, SEXP G_, SEXP bz_, SEXP X_, SEXP z_, S
     int mode = get_int(mode_), method = get_int(method_), p = length(theta_), n = 0;
     const double *G = NULL, *bz = NULL, *X = NULL, *z = NULL;
     if (mode == 0) {
-        if (!isReal(G_) || !isReal(bz_) || length(G_) != (R_xlen_t) p * p || length(bz_) != p)
+        if (!isReal(G_) || !isReal(bz_) || XLENGTH(G_) != (R_xlen_t) p * p || length(bz_) != p)
             error("invalid dense input");
         G = REAL(G_); bz = REAL(bz_);
     } else {
@@ -607,7 +642,9 @@ SEXP C_is_inner(SEXP mode_, SEXP method_, SEXP G_, SEXP bz_, SEXP X_, SEXP z_, S
         if (XLENGTH(X_) != (R_xlen_t) n * p) error("dimension mismatch");
         X = REAL(X_); z = REAL(z_);
     }
-    if (length(se_) != p || length(c_) != p || length(lam_) != p) error("length mismatch");
+    if (p < 1) error("empty coefficient vector");
+    if (!isReal(theta_) || !isReal(se_) || !isReal(c_) || !isReal(lam_) ||
+        length(se_) != p || length(c_) != p || length(lam_) != p) error("invalid input");
     SEXP out = PROTECT(allocVector(VECSXP, 6));
     SEXP th = PROTECT(duplicate(theta_));
     SEXP v = PROTECT(allocVector(REALSXP, p));
@@ -627,7 +664,7 @@ SEXP C_is_inner(SEXP mode_, SEXP method_, SEXP G_, SEXP bz_, SEXP X_, SEXP z_, S
     const char *nn[6] = {"theta", "v", "h", "D", "iter", "info"};
     for (int k = 0; k < 6; k++) SET_STRING_ELT(nms, k, mkChar(nn[k]));
     setAttrib(out, R_NamesSymbol, nms);
-    UNPROTECT(7);
+    UNPROTECT(6);
     return out;
 }
 
@@ -636,6 +673,9 @@ SEXP C_is_vcov(SEXP mode_, SEXP G_, SEXP X_, SEXP theta_, SEXP se_, SEXP c_, SEX
 {
     int mode = get_int(mode_), p = length(theta_), n = 0, want_h = asLogical(hobs_);
     const double *G = NULL, *X = NULL;
+    if (p < 1) error("empty coefficient vector");
+    if (!isReal(theta_) || !isReal(se_) || !isReal(c_) || !isReal(lam_) ||
+        length(se_) != p || length(c_) != p || length(lam_) != p) error("invalid input");
     if (mode == 0) {
         if (!isReal(G_) || XLENGTH(G_) != (R_xlen_t) p * p) error("invalid dense input");
         G = REAL(G_);
@@ -659,6 +699,26 @@ SEXP C_is_vcov(SEXP mode_, SEXP G_, SEXP X_, SEXP theta_, SEXP se_, SEXP c_, SEX
     setAttrib(out, R_NamesSymbol, nms);
     UNPROTECT(4);
     return out;
+}
+
+SEXP C_is_quad(SEXP mode_, SEXP G_, SEXP X_, SEXP theta_, SEXP se_, SEXP c_, SEXP lam_,
+               SEXP alpha_, SEXP b_)
+{
+    int mode = get_int(mode_), p = length(theta_), n = 0;
+    if (p < 1 || length(b_) != p || !isReal(b_)) error("invalid input");
+    if (!isReal(theta_) || !isReal(se_) || !isReal(c_) || !isReal(lam_) ||
+        length(se_) != p || length(c_) != p || length(lam_) != p) error("invalid input");
+    const double *G = NULL, *X = NULL;
+    if (mode == 0) {
+        if (!isReal(G_) || XLENGTH(G_) != (R_xlen_t) p * p) error("invalid dense input");
+        G = REAL(G_);
+    } else {
+        if (!isReal(X_)) error("'X' is required");
+        X = REAL(X_);
+        n = (int) (XLENGTH(X_) / p);
+    }
+    return ScalarReal(isl_quad(mode, n, p, G, X, REAL(theta_), REAL(se_), REAL(c_), REAL(lam_),
+                               asReal(alpha_), REAL(b_)));
 }
 
 SEXP C_is_penalty(SEXP theta_, SEXP se_, SEXP c_, SEXP lam_, SEXP alpha_)

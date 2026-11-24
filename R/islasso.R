@@ -112,7 +112,7 @@
 #' beta <- c(1, 1, 1, rep(0, p - 3))
 #' sim2 <- simulXy(n = n, p = p, beta = beta, interc = 1, seed = 1, size = 100,
 #'                 family = binomial())
-#' o2 <- islasso(cbind(success, failure) ~ ., data = sim2$data, family = binomial(),
+#' o2 <- islasso(cbind(y.success, y.failure) ~ ., data = sim2$data, family = binomial(),
 #'               lambda = 5)
 #' summary(o2, pval = 0.05)
 #'
@@ -160,6 +160,7 @@ islasso <- function(formula, family = gaussian, lambda, alpha = 1, data, weights
   fit$data <- data
   fit$contrasts <- attr(model.matrix(mt, mf, contrasts), "contrasts")
   fit$xlevels <- .getXlevels(mt, mf)
+  fit$na.action <- attr(mf, "na.action")
   fit
 }
 
