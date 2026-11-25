@@ -21,6 +21,9 @@ islasso 1.7.0. Main changes (see NEWS.md):
 "search path '/opt/gfortran/lib/...' not found", due to the absence of the CRAN gfortran
 toolchain on that machine; it does not appear on the CRAN-like check services.)
 
+The incoming check may flag "Cilluffo" and "et al." as possibly misspelled words in
+DESCRIPTION: they are the first author's name and the usual citation abbreviation.
+
 ## Reverse dependencies
 
 All reverse dependencies were checked with no new problems.

@@ -145,3 +145,10 @@ test_that("errors are informative", {
   expect_error(islasso(y ~ ., data = d, lambda = 1, unpenalized = "nope"), "not columns")
   expect_error(islasso(y ~ ., data = d, family = poisson(), lambda = 1), "negative")
 })
+
+test_that("anova overall test with a singular covariance of the hypotheses", {
+  d <- simulXy(n = 60, p = 60, beta = c(rep(1, 5), rep(0, 55)), seed = 2)
+  fit <- islasso(y ~ . - 1, data = d$data, lambda = 10)
+  a <- suppressWarnings(anova(fit, A = diag(60), b = d$beta))
+  expect_true(is.finite(a$anova$result[61, "Chisq"]))
+})

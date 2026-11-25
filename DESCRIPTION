@@ -13,8 +13,8 @@ Description: An implementation of the induced smoothing (IS) idea to lasso and
     (standard errors and Wald tests) on all the model coefficients. Any
     generalised linear model family can be used. The numerical core, written in C
     with 'BLAS' and 'LAPACK', solves the smoothed estimating equations by
-    majorise-minimise or Newton iterations and switches to Woodbury identities when
-    the covariates outnumber the observations. The method is described in
+    majorization-minimization or Newton iterations and uses low-rank matrix
+    identities when the covariates outnumber the observations. The method is described in
     Cilluffo et al. (2020) <doi:10.1177/0962280219842890> and in a tutorial
     <doi:10.13140/RG.2.2.16360.11521>.
 License: GPL (>= 2)

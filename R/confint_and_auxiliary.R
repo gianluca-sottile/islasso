@@ -269,9 +269,10 @@ printHyp <- function (L, b, nms) {
 #'
 #' @examples
 #' n <- 100; p <- 100
+#' set.seed(1)
 #' beta <- c(runif(10, -2, 2), rep(0, p - 10))
 #' sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-#' fit <- islasso(y ~ . -1, data = sim$data, family = gaussian())
+#' fit <- islasso(y ~ . -1, data = sim$data, family = gaussian(), lambda = 10)
 #'
 #' # Test if first 5 variables sum to -7.5
 #' anova(fit, A = c("X1 + X2 + X3 + X4 + X5 = -7.5"))
@@ -330,8 +331,17 @@ anova.islasso <- function(object, A, b = NULL, ci, ...) {
   # Calculate overall test statistic if multiple hypotheses
   if (q > 1) {
     # Use solve with tolerance parameter for better numerical stability
-    statistic2 <- as.vector(t(value.hyp) %*% solve(vcov.hyp, tol = 1e-20) %*% value.hyp)
-    pval2 <- pchisq(statistic2, q, lower.tail = FALSE)
+    # Wald statistic with a generalised inverse: the covariance of the linear combinations can be
+    # (numerically) singular, e.g. for coefficients shrunk to zero, whose variances are tiny
+    eg <- eigen((vcov.hyp + t(vcov.hyp)) / 2, symmetric = TRUE)
+    keep <- eg$values > max(eg$values) * sqrt(.Machine$double.eps)
+    u <- drop(crossprod(eg$vectors[, keep, drop = FALSE], value.hyp))
+    statistic2 <- sum(u^2 / eg$values[keep])
+    df2 <- sum(keep)
+    if (df2 < q)
+      warning(sprintf("the covariance matrix of the hypotheses is singular: the overall test uses %d degrees of freedom instead of %d",
+                      df2, q), call. = FALSE)
+    pval2 <- pchisq(statistic2, df2, lower.tail = FALSE)
     rval[q + 1L, 3:4] <- c(statistic2, pval2)
   } else {
     rval <- rval[-c(q + 1L), , drop = FALSE]

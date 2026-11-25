@@ -47,6 +47,8 @@
   log-likelihood as residual deviance; path methods returned `NA` at the largest `lambda`.
 - An `offset` given as a covariate name removed that covariate from the model.
 - `logLik()` is `NA` for families without likelihood (quasi).
+- `anova()`: the overall Wald test uses a generalised inverse, so it no longer fails when the
+  covariance matrix of the hypotheses is numerically singular (degrees of freedom = its rank).
 - The dispersion is protected against non-positive residual degrees of freedom for all families.
 
 ## Other changes
