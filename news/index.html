@@ -74,6 +74,8 @@
 <li>An <code>offset</code> given as a covariate name removed that covariate from the model.</li>
 <li>
 <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code> is <code>NA</code> for families without likelihood (quasi).</li>
+<li>
+<code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>: the overall Wald test uses a generalised inverse, so it no longer fails when the covariance matrix of the hypotheses is numerically singular (degrees of freedom = its rank).</li>
 <li>The dispersion is protected against non-positive residual degrees of freedom for all families.</li>
 </ul></div>
 <div class="section level3">

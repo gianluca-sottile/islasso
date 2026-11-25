@@ -77,6 +77,10 @@
   model.
 - [`logLik()`](https://rdrr.io/r/stats/logLik.html) is `NA` for families
   without likelihood (quasi).
+- [`anova()`](https://rdrr.io/r/stats/anova.html): the overall Wald test
+  uses a generalised inverse, so it no longer fails when the covariance
+  matrix of the hypotheses is numerically singular (degrees of freedom =
+  its rank).
 - The dispersion is protected against non-positive residual degrees of
   freedom for all families.
 
