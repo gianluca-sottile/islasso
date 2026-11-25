@@ -1,4 +1,4 @@
-# islasso 1.6.2.9000 (development version of 1.7.0)
+# islasso 1.7.0
 
 ## Numerical core
 - The Fortran routines have been replaced by a new core written in C on top of the BLAS/LAPACK
