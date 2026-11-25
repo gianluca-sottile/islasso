@@ -1,0 +1,12 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  islasso-glm: islasso-glm.html
+  islasso-highdim: islasso-highdim.html
+  islasso-intro: islasso-intro.html
+  islasso-methodology: islasso-methodology.html
+last_built: 2026-11-25T08:25Z
+urls:
+  reference: https://gianluca-sottile.github.io/islasso/reference
+  article: https://gianluca-sottile.github.io/islasso/articles
