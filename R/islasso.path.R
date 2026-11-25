@@ -176,9 +176,9 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
   # one model of the path; the standard errors (and mixture weights) always start from their
   # initial values, so that every model coincides with islasso() at the same lambda (the IS fixed
   # point of the null coefficients depends on the starting standard errors)
-  fit_one <- function(k, theta) {
+  fit_one <- function(k, theta = NULL) {
     lam <- lambda[k] * as.numeric(!unp)
-    if (!is.null(starts)) theta <- starts[, k]
+    if (is.null(theta)) theta <- if (!is.null(starts)) starts[, k] else theta_null
     theta[theta == 0] <- 1e-5
     fit <- tryCatch(
       .is_fit_single(Xs, prep$y, family, lam, prep$alpha, prep$weights, prep$offset, intercept,
@@ -224,14 +224,16 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     cl <- parallel::makePSOCKcluster(min(ncores, nlambda))
     on.exit(parallel::stopCluster(cl), add = TRUE)
     parallel::clusterCall(cl, function(lp) invisible(.libPaths(lp)), .libPaths())
-    fits <- parallel::parLapply(cl, seq_len(nlambda), fit_one, theta = theta_null)
+    fits <- parallel::parLapply(cl, seq_len(nlambda), fit_one)
   } else {
     if (trace == 2L) cat("\n   Ind|Max   lambda       df        phi      iter   error\n")
+    # sequential fits: the estimates (not the standard errors) are warm-started from the previous
+    # lambda, which saves inner iterations without changing the fixed point
     fits <- vector("list", nlambda)
-    theta <- theta_null
+    theta <- NULL
     for (k in seq_len(nlambda)) {
       fits[[k]] <- fit_one(k, theta)
-      if (!is.null(fits[[k]]$theta)) theta <- fits[[k]]$theta   # used only without glmnet starts
+      theta <- fits[[k]]$theta
       if (trace == 2L && !is.null(fits[[k]]$info)) {
         f <- fits[[k]]$info
         cat(sprintf("%4d|%4d %10.4f %8.3f %10.4f %6d %9.2e\n", k, nlambda, f[1], f[2], f[3],
