@@ -234,6 +234,8 @@ islasso.fit <- function(X, y, family = gaussian, lambda, alpha = 1, intercept = 
 #'   the fixed-point iterations of islasso 1.6) or `"newton"` (Newton's method with line search).
 #' @param solver linear algebra: `"auto"` (default) uses `"woodbury"` when the number of
 #'   columns exceeds twice the number of observations and `"dense"` otherwise.
+#' @param ncores number of cores used by [islasso.path()] to fit the models for the different
+#'   values of `lambda` in parallel (forked processes, not available on Windows); default 1.
 #' @param ... further arguments, ignored (allows `do.call(is.control, control)`).
 #'
 #' @return A list with the control parameters.
@@ -244,7 +246,8 @@ islasso.fit <- function(X, y, family = gaussian, lambda, alpha = 1, intercept = 
 #' @export
 is.control <- function(sigma2 = -1, tol = 1e-05, itmax = 1000, stand = TRUE, trace = 0, nfolds = 5,
                        seed = NULL, adaptive = FALSE, g = 0.5, b0 = NULL, V0 = NULL, c = 0.5,
-                       inner = c("mm", "newton"), solver = c("auto", "dense", "woodbury"), ...) {
+                       inner = c("mm", "newton"), solver = c("auto", "dense", "woodbury"),
+                       ncores = 1L, ...) {
   inner <- match.arg(inner)
   solver <- match.arg(solver)
   if (!is.numeric(tol) || tol <= 0) stop("'tol' must be positive", call. = FALSE)
@@ -252,5 +255,6 @@ is.control <- function(sigma2 = -1, tol = 1e-05, itmax = 1000, stand = TRUE, tra
   if (!is.numeric(g) || g < 0 || g > 1) stop("'g' must be in [0, 1]", call. = FALSE)
   list(sigma2 = sigma2, tol = tol, itmax = as.integer(itmax), trace = as.integer(trace),
        stand = as.logical(stand), nfolds = nfolds, seed = seed, adaptive = as.logical(adaptive),
-       g = g, b0 = b0, V0 = V0, c = c, inner = inner, solver = solver)
+       g = g, b0 = b0, V0 = V0, c = c, inner = inner, solver = solver,
+       ncores = max(1L, as.integer(ncores)))
 }

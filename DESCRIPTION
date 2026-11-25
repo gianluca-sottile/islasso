@@ -21,7 +21,7 @@ License: GPL (>= 2)
 URL: https://gianluca-sottile.github.io/islasso/, https://github.com/gianluca-sottile/islasso
 BugReports: https://github.com/gianluca-sottile/islasso/issues
 Depends: R (>= 4.1.0)
-Imports: glmnet (>= 4.0), stats, utils, graphics, grid, ggplot2
+Imports: glmnet (>= 4.0), stats, utils, graphics, grid, parallel, ggplot2
 Suggests: knitr, rmarkdown, testthat (>= 3.0.0), MASS
 VignetteBuilder: knitr
 Config/testthat/edition: 3

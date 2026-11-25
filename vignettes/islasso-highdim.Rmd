@@ -24,6 +24,7 @@ covariates. This vignette summarises how **islasso** keeps the computations mana
 | estimating equation at fixed s.e. | damped fixed point, one $p\times p$ Cholesky per step | undamped MM (or Newton) steps, one Cholesky per step | $n \times n$ factorisations (Woodbury), $O(n^2p)$ |
 | standard errors | full sandwich, $\approx 4.3\,p^3$ flops | diagonal only, $\approx p^3$ flops | diagonal only, $O(n^2p)$ |
 | $X^\top W X$ (Gaussian path) | recomputed at every $\lambda$ | computed once | not needed |
+| Gaussian iterations | Fortran | entirely in C | entirely in C |
 | full covariance matrix | every iteration | once, at convergence | once, $O(np^2)$ |
 
 The number of steps needed to solve the estimating equation is also smaller, because the
@@ -52,9 +53,9 @@ max(abs(coef(fit) - coef(fit.d)))
 
 # Practical advice
 
-* Use `islasso.path()` to explore the tuning parameter: models are fitted with warm starts, from the
-  largest to the smallest value of `lambda`, and with the Gaussian family $X^\top W X$ is computed
-  once.
+* Use `islasso.path()` to explore the tuning parameter: with the Gaussian family $X^\top W X$ is
+  computed once, and the models for the different values of `lambda` are independent, so they can
+  be fitted in parallel with `control = is.control(ncores = 4)` (macOS and Linux).
 * `control = is.control(inner = "newton")` usually needs fewer factorisations when $p$ is large.
 * An optimised BLAS/LAPACK library (OpenBLAS, Apple Accelerate, Intel MKL) speeds up all the
   computations, since the numerical core relies on BLAS level 3 and LAPACK routines.

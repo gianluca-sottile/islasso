@@ -12,9 +12,11 @@
   at convergence.
 - New Woodbury back end used when the number of columns exceeds twice the number of observations:
   cost O(n^2 p) instead of O(p^3) per step (`is.control(solver = )`).
-- `islasso.path()` fits the models from the largest to the smallest `lambda`, warm-starting the
-  estimates (the standard errors restart at each `lambda`, so that every model of the path coincides
-  with `islasso()` at the same `lambda`), computes X'X once for the Gaussian family, keeps all the
+- `islasso.path()` fits every model as `islasso()` would at the same `lambda` (glmnet starting
+  values, standard errors started at their default values), so that path and single fits agree
+  (in 1.6.x the standard errors were carried over along the path and the effective degrees of
+  freedom, hence the information criteria, depended on the path); the models can be fitted in
+  parallel with `is.control(ncores = )`; computes X'X once for the Gaussian family, keeps all the
   models (with a convergence flag, column `conv` of `Info`) and no longer drops covariates
   permanently from the path.
 - For the Gaussian family the whole induced-smoothing iteration runs in compiled code.

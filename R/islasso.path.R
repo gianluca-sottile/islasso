@@ -24,9 +24,11 @@
 #'   `1e-4` otherwise.
 #'
 #' @details
-#' The models are fitted from the largest to the smallest value of `lambda`, each one starting
-#' from the estimates, standard errors and mixture weights of the previous one; with the
-#' Gaussian family the matrix \eqn{X^\top W X} is computed once for the whole path. Every model
+#' Each model of the path is fitted as [islasso()] would do at the same value of `lambda`
+#' (starting values from the \pkg{glmnet} path, standard errors started at their default
+#' values), so that the path and a single fit agree; with the Gaussian family the matrix
+#' \eqn{X^\top W X} is computed once for the whole path. The models are independent and can be
+#' fitted in parallel with `control = is.control(ncores = )` (not on Windows). Every model
 #' is kept in the output, together with its convergence flag (column `conv` of `Info`), except
 #' those for which the algorithm failed (a warning is given).
 #' The information criteria stored in `GoF` are
@@ -158,37 +160,30 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     bz <- drop(crossprod(Xt, sw * (prep$y - prep$offset)))
   }
 
-  theta <- null$theta
-  theta[theta == 0] <- 1e-5
+  # starting values: glmnet at each lambda, as in islasso() (otherwise the unpenalized fit)
+  starts <- .is_start_path(prep, Xs, lambda)
+  theta_null <- null$theta
   v_init <- if (is.null(setting$V0)) rep(0.01, nvars) else rep_len(diag(as.matrix(setting$V0)), nvars)
-  v0 <- v_init
-  cm <- setting$c
 
-  out_coef <- out_se <- out_w <- out_grad <- matrix(NA_real_, nlambda, nvars)
-  out_info <- matrix(NA_real_, nlambda, 8L)
-  out_gof <- matrix(NA_real_, nlambda, 6L)
-  out_eta <- out_mu <- out_res <- matrix(NA_real_, nlambda, nobs)
   ll_ok <- nobs > nvars && is.function(family$aic)
   nok <- sum(prep$weights > 0)
   disp <- family$family %in% c("gaussian", "Gamma", "inverse.gaussian")
   trace <- setting$trace
   setting_in <- setting
   setting_in$trace <- 0L
-  if (trace == 2L) cat("\n   Ind|Max   lambda       df        phi      iter   error\n")
-  for (k in seq_len(nlambda)) {
+
+  # one model of the path; the standard errors (and mixture weights) always start from their
+  # initial values, so that every model coincides with islasso() at the same lambda (the IS fixed
+  # point of the null coefficients depends on the starting standard errors)
+  fit_one <- function(k, theta) {
     lam <- lambda[k] * as.numeric(!unp)
+    if (!is.null(starts)) theta <- starts[, k]
+    theta[theta == 0] <- 1e-5
     fit <- tryCatch(
       .is_fit_single(Xs, prep$y, family, lam, prep$alpha, prep$weights, prep$offset, intercept,
-                     setting_in, theta, v0, cm, G = G, bz = bz, mode = mode),
+                     setting_in, theta, v_init, setting$c, G = G, bz = bz, mode = mode),
       error = function(e) NULL)
-    if (is.null(fit)) {
-      out_info[k, c(1L, 8L)] <- c(lambda[k], 2)
-      next
-    }
-    # warm start of the estimates only: the standard errors (and mixture weights) restart from
-    # their initial values, so that every model of the path coincides with islasso() at the same
-    # lambda (the induced-smoothing fixed point for the null coefficients depends on the
-    # starting standard errors)
+    if (is.null(fit)) return(NULL)
     theta <- fit$theta
     cm_k <- fit$cm
     beta <- .is_theta2beta(theta, st$xm, st$xs, intercept)
@@ -216,32 +211,46 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     w[!is.finite(w)] <- 0
     pz <- .is_penalty_R(theta, fit$se.used, cm_k, fit$lam, prep$alpha)
     gstd <- -drop(crossprod(Xs, w * (prep$y - mu) / me)) + pz$gradient
-    out_coef[k, ] <- beta
-    out_se[k, ] <- se
-    out_w[k, ] <- cm_k
-    out_grad[k, ] <- .is_grad_back(gstd, st$xm, st$xs, intercept)
-    out_info[k, ] <- c(lambda[k], df, fit$dispersion, dev, -ll / 2, fit$iter, fit$tol, fit$conv)
-    # criteria as in islasso(): family$aic (dispersion included) + penalty on df
-    out_gof[k, ] <- .is_gof(if (llfam) ll + 2 * disp else ll, dev, df, nok, nvars, setting$g)
-    out_eta[k, ] <- eta
-    out_mu[k, ] <- mu
-    out_res[k, ] <- (prep$y - mu) / me
-    if (trace == 2L) {
-      cat(sprintf("%4d|%4d %10.4f %8.3f %10.4f %6d %9.2e\n", k, nlambda, lambda[k], df,
-                  fit$dispersion, fit$iter, fit$tol))
-    } else if (trace == 1L) {
-      cat("\r", k, "|", nlambda, "      ")
-    }
+    list(theta = theta, coef = beta, se = se, w = cm_k, grad = .is_grad_back(gstd, st$xm, st$xs, intercept),
+         info = c(lambda[k], df, fit$dispersion, dev, -ll / 2, fit$iter, fit$tol, fit$conv),
+         gof = .is_gof(if (llfam) ll + 2 * disp else ll, dev, df, nok, nvars, setting$g),
+         eta = eta, mu = mu, res = (prep$y - mu) / me)
   }
-  if (trace > 0L) cat("\n")
-  if (any(out_info[, 8L] == 2, na.rm = TRUE))
+
+  ncores <- max(1L, as.integer(setting$ncores))
+  if (ncores > 1L && .Platform$OS.type == "unix" && !is.null(starts)) {
+    fits <- parallel::mclapply(seq_len(nlambda), fit_one, theta = theta_null, mc.cores = ncores)
+  } else {
+    if (trace == 2L) cat("\n   Ind|Max   lambda       df        phi      iter   error\n")
+    fits <- vector("list", nlambda)
+    theta <- theta_null
+    for (k in seq_len(nlambda)) {
+      fits[[k]] <- fit_one(k, theta)
+      if (!is.null(fits[[k]])) theta <- fits[[k]]$theta   # used only without glmnet starts
+      if (trace == 2L && !is.null(fits[[k]])) {
+        f <- fits[[k]]$info
+        cat(sprintf("%4d|%4d %10.4f %8.3f %10.4f %6d %9.2e\n", k, nlambda, f[1], f[2], f[3],
+                    as.integer(f[6]), f[7]))
+      } else if (trace == 1L) {
+        cat("\r", k, "|", nlambda, "      ")
+      }
+    }
+    if (trace > 0L) cat("\n")
+  }
+  ok <- vapply(fits, function(f) is.list(f) && !is.null(f$coef), logical(1L))
+  if (any(!ok))
     warning("the algorithm failed for some values of lambda, removed from the output", call. = FALSE)
-  if (any(out_info[, 8L] == 1, na.rm = TRUE))
+  if (!any(ok)) stop("the algorithm failed for all the values of lambda", call. = FALSE)
+  fits <- fits[ok]
+  stack <- function(name) do.call(rbind, lapply(fits, `[[`, name))
+  out_coef <- stack("coef"); out_se <- stack("se"); out_w <- stack("w"); out_grad <- stack("grad")
+  out_info <- stack("info"); out_gof <- stack("gof")
+  out_eta <- stack("eta"); out_mu <- stack("mu"); out_res <- stack("res")
+  if (any(out_info[, 8L] == 1))
     warning("maximum number of iterations reached for some values of lambda (conv = 1 in 'Info')",
             call. = FALSE)
 
-  keep <- rev(which(!is.na(out_coef[, 1L])))   # increasing lambda
-  if (!length(keep)) stop("the algorithm failed for all the values of lambda", call. = FALSE)
+  keep <- rev(seq_len(nrow(out_coef)))   # increasing lambda
   nms <- prep$nms
   out_info <- out_info[keep, , drop = FALSE]
   colnames(out_info) <- c("lambda", "df", "phi", "deviance", "logLik", "iter", "err", "conv")
@@ -257,6 +266,35 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     control = setting, contrasts = NULL, xlevels = NULL, alpha = prep$alpha,
     Input = list(n = nobs, p = nvars, intercept = intercept, unpenalized = unp, n.trials = prep$n)
   ), class = c("islasso.path", "islasso"))
+}
+
+# glmnet starting values (standardised scale) for all the values of lambda; NULL if unavailable
+.is_start_path <- function(prep, Xs, lambda) {
+  intercept <- prep$intercept
+  xx <- if (intercept) Xs[, -1L, drop = FALSE] else Xs
+  if (ncol(xx) < 2L) return(NULL)
+  w <- prep$weights
+  sw <- sum(w)
+  pf <- as.numeric(!prep$unpenalized)
+  pfx <- if (intercept) pf[-1L] else pf
+  if (sum(pfx) == 0) return(NULL)
+  gfam <- .is_glmnet_family(prep$family)
+  if (is.character(gfam) && gfam == "binomial") {
+    y2 <- cbind(1 - prep$y, prep$y) * w
+    w2 <- rep(1, length(prep$y))
+  } else {
+    y2 <- prep$y
+    w2 <- w
+  }
+  obj <- tryCatch(suppressWarnings(glmnet::glmnet(
+    x = xx, y = y2, family = gfam, alpha = prep$alpha, weights = w2, offset = prep$offset,
+    standardize = FALSE, intercept = intercept, penalty.factor = pfx,
+    lambda = sort(lambda / sw, decreasing = TRUE))), error = function(e) NULL)
+  if (is.null(obj)) return(NULL)
+  B <- tryCatch(as.matrix(stats::coef(obj, s = lambda / sw)), error = function(e) NULL)
+  if (is.null(B) || ncol(B) != length(lambda) || anyNA(B)) return(NULL)
+  if (!intercept) B <- B[-1L, , drop = FALSE]
+  unname(B)
 }
 
 # fit of the unpenalized part (intercept and 'unpenalized' columns) on the standardised scale

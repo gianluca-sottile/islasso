@@ -63,3 +63,13 @@ test_that("each model of the path coincides with islasso() at the same lambda", 
     expect_equal(unname(o$Coef[k, ]), unname(coef(f)), tolerance = 5e-3)
   }
 })
+
+test_that("parallel path gives the same results", {
+  skip_on_cran()
+  skip_if_not(.Platform$OS.type == "unix")
+  d <- sim_gaus()
+  o1 <- islasso.path(y ~ ., data = d$data, nlambda = 6)
+  o2 <- islasso.path(y ~ ., data = d$data, nlambda = 6, control = is.control(ncores = 2))
+  expect_equal(o1$Coef, o2$Coef)
+  expect_equal(o1$Info, o2$Info)
+})
