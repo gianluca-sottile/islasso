@@ -116,13 +116,66 @@ Journal of Urology, 141(5), 1076-1083.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Max.   : 5.5829  </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">Prostate</span><span class="op">$</span><span class="va">lpsa</span>, <span class="va">Prostate</span><span class="op">$</span><span class="va">lcavol</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7344603</span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="islasso.html">islasso</a></span><span class="op">(</span><span class="va">lpsa</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Prostate</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, pval <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">lambda.aic</span> <span class="op">&lt;-</span> <span class="fu"><a href="aic.islasso.html">aic.islasso</a></span><span class="op">(</span><span class="va">fit</span>, method <span class="op">=</span> <span class="st">"AIC"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">fit.aic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">lambda.aic</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit.aic</span>, pval <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="islasso.html">islasso</a></span><span class="op">(</span><span class="va">lpsa</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Prostate</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               control <span class="op">=</span> <span class="fu"><a href="is.control.html">is.control</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, pval <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> islasso(formula = lpsa ~ ., family = gaussian(), data = Prostate, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     control = is.control(seed = 1))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residuals:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Min       1Q   Median       3Q      Max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.65715 -0.39409  0.00099  0.39133  1.54191 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error    Df z value Pr(&gt;|z|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  0.47074    0.93596 1.000   0.503  0.61500    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lcavol       0.51990    0.07748 1.000   6.710 1.94e-11 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lweight      0.38162    0.16334 0.982   2.336  0.01947 *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> svi          0.58280    0.21558 0.992   2.703  0.00686 ** </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Dispersion parameter for gaussian family taken to be 0.5085712)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Null deviance: 127.918  on 96.00  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual deviance:  45.746  on 89.95  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AIC: 218.47</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Lambda: 4.1676</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of IS iterations: 70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="va">lambda.aic</span> <span class="op">&lt;-</span> <span class="fu"><a href="aic.islasso.html">aic.islasso</a></span><span class="op">(</span><span class="va">fit</span>, method <span class="op">=</span> <span class="st">"AIC"</span>, trace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit.aic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">lambda.aic</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit.aic</span>, pval <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.aic, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     data = Prostate, control = is.control(seed = 1))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residuals:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Min       1Q   Median       3Q      Max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.72467 -0.38645  0.00495  0.39934  1.59691 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error    Df z value Pr(&gt;|z|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  0.62438    1.21793 1.000   0.513  0.60819    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lcavol       0.56757    0.08617 1.000   6.587  4.5e-11 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lweight      0.44003    0.16866 0.998   2.609  0.00908 ** </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> svi          0.71445    0.23998 0.999   2.977  0.00291 ** </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Dispersion parameter for gaussian family taken to be 0.5019418)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Null deviance: 127.918  on 96.00  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual deviance:  44.277  on 88.21  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AIC: 218.78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Lambda: 0.80946</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of IS iterations: 37</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

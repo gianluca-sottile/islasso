@@ -58,7 +58,7 @@ if (FALSE) { # \dontrun{
   fit <- islasso(y ~ ., data = data.frame(y = diabetes$y, diabetes$x2),
                  family = gaussian())
   summary(fit, pval = 0.05)
-  lambda.aic <- aic.islasso(fit, interval = c(1, 100))
+  lambda.aic <- aic.islasso(fit, interval = c(1, 100), trace = FALSE)
   fit.aic <- update(fit, lambda = lambda.aic)
   summary(fit.aic, pval = 0.05)
 } # }

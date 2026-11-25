@@ -54,7 +54,13 @@ predict(
 
 ## Value
 
-A vector, matrix, or list depending on the `type` requested.
+A vector or a matrix (one column per value of `lambda`) depending on
+`type`.
+
+## Details
+
+For values of `lambda` not in the path, the coefficients are linearly
+interpolated on the \\\log\lambda\\ scale.
 
 ## See also
 
@@ -74,13 +80,19 @@ Gianluca Sottile <gianluca.sottile@unipa.it>
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  set.seed(1)
-  n <- 100; p <- 30
-  beta <- c(runif(10, -3, 3), rep(0, p - 10))
-  sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-  fit <- islasso.path(y ~ ., data = sim$data, family = gaussian())
-  optimal <- GoF.islasso.path(fit)
-  pred <- predict(fit, type = "response", lambda = optimal$lambda.min)
-} # }
+set.seed(1)
+n <- 100; p <- 30
+beta <- c(runif(10, -3, 3), rep(0, p - 10))
+sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
+fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
+optimal <- GoF.islasso.path(fit, plot = FALSE)
+pred <- predict(fit, newdata = sim$data[1:5, ], type = "response",
+                lambda = optimal$lambda.min[c("AIC", "BIC")])
+pred
+#>   lambda = 7.646 lambda = 7.646
+#> 1       4.614027       4.614027
+#> 2      -1.223394      -1.223394
+#> 3       7.608373       7.608373
+#> 4       1.551164       1.551164
+#> 5       3.113811       3.113811
 ```

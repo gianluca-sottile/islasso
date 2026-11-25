@@ -73,22 +73,35 @@
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments (not currently used).</p></dd>
+<dd><p>Additional arguments; <code>digits</code> is used by the print method.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>"summary.islasso"</code> containing:</p>
 <dl><dt>coefficients</dt>
-<dd><p>Coefficient estimates and related statistics</p></dd>
+<dd><p>matrix with estimates, standard errors, pseudo hat values, Wald statistics and p-values;</p></dd>
+
+  <dt>dispersion, df, res, aic, lambda, nulldev, dev, df.null, df.res, family, iter</dt>
+<dd><p>model summaries;</p></dd>
 
   <dt>pval</dt>
-<dd><p>Threshold used to filter coefficients</p></dd>
+<dd><p>threshold used to filter the printed coefficients;</p></dd>
+
+  <dt>unpenalized</dt>
+<dd><p>logical vector of the unpenalized coefficients (always printed);</p></dd>
 
   <dt>call</dt>
-<dd><p>Original model call</p></dd>
+<dd><p>the original model call.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The column <code>Df</code> reports the pseudo hat values \(h_j\), whose sum is the
+effective number of parameters (see <code><a href="islasso.html">islasso</a></code>). The Wald statistics are the ratios of
+the estimates to their standard errors; with <code>use.t = TRUE</code> (Gaussian family only) the
+p-values use a t distribution with the residual degrees of freedom.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="islasso.html">islasso.fit</a></code>, <code><a href="islasso.html">residuals.islasso</a></code>, <code><a href="islasso.html">logLik.islasso</a></code>, <code><a href="predict.islasso.html">predict.islasso</a></code>, <code><a href="islasso.html">deviance.islasso</a></code></p></div>
@@ -100,10 +113,58 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Assuming object `o` from an islasso fit</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">o</span>, pval <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>  <span class="co"># Show coefficients with p &lt;= 0.1</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulXy.html">simulXy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span>, p <span class="op">=</span> <span class="fl">20</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">17</span><span class="op">)</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">o</span> <span class="op">&lt;-</span> <span class="fu"><a href="islasso.html">islasso</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span>, lambda <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">o</span>, pval <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>            <span class="co"># coefficients with p-value &lt;= 0.1</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> islasso(formula = y ~ ., lambda = 8, data = sim$data)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residuals:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Min      1Q  Median      3Q     Max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.5941 -0.5941 -0.1104  0.5965  2.4541 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error     Df z value Pr(&gt;|z|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -0.1418     0.1057  1.000  -1.342     0.18    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1            1.0200     0.1079  1.000   9.457  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X2           -0.7371     0.1085  1.000  -6.794 1.09e-11 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X3            0.5672     0.1095  1.000   5.182 2.20e-07 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Dispersion parameter for gaussian family taken to be 1.116669)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Null deviance: 344.198  on 99.00  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual deviance:  98.881  on 88.55  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AIC: 307.56</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Lambda: 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of IS iterations: 77</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">o</span>, which <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X1"</span>, <span class="st">"X4"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> islasso(formula = y ~ ., lambda = 8, data = sim$data)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residuals:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Min      1Q  Median      3Q     Max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.5941 -0.5941 -0.1104  0.5965  2.4541 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Estimate Std. Error    Df z value Pr(&gt;|z|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1  1.02003    0.10786 1.000   9.457   &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X4  0.01381    0.07504 0.679   0.184    0.854    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Dispersion parameter for gaussian family taken to be 1.116669)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Null deviance: 344.198  on 99.00  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual deviance:  98.881  on 88.55  degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AIC: 307.56</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Lambda: 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of IS iterations: 77</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

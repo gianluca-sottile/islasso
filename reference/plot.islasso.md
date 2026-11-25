@@ -20,24 +20,31 @@ plot(x, ...)
 
 - ...:
 
-  Additional graphical parameters passed to the underlying
-  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) functions.
+  Graphical parameters: `cex` (point size), `pch` (point shape), `col`
+  (colour of the reference lines) and `lwd` (their width).
+
+## Value
+
+Invisibly, a list with the four `ggplot` objects.
 
 ## Details
 
-Generates a 2x2 grid of diagnostic plots:
+Draws a 2x2 grid of ggplot2 diagnostic plots:
 
-- Top-left: Deviance residuals vs fitted values.
+- Top-left: standardized deviance residuals (adjusted for leverage) vs
+  linear predictor.
 
-- Top-right: Normal Q-Q plot of standardized deviance residuals (red
+- Top-right: normal Q-Q plot of the standardized deviance residuals (red
   line = reference).
 
-- Bottom-left: Squared standardized Pearson residuals vs fitted values.
+- Bottom-left: squared standardized Pearson residuals vs fitted values
+  (variance function).
 
-- Bottom-right: Working response vector vs linear predictor.
+- Bottom-right: working response vs linear predictor (link function).
 
-These plots help assess the assumptions of linearity, homoscedasticity,
-and residual normality in penalized regression.
+The leverages are the diagonal elements of \\W^{1/2} X \tilde U'^{-1}
+X^\top W^{1/2}\\, computed from the derivative of the smoothed
+estimating equation; their sum is the effective number of parameters.
 
 ## See also
 
@@ -55,12 +62,10 @@ Gianluca Sottile <gianluca.sottile@unipa.it>
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  set.seed(1)
-  n <- 100; p <- 100
-  beta <- c(runif(20, -3, 3), rep(0, p - 20))
-  sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-  fit <- islasso(y ~ ., data = sim$data, family = gaussian(), lambda = 2)
-  plot(fit)
-} # }
+# \donttest{
+sim <- simulXy(n = 100, p = 20, beta = c(1, -1, 0.5, rep(0, 17)), seed = 1)
+fit <- islasso(y ~ ., data = sim$data, family = gaussian(), lambda = 8)
+plot(fit)
+
+# }
 ```

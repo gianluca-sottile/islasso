@@ -34,7 +34,7 @@ confint(object, parm, level = 0.95, type.ci = "wald", trace = TRUE, ...)
 
 - trace:
 
-  Logical. If `TRUE` (default), a bar shows the iterations status.
+  Not used (kept for compatibility).
 
 - ...:
 

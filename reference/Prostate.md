@@ -85,11 +85,64 @@ summary(Prostate)
 #>  Max.   : 5.5829  
 cor(Prostate$lpsa, Prostate$lcavol)
 #> [1] 0.7344603
-if (FALSE) { # \dontrun{
-  fit <- islasso(lpsa ~ ., data = Prostate, family = gaussian())
-  summary(fit, pval = 0.05)
-  lambda.aic <- aic.islasso(fit, method = "AIC")
-  fit.aic <- update(fit, lambda = lambda.aic)
-  summary(fit.aic, pval = 0.05)
-} # }
+# \donttest{
+fit <- islasso(lpsa ~ ., data = Prostate, family = gaussian(),
+               control = is.control(seed = 1))
+summary(fit, pval = 0.05)
+#> 
+#> Call:
+#> islasso(formula = lpsa ~ ., family = gaussian(), data = Prostate, 
+#>     control = is.control(seed = 1))
+#> 
+#> Residuals:
+#>      Min       1Q   Median       3Q      Max 
+#> -1.65715 -0.39409  0.00099  0.39133  1.54191 
+#> 
+#>             Estimate Std. Error    Df z value Pr(>|z|)    
+#> (Intercept)  0.47074    0.93596 1.000   0.503  0.61500    
+#> lcavol       0.51990    0.07748 1.000   6.710 1.94e-11 ***
+#> lweight      0.38162    0.16334 0.982   2.336  0.01947 *  
+#> svi          0.58280    0.21558 0.992   2.703  0.00686 ** 
+#> ---
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#> 
+#> (Dispersion parameter for gaussian family taken to be 0.5085712)
+#> 
+#>     Null deviance: 127.918  on 96.00  degrees of freedom
+#> Residual deviance:  45.746  on 89.95  degrees of freedom
+#> AIC: 218.47
+#> Lambda: 4.1676
+#> 
+#> Number of IS iterations: 70
+#> 
+lambda.aic <- aic.islasso(fit, method = "AIC", trace = FALSE)
+fit.aic <- update(fit, lambda = lambda.aic)
+summary(fit.aic, pval = 0.05)
+#> 
+#> Call:
+#> islasso(formula = lpsa ~ ., family = gaussian(), lambda = lambda.aic, 
+#>     data = Prostate, control = is.control(seed = 1))
+#> 
+#> Residuals:
+#>      Min       1Q   Median       3Q      Max 
+#> -1.72467 -0.38645  0.00495  0.39934  1.59691 
+#> 
+#>             Estimate Std. Error    Df z value Pr(>|z|)    
+#> (Intercept)  0.62438    1.21793 1.000   0.513  0.60819    
+#> lcavol       0.56757    0.08617 1.000   6.587  4.5e-11 ***
+#> lweight      0.44003    0.16866 0.998   2.609  0.00908 ** 
+#> svi          0.71445    0.23998 0.999   2.977  0.00291 ** 
+#> ---
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#> 
+#> (Dispersion parameter for gaussian family taken to be 0.5019418)
+#> 
+#>     Null deviance: 127.918  on 96.00  degrees of freedom
+#> Residual deviance:  44.277  on 88.21  degrees of freedom
+#> AIC: 218.78
+#> Lambda: 0.80946
+#> 
+#> Number of IS iterations: 37
+#> 
+# }
 ```

@@ -61,7 +61,7 @@ plot(
 
 ## Value
 
-Produces plots. Does not return an object.
+A `ggplot` object (printed when not assigned).
 
 ## Details
 
@@ -85,15 +85,19 @@ Gianluca Sottile <gianluca.sottile@unipa.it>
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  n <- 100; p <- 30
-  beta <- c(runif(10, -2, 2), rep(0, p - 10))
-  sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-  fit <- islasso.path(y ~ ., data = sim$data, family = gaussian())
+# \donttest{
+set.seed(1)
+n <- 100; p <- 30
+beta <- c(runif(10, -2, 2), rep(0, p - 10))
+sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
+fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
+plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
 
-  plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
-  plot(fit, yvar = "se", gof = "AICc")
-  plot(fit, yvar = "gradient", gof = "AICc")
-  plot(fit, yvar = "gof", gof = "AICc")
-} # }
+plot(fit, yvar = "se", gof = "AICc")
+
+plot(fit, yvar = "gradient", gof = "AICc")
+
+plot(fit, yvar = "gof", gof = "AICc")
+
+# }
 ```
