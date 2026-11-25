@@ -55,7 +55,7 @@ max(abs(coef(fit) - coef(fit.d)))
 
 * Use `islasso.path()` to explore the tuning parameter: with the Gaussian family $X^\top W X$ is
   computed once, and the models for the different values of `lambda` are independent, so they can
-  be fitted in parallel with `control = is.control(ncores = 4)` (macOS and Linux).
+  be fitted in parallel with `control = is.control(ncores = 4)`.
 * `control = is.control(inner = "newton")` usually needs fewer factorisations when $p$ is large.
 * An optimised BLAS/LAPACK library (OpenBLAS, Apple Accelerate, Intel MKL) speeds up all the
   computations, since the numerical core relies on BLAS level 3 and LAPACK routines.

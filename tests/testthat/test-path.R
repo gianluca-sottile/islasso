@@ -66,7 +66,6 @@ test_that("each model of the path coincides with islasso() at the same lambda", 
 
 test_that("parallel path gives the same results", {
   skip_on_cran()
-  skip_if_not(.Platform$OS.type == "unix")
   d <- sim_gaus()
   o1 <- islasso.path(y ~ ., data = d$data, nlambda = 6)
   o2 <- islasso.path(y ~ ., data = d$data, nlambda = 6, control = is.control(ncores = 2))

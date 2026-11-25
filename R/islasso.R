@@ -235,7 +235,7 @@ islasso.fit <- function(X, y, family = gaussian, lambda, alpha = 1, intercept = 
 #' @param solver linear algebra: `"auto"` (default) uses `"woodbury"` when the number of
 #'   columns exceeds twice the number of observations and `"dense"` otherwise.
 #' @param ncores number of cores used by [islasso.path()] to fit the models for the different
-#'   values of `lambda` in parallel (forked processes, not available on Windows); default 1.
+#'   values of `lambda` in parallel (socket cluster of package 'parallel'); default 1.
 #' @param ... further arguments, ignored (allows `do.call(is.control, control)`).
 #'
 #' @return A list with the control parameters.

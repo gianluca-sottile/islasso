@@ -16,7 +16,7 @@
   values, standard errors started at their default values), so that path and single fits agree
   (in 1.6.x the standard errors were carried over along the path and the effective degrees of
   freedom, hence the information criteria, depended on the path); the models can be fitted in
-  parallel with `is.control(ncores = )`; computes X'X once for the Gaussian family, keeps all the
+  parallel with `is.control(ncores = )` (socket cluster); computes X'X once for the Gaussian family, keeps all the
   models (with a convergence flag, column `conv` of `Info`) and no longer drops covariates
   permanently from the path.
 - For the Gaussian family the whole induced-smoothing iteration runs in compiled code.

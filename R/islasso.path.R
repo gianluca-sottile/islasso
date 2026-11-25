@@ -28,7 +28,8 @@
 #' (starting values from the \pkg{glmnet} path, standard errors started at their default
 #' values), so that the path and a single fit agree; with the Gaussian family the matrix
 #' \eqn{X^\top W X} is computed once for the whole path. The models are independent and can be
-#' fitted in parallel with `control = is.control(ncores = )` (not on Windows). Every model
+#' fitted in parallel with `control = is.control(ncores = )` (socket cluster of the 'parallel'
+#' package; worthwhile for large problems, since starting the workers takes about a second). Every model
 #' is kept in the output, together with its convergence flag (column `conv` of `Info`), except
 #' those for which the algorithm failed (a warning is given).
 #' The information criteria stored in `GoF` are
@@ -182,8 +183,8 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     fit <- tryCatch(
       .is_fit_single(Xs, prep$y, family, lam, prep$alpha, prep$weights, prep$offset, intercept,
                      setting_in, theta, v_init, setting$c, G = G, bz = bz, mode = mode),
-      error = function(e) NULL)
-    if (is.null(fit)) return(NULL)
+      error = function(e) conditionMessage(e))
+    if (is.character(fit)) return(list(error = fit))
     theta <- fit$theta
     cm_k <- fit$cm
     beta <- .is_theta2beta(theta, st$xm, st$xs, intercept)
@@ -218,16 +219,20 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
   }
 
   ncores <- max(1L, as.integer(setting$ncores))
-  if (ncores > 1L && .Platform$OS.type == "unix" && !is.null(starts)) {
-    fits <- parallel::mclapply(seq_len(nlambda), fit_one, theta = theta_null, mc.cores = ncores)
+  if (ncores > 1L && !is.null(starts)) {
+    # socket cluster (portable, and safe with multi-threaded BLAS libraries, unlike forking)
+    cl <- parallel::makePSOCKcluster(min(ncores, nlambda))
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    parallel::clusterCall(cl, function(lp) invisible(.libPaths(lp)), .libPaths())
+    fits <- parallel::parLapply(cl, seq_len(nlambda), fit_one, theta = theta_null)
   } else {
     if (trace == 2L) cat("\n   Ind|Max   lambda       df        phi      iter   error\n")
     fits <- vector("list", nlambda)
     theta <- theta_null
     for (k in seq_len(nlambda)) {
       fits[[k]] <- fit_one(k, theta)
-      if (!is.null(fits[[k]])) theta <- fits[[k]]$theta   # used only without glmnet starts
-      if (trace == 2L && !is.null(fits[[k]])) {
+      if (!is.null(fits[[k]]$theta)) theta <- fits[[k]]$theta   # used only without glmnet starts
+      if (trace == 2L && !is.null(fits[[k]]$info)) {
         f <- fits[[k]]$info
         cat(sprintf("%4d|%4d %10.4f %8.3f %10.4f %6d %9.2e\n", k, nlambda, f[1], f[2], f[3],
                     as.integer(f[6]), f[7]))
@@ -238,9 +243,12 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     if (trace > 0L) cat("\n")
   }
   ok <- vapply(fits, function(f) is.list(f) && !is.null(f$coef), logical(1L))
+  msg <- unique(unlist(lapply(fits[!ok], function(f) if (is.list(f)) f$error else as.character(f))))
+  if (!any(ok)) stop("the algorithm failed for all the values of lambda: ", paste(msg, collapse = "; "),
+                     call. = FALSE)
   if (any(!ok))
-    warning("the algorithm failed for some values of lambda, removed from the output", call. = FALSE)
-  if (!any(ok)) stop("the algorithm failed for all the values of lambda", call. = FALSE)
+    warning("the algorithm failed for ", sum(!ok), " values of lambda, removed from the output (",
+            paste(msg, collapse = "; "), ")", call. = FALSE)
   fits <- fits[ok]
   stack <- function(name) do.call(rbind, lapply(fits, `[[`, name))
   out_coef <- stack("coef"); out_se <- stack("se"); out_w <- stack("w"); out_grad <- stack("grad")
