@@ -227,12 +227,12 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     fits <- parallel::parLapply(cl, seq_len(nlambda), fit_one)
   } else {
     if (trace == 2L) cat("\n   Ind|Max   lambda       df        phi      iter   error\n")
-    # sequential fits: the estimates (not the standard errors) are warm-started from the previous
-    # lambda, which saves inner iterations without changing the fixed point
+    # sequential fits: same starting values as in parallel (glmnet at each lambda), so that the
+    # results do not depend on 'ncores'; without glmnet starts, warm start of the estimates
     fits <- vector("list", nlambda)
     theta <- NULL
     for (k in seq_len(nlambda)) {
-      fits[[k]] <- fit_one(k, theta)
+      fits[[k]] <- fit_one(k, if (is.null(starts)) theta else NULL)
       theta <- fits[[k]]$theta
       if (trace == 2L && !is.null(fits[[k]]$info)) {
         f <- fits[[k]]$info

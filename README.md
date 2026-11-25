@@ -53,7 +53,7 @@ GoF.islasso.path(path)$lambda.min
 - 📘 Function reference: `?islasso`
 - 📄 Vignettes: `vignette("islasso-intro")`, `vignette("islasso-methodology")`,
   `vignette("islasso-glm")`, `vignette("islasso-highdim")`
-- 🌐 Website: [https://gianluca-sottile.github.io/islasso](https://gianluca-sottile.github.io/islasso)
+- 🌐 Website: [https://gianluca-sottile.github.io/islasso/](https://gianluca-sottile.github.io/islasso/)
 
 ## 📖 References
 
