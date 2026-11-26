@@ -246,7 +246,10 @@ lmb.best$lambda.min
 ```
 
 The regularization path is also very useful to have more insights about
-coefficients, standard errors and gradient profile
+coefficients, standard errors and standardized scores x_j^\top(y -
+X\hat\beta)/\lambda, which play the role of the lasso optimality
+conditions: they are close to \pm 1 for the relevant covariates and
+inside (-1, 1) for those shrunk towards zero
 
 ``` r
 
@@ -264,7 +267,7 @@ plot(out, yvar = "se", gof = "AIC")
 
 ``` r
 
-plot(out, yvar = "gradient", gof = "AIC")
+plot(out, yvar = "score", gof = "AIC")
 ```
 
 ![](islasso-intro_files/figure-html/unnamed-chunk-7-3.png)

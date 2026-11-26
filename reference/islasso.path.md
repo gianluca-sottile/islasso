@@ -133,7 +133,17 @@ An object of class `"islasso.path"`, a list with components
 - Coef, SE, Weight, Gradient:
 
   matrices (one row per value of `lambda`, in increasing order) of
-  estimates, standard errors, mixture weights and gradients;
+  estimates, standard errors, mixture weights and gradients of the
+  smoothed estimating equation (a convergence diagnostic, numerically
+  close to zero);
+
+- Score:
+
+  matrix of standardized scores \\x_j^\top W(z - X\hat\beta)/\lambda_j\\
+  (standardized covariates), equal at the solution to \\\alpha P_j +
+  (1-\alpha)\hat\beta_j\\: the induced-smoothing analogue of the lasso
+  optimality conditions, in \\\[-1, 1\]\\ for the lasso (0 for
+  unpenalized columns);
 
 - Info:
 

@@ -31,7 +31,7 @@ beta <- c(2, -2, 1.5, -1.5, 1, rep(0, p - 5))
 sim <- simulXy(n = n, p = p, beta = beta, seed = 1, rho = 0.3)
 system.time(fit <- islasso(y ~ ., data = sim$data, lambda = 10))
 #>    user  system elapsed 
-#>   6.843   0.103   2.521
+#>   3.516   0.064   1.349
 fit$internal$mode   # 1 = Woodbury back end
 #> [1] 1
 summary(fit, pval = 0.01)
@@ -72,9 +72,9 @@ per step):
 system.time(fit.d <- islasso(y ~ ., data = sim$data, lambda = 10,
                              control = is.control(solver = "dense")))
 #>    user  system elapsed 
-#>  35.696   0.178   9.170
+#>  20.953   0.108   5.332
 max(abs(coef(fit) - coef(fit.d)))
-#> [1] 2.706863e-13
+#> [1] 1.486589e-13
 ```
 
 ## Practical advice

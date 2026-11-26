@@ -33,6 +33,12 @@
   path.
 - For the Gaussian family the whole induced-smoothing iteration runs in
   compiled code.
+- [`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
+  stores the standardized scores (`Score`), and
+  [`plot.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/plot.islasso.path.md)
+  gains `yvar = "score"`, the induced-smoothing analogue of the lasso
+  optimality conditions; all the profiles (including the gradient) are
+  drawn against log(lambda).
 - No more large arrays on the stack (possible crashes with large n \* p
   in 1.6.x).
 

@@ -50,7 +50,7 @@ from a fitted <code><a href="islasso.path.html">islasso.path</a></code> model.</
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'islasso.path'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  yvar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coefficients"</span>, <span class="st">"se"</span>, <span class="st">"gradient"</span>, <span class="st">"weight"</span>, <span class="st">"gof"</span><span class="op">)</span>,</span>
+<span>  yvar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coefficients"</span>, <span class="st">"se"</span>, <span class="st">"score"</span>, <span class="st">"gradient"</span>, <span class="st">"weight"</span>, <span class="st">"gof"</span><span class="op">)</span>,</span>
 <span>  gof <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"AIC"</span>, <span class="st">"BIC"</span>, <span class="st">"AICc"</span>, <span class="st">"eBIC"</span>, <span class="st">"GCV"</span>, <span class="st">"GIC"</span><span class="op">)</span>,</span>
 <span>  label <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -69,7 +69,11 @@ from a fitted <code><a href="islasso.path.html">islasso.path</a></code> model.</
 <dt id="arg-yvar">yvar<a class="anchor" aria-label="anchor" href="#arg-yvar"></a></dt>
 <dd><p>Character. Specifies what to display on the y-axis. Choices are:</p><ul><li><p><code>"coefficients"</code> - coefficient paths over <code>log(lambda)</code>,</p></li>
 <li><p><code>"se"</code> - standard errors over <code>log(lambda)</code>,</p></li>
-<li><p><code>"gradient"</code> - gradient values over <code>log(lambda)</code>,</p></li>
+<li><p><code>"score"</code> - standardized scores \(x_j^\top W(z - X\hat\beta)/\lambda_j\) over
+<code>log(lambda)</code>, the induced-smoothing analogue of the lasso optimality conditions
+(dashed lines at \(\pm 1\)),</p></li>
+<li><p><code>"gradient"</code> - gradient of the smoothed estimating equation over <code>log(lambda)</code>
+(a convergence diagnostic),</p></li>
 <li><p><code>"weight"</code> - mixture weights used in smoothing,</p></li>
 <li><p><code>"gof"</code> - goodness-of-fit values.</p></li>
 </ul></dd>
@@ -101,7 +105,16 @@ Choices: <code>"none"</code>, <code>"AIC"</code>, <code>"BIC"</code>, <code>"AIC
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function visualizes the behavior of the solution path across a sequence of lambda values,
-helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.</p>
+helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.
+All the profiles are drawn against \(\log\lambda\).</p>
+<p>The standardized score of a covariate (computed on the standardized scale on which the penalty
+acts) equals, at the solution, the smoothed sign \(P_j\) (lasso) or
+\(\alpha P_j + (1-\alpha)\hat\beta_j\) (elastic net): it is close to \(\pm 1\) for the
+covariates with sizeable effects and strictly inside \((-1, 1)\) for those shrunk towards zero,
+as the subgradient conditions of the lasso. The gradient, instead, is the residual of the smoothed
+estimating equation: it is zero up to the convergence tolerance, and its irregular values for
+large \(\lambda\) reflect the very large curvature of the smoothed penalty when the standard
+errors of null coefficients are tiny, not features of the model.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -125,10 +138,12 @@ helping diagnose coefficient shrinkage, influence of penalty, and variable selec
 <span class="r-plt img"><img src="plot.islasso.path-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, yvar <span class="op">=</span> <span class="st">"se"</span>, gof <span class="op">=</span> <span class="st">"AICc"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot.islasso.path-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, yvar <span class="op">=</span> <span class="st">"gradient"</span>, gof <span class="op">=</span> <span class="st">"AICc"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, yvar <span class="op">=</span> <span class="st">"score"</span>, gof <span class="op">=</span> <span class="st">"AICc"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot.islasso.path-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, yvar <span class="op">=</span> <span class="st">"gof"</span>, gof <span class="op">=</span> <span class="st">"AICc"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, yvar <span class="op">=</span> <span class="st">"gradient"</span>, gof <span class="op">=</span> <span class="st">"AICc"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot.islasso.path-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, yvar <span class="op">=</span> <span class="st">"gof"</span>, gof <span class="op">=</span> <span class="st">"AICc"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot.islasso.path-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
