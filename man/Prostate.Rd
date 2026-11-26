@@ -7,15 +7,15 @@
 \format{
 A data frame with 97 observations and 9 variables:
 \describe{
-  \item{lcavol}{Log of cancer volume}
-  \item{lweight}{Log of prostate weight}
-  \item{age}{Age of the patient}
-  \item{lbph}{Log of benign prostatic hyperplasia amount}
-  \item{svi}{Seminal vesicle invasion (binary)}
-  \item{lcp}{Log of capsular penetration}
-  \item{gleason}{Gleason score}
-  \item{pgg45}{Percentage of Gleason scores 4 or 5}
-  \item{lpsa}{Log of prostate-specific antigen}
+\item{lcavol}{Log of cancer volume}
+\item{lweight}{Log of prostate weight}
+\item{age}{Age of the patient}
+\item{lbph}{Log of benign prostatic hyperplasia amount}
+\item{svi}{Seminal vesicle invasion (binary)}
+\item{lcp}{Log of capsular penetration}
+\item{gleason}{Gleason score}
+\item{pgg45}{Percentage of Gleason scores 4 or 5}
+\item{lpsa}{Log of prostate-specific antigen}
 }
 }
 \source{
@@ -31,12 +31,13 @@ It contains 97 rows and 9 variables.
 data(Prostate)
 summary(Prostate)
 cor(Prostate$lpsa, Prostate$lcavol)
-\dontrun{
-  fit <- islasso(lpsa ~ ., data = Prostate, family = gaussian())
-  summary(fit, pval = 0.05)
-  lambda.aic <- aic.islasso(fit, method = "AIC")
-  fit.aic <- update(fit, lambda = lambda.aic)
-  summary(fit.aic, pval = 0.05)
+\donttest{
+fit <- islasso(lpsa ~ ., data = Prostate, family = gaussian(),
+               control = is.control(seed = 1))
+summary(fit, pval = 0.05)
+lambda.aic <- aic.islasso(fit, method = "AIC", trace = FALSE)
+fit.aic <- update(fit, lambda = lambda.aic)
+summary(fit.aic, pval = 0.05)
 }
 
 }

@@ -12,8 +12,8 @@
 
 \item{A}{Hypothesis specification. Either:
 \itemize{
-  \item A numeric matrix or vector with each row specifying a linear combination of coefficients,
-  \item Or a character vector with symbolic expressions (e.g. \code{"X1 + X2 = 3"}).
+\item A numeric matrix or vector with each row specifying a linear combination of coefficients,
+\item Or a character vector with symbolic expressions (e.g. \code{"X1 + X2 = 3"}).
 }}
 
 \item{b}{Right-hand side vector for the null hypotheses \code{A \%*\% beta = b}. If omitted, defaults to zeros.}
@@ -41,9 +41,10 @@ Equations with omitted \code{=} assume zero on the right-hand side. See examples
 }
 \examples{
 n <- 100; p <- 100
+set.seed(1)
 beta <- c(runif(10, -2, 2), rep(0, p - 10))
 sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-fit <- islasso(y ~ . -1, data = sim$data, family = gaussian())
+fit <- islasso(y ~ . -1, data = sim$data, family = gaussian(), lambda = 10)
 
 # Test if first 5 variables sum to -7.5
 anova(fit, A = c("X1 + X2 + X3 + X4 + X5 = -7.5"))
@@ -57,7 +58,7 @@ anova(fit, A = diag(p), b = beta)
 }
 \seealso{
 \code{\link{islasso}}, \code{\link{summary.islasso}}, \code{\link{confint.islasso}},
-         \code{\link{predict.islasso}}, \code{\link{logLik.islasso}}, \code{\link{residuals.islasso}}
+\code{\link{predict.islasso}}, \code{\link{logLik.islasso}}, \code{\link{residuals.islasso}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

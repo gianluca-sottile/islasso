@@ -28,118 +28,126 @@ islasso.path(
   unpenalized,
   control = is.control()
 )
+
+islasso.path.fit(
+  X,
+  y,
+  family = gaussian(),
+  lambda = NULL,
+  nlambda = 100,
+  lambda.min.ratio = ifelse(NROW(X) < NCOL(X), 0.01, 1e-04),
+  alpha = 1,
+  intercept = FALSE,
+  weights = NULL,
+  offset = NULL,
+  unpenalized = NULL,
+  control = is.control()
+)
 }
 \arguments{
-\item{formula}{Model formula of type \code{response ~ predictors}.}
+\item{formula}{a symbolic description of the model (see \code{\link[stats:formula]{stats::formula()}}).}
 
-\item{family}{Response distribution. Supported families: \code{gaussian()}, \code{binomial()}, \code{poisson()}, \code{Gamma()}.}
+\item{family}{the error distribution and link function: a family object, a family
+function or its name. Any family accepted by \code{\link[stats:glm]{stats::glm()}} can be used, for instance
+\code{gaussian()}, \code{binomial()} (links logit, probit, cauchit, log, cloglog), \code{poisson()},
+\code{Gamma()}, \code{inverse.gaussian()}, the \verb{quasi*} families and \code{MASS::negative.binomial()}
+with known \code{theta}.}
 
-\item{lambda}{Optional numeric vector of lambda values. If not provided, a sequence is automatically generated.}
+\item{lambda}{optional vector of values of the tuning parameter; by default a sequence
+of \code{nlambda} values, log-equispaced between \code{lambda.min.ratio * lambda.max} and
+\code{lambda.max}, the smallest value giving (practically) null penalized coefficients.}
 
-\item{nlambda}{Integer. Number of lambda values to generate if \code{lambda} is missing. Default is \code{100}.}
+\item{nlambda}{number of values of \code{lambda} (default 100).}
 
-\item{lambda.min.ratio}{Smallest lambda as a fraction of \code{lambda.max}. Default: \code{1e-2} if \code{nobs < nvars}, else \code{1e-3}.}
+\item{lambda.min.ratio}{ratio between the smallest and the largest value of \code{lambda};
+default \code{1e-2} if the number of observations is smaller than the number of covariates and
+\code{1e-4} otherwise.}
 
-\item{alpha}{Elastic-net mixing parameter: \code{alpha = 1} is lasso, \code{alpha = 0} is ridge.}
+\item{alpha}{the elastic-net mixing parameter, \eqn{0 \le \alpha \le 1}: \code{alpha = 1} is the
+lasso, \code{alpha = 0} the ridge penalty.}
 
-\item{data}{Data frame containing model variables.}
+\item{data}{an optional data frame containing the variables in the model.}
 
-\item{weights}{Optional observation weights.}
+\item{weights}{optional vector of prior weights.}
 
-\item{subset}{Optional logical or numeric vector to subset observations.}
+\item{subset}{an optional vector specifying a subset of observations.}
 
-\item{offset}{Optional vector of prior known components for the linear predictor.}
+\item{offset}{an optional offset in the linear predictor.}
 
-\item{contrasts}{Optional contrast settings for factor variables.}
+\item{contrasts}{an optional list of contrasts for the factors (see \code{\link[stats:model.matrix]{stats::model.matrix()}}).}
 
-\item{unpenalized}{Optional vector of variable names or indices excluded from penalization.}
+\item{unpenalized}{names or indices (with respect to the columns of the model matrix
+without intercept) of the coefficients left unpenalized. The intercept is never penalized.}
 
-\item{control}{A list of control parameters via \code{\link{is.control}}.}
+\item{control}{a list of control parameters, see \code{\link[=is.control]{is.control()}}.}
+
+\item{X, y}{for \code{islasso.fit()}: the model matrix (without the column of ones) and the response.}
+
+\item{intercept}{for \code{islasso.fit()}: logical, should an (unpenalized) intercept be included?}
 }
 \value{
-A list with components:
-\item{call}{Matched function call.}
-\item{Info}{Matrix with diagnostics: lambda, deviance, degrees of freedom, dispersion, iterations, convergence status.}
-\item{GoF}{Model goodness-of-fit metrics: AIC, BIC, AICc, GCV, GIC, eBIC.}
-\item{Coef}{Matrix of coefficients across lambda values.}
-\item{SE}{Matrix of standard errors.}
-\item{Weights}{Matrix of mixing weights for the smoothed penalty.}
-\item{Gradient}{Matrix of gradients for the smoothed penalty.}
-\item{Linear.predictors, Fitted.values, Residuals}{Matrices of fitted quantities across the path.}
-\item{Input}{List of input arguments and design matrix.}
-\item{control, formula, model, terms, data, xlevels, contrasts}{Standard model components.}
+An object of class \code{"islasso.path"}, a list with components
+\item{Coef, SE, Weight, Gradient}{matrices (one row per value of \code{lambda}, in increasing
+order) of estimates, standard errors, mixture weights and gradients;}
+\item{Info}{matrix with columns \code{lambda}, \code{df}, \code{phi}, \code{deviance}, \code{logLik}, \code{iter}, \code{err}, \code{conv};}
+\item{GoF}{matrix of information criteria (AIC, BIC, AICc, eBIC, GCV, GIC);}
+\item{Linear.predictors, Fitted.values, Residuals}{matrices with one row per value of \code{lambda};}
+\item{Input}{list with \code{n}, \code{p}, \code{intercept}, \code{unpenalized};}
+\item{call, family, prior.weights, y, offset, alpha, control, formula, model, terms, data,
+xlevels, contrasts}{the inputs.}
 }
 \description{
-Fits a sequence of penalized regression models using the Induced Smoothing Lasso approach over a grid of lambda values.
-Supports elastic-net penalties and generalized linear models: Gaussian, Binomial, Poisson, and Gamma.
+Fits the induced smoothed lasso (or elastic net) over a grid of values of the tuning
+parameter, with warm starts.
 }
 \details{
-This function fits a regularization path of models using the induced smoothing paradigm, replacing the non-smooth L1 penalty with a differentiable surrogate.
-Standard errors are returned for all lambda points, allowing for Wald-based hypothesis testing. The regularization path spans a range of lambda values,
-either user-defined or automatically computed.
+Each model of the path is fitted as \code{\link[=islasso]{islasso()}} would do at the same value of \code{lambda}
+(starting values from the \pkg{glmnet} path, standard errors started at their default
+values), so that the path and a single fit agree; with the Gaussian family the matrix
+\eqn{X^\top W X} is computed once for the whole path. The models are independent and can be
+fitted in parallel with \code{control = is.control(ncores = )} (socket cluster of the 'parallel'
+package; worthwhile for large problems, since starting the workers takes about a second). Every model
+is kept in the output, together with its convergence flag (column \code{conv} of \code{Info}), except
+those for which the algorithm failed (a warning is given).
+The information criteria stored in \code{GoF} are
+\eqn{AIC = -2\ell + 2\,df}, \eqn{BIC = -2\ell + \log(n)\,df},
+\eqn{AICc = AIC + 2\,df(df+1)/(n-df-1)}, \eqn{eBIC = -2\ell + \{\log(n) + 2g\log(p)\}\,df},
+\eqn{GCV = n\,D/(n-df)^2} (with \eqn{D} the deviance) and \eqn{GIC = -2\ell + \log\log(n)\log(p)\,df},
+where \eqn{df} is the effective number of parameters (sum of the pseudo hat values) and
+\eqn{-2\ell} is replaced by the deviance when \eqn{p \ge n} or the family has no likelihood.
 }
 \examples{
-n <- 100; p <- 30; p1 <- 10  # number of nonzero coefficients
-
+n <- 100; p <- 30; p1 <- 10
 beta.veri <- sort(round(c(seq(.5, 3, length.out = p1/2),
                          seq(-1, -2, length.out = p1/2)), 2))
 beta <- c(beta.veri, rep(0, p - p1))
 sim1 <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-o <- islasso.path(y ~ ., data = sim1$data,
-                  family = gaussian(), nlambda = 30L)
+o <- islasso.path(y ~ ., data = sim1$data, family = gaussian(), nlambda = 30L)
 o
-
 summary(o, lambda = 10, pval = 0.05)
 coef(o, lambda = 10)
-fitted(o, lambda = 10)
-predict(o, type = "response", lambda = 10)
-plot(o, yvar = "coef")
-residuals(o, lambda = 10)
-deviance(o, lambda = 10)
-logLik(o, lambda = 10)
-GoF.islasso.path(o)
+GoF.islasso.path(o, plot = FALSE)$lambda.min
 
-\dontrun{
-##### binomial ######
-beta <- c(1, 1, 1, rep(0, p - 3))
-sim2 <- simulXy(n = n, p = p, beta = beta, interc = 1, seed = 1,
-                size = 100, family = binomial())
-o2 <- islasso.path(cbind(y.success, y.failure) ~ ., data = sim2$data,
-                   family = binomial(), lambda = seq(0.1, 100, l = 50L))
-temp <- GoF.islasso.path(o2)
-summary(o2, pval = 0.05, lambda = temp$lambda.min["BIC"])
+\donttest{
+plot(o, yvar = "coefficients", gof = "AIC")
 
-##### poisson ######
+# Poisson
 beta <- c(1, 1, 1, rep(0, p - 3))
-sim3 <- simulXy(n = n, p = p, beta = beta, interc = 1, seed = 1,
-                family = poisson())
+sim3 <- simulXy(n = n, p = p, beta = beta, interc = 1, seed = 1, family = poisson())
 o3 <- islasso.path(y ~ ., data = sim3$data, family = poisson(), nlambda = 30L)
-temp <- GoF.islasso.path(o3)
+temp <- GoF.islasso.path(o3, plot = FALSE)
 summary(o3, pval = 0.05, lambda = temp$lambda.min["BIC"])
-
-##### Gamma ######
-beta <- c(1, 1, 1, rep(0, p - 3))
-sim4 <- simulXy(n = n, p = p, beta = beta, interc = -1, seed = 1,
-                family = Gamma(link = "log"))
-o4 <- islasso.path(y ~ ., data = sim4$data, family = Gamma(link = "log"),
-                   nlambda = 30L)
-temp <- GoF.islasso.path(o4)
-summary(o4, pval = .05, lambda = temp$lambda.min["BIC"])
 }
 
 }
 \references{
-Cilluffo G., Sottile G., La Grutta S., Muggeo V.M.R. (2019).
-\emph{The Induced Smoothed Lasso: A practical framework for hypothesis testing in high dimensional regression}.
-Statistical Methods in Medical Research. DOI: 10.1177/0962280219842890
-
-Sottile G., Cilluffo G., Muggeo V.M.R. (2019).
-\emph{The R package islasso: estimation and hypothesis testing in lasso regression}.
-Technical Report. DOI: 10.13140/RG.2.2.16360.11521
+Cilluffo G., Sottile G., La Grutta S., Muggeo V.M.R. (2020). The induced smoothed lasso: a
+practical framework for hypothesis testing in high dimensional regression.
+\emph{Statistical Methods in Medical Research}, \strong{29}(3), 765--777. \doi{10.1177/0962280219842890}
 }
 \seealso{
-\code{\link{plot.islasso.path}}, \code{\link{predict.islasso.path}}, \code{\link{summary.islasso.path}},
-         \code{\link{is.control}}, \code{\link{GoF.islasso.path}}, \code{\link{islasso}}, \code{\link{simulXy}}
+\code{\link[=plot.islasso.path]{plot.islasso.path()}}, \code{\link[=predict.islasso.path]{predict.islasso.path()}}, \code{\link[=summary.islasso.path]{summary.islasso.path()}},
+\code{\link[=GoF.islasso.path]{GoF.islasso.path()}}, \code{\link[=islasso]{islasso()}}, \code{\link[=is.control]{is.control()}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

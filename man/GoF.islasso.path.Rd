@@ -2,45 +2,42 @@
 % Please edit documentation in R/islasso.path.R
 \name{GoF.islasso.path}
 \alias{GoF.islasso.path}
-\title{Select Optimal Lambda via Goodness-of-Fit Criteria}
+\title{Select the Tuning Parameter by Information Criteria}
 \usage{
 GoF.islasso.path(object, plot = TRUE, ...)
 }
 \arguments{
-\item{object}{A fitted model of class \code{"islasso.path"}.}
+\item{object}{a fitted model of class \code{"islasso.path"}.}
 
-\item{plot}{Logical. If \code{TRUE} (default), displays plots for each criterion over the lambda path.}
+\item{plot}{logical: should the criteria be plotted against \eqn{\log\lambda}?}
 
-\item{...}{Additional arguments passed to lower-level plotting or diagnostic methods.}
+\item{...}{not used.}
 }
 \value{
-A list with components:
-\item{gof}{Matrix of goodness-of-fit values across lambda values.}
-\item{minimum}{Index positions of the minimum for each criterion.}
-\item{lambda.min}{Optimal lambda values that minimize each criterion.}
+A list with components
+\item{gof}{the matrix of criteria along the path;}
+\item{minimum}{the positions of the minima;}
+\item{lambda.min}{the values of \code{lambda} minimising each criterion;}
+\item{plot}{the \code{ggplot} object (if \code{plot = TRUE}).}
 }
 \description{
-Extracts the tuning parameter \code{lambda} minimizing multiple information criteria from a fitted \code{\link{islasso.path}} object.
-Supported criteria include AIC, BIC, AICc, eBIC, GCV, and GIC.
+Finds, along an \code{\link[=islasso.path]{islasso.path()}} fit, the values of \code{lambda} minimising the information
+criteria AIC, BIC, AICc, eBIC, GCV and GIC (see \code{\link[=islasso.path]{islasso.path()}} for their definitions).
 }
 \details{
-This function identifies the optimal regularization parameter \code{lambda} by minimizing various information-based selection criteria.
-Degrees of freedom are computed as the trace of the hat matrix, which may be fractional under induced smoothing.
-This provides a robust alternative to cross-validation, especially in high-dimensional settings.
+The degrees of freedom are the effective number of parameters (trace of the pseudo
+hat matrix), which is not necessarily an integer.
 }
 \examples{
-set.seed(1)
 n <- 100; p <- 30
 beta <- c(runif(10, -2, 2), rep(0, p - 10))
 sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-fit <- islasso.path(y ~ ., data = sim$data, family = gaussian())
-GoF.islasso.path(fit)
+fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
+GoF.islasso.path(fit, plot = FALSE)$lambda.min
 
 }
 \seealso{
-\code{\link{islasso.path}}, \code{\link{summary.islasso.path}}, \code{\link{predict.islasso.path}},
-         \code{\link{coef.islasso.path}}, \code{\link{deviance.islasso.path}}, \code{\link{logLik.islasso.path}},
-         \code{\link{residuals.islasso.path}}, \code{\link{fitted.islasso.path}}
+\code{\link[=islasso.path]{islasso.path()}}, \code{\link[=summary.islasso.path]{summary.islasso.path()}}, \code{\link[=predict.islasso.path]{predict.islasso.path()}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

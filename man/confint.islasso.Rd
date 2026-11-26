@@ -17,7 +17,7 @@
 
 \item{type.ci}{Character. Only Wald-type confidence intervals are implemented yet! Set \code{type.ci = "wald"} to use estimates and standard errors to build the confidence interval.}
 
-\item{trace}{Logical. If \code{TRUE} (default), a bar shows the iterations status.}
+\item{trace}{Not used (kept for compatibility).}
 
 \item{...}{Additional arguments for methods.}
 }
@@ -44,5 +44,5 @@ plot(ci)
 \code{\link{islasso.fit}}, \code{\link{summary.islasso}}, \code{\link{residuals.islasso}}, \code{\link{logLik.islasso}}, \code{\link{predict.islasso}}, \code{\link{deviance.islasso}}
 }
 \author{
-Maintainer: Gianluca Sottile <gianluca.sottile@unipa.it>
+Maintainer: Gianluca Sottile \href{mailto:gianluca.sottile@unipa.it}{gianluca.sottile@unipa.it}
 }

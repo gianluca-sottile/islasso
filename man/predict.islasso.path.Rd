@@ -20,10 +20,10 @@ If omitted, returns fitted values from the original model.}
 
 \item{type}{Character. Type of prediction:
 \itemize{
-  \item \code{"link"} (default) - linear predictor scale,
-  \item \code{"response"} - original response scale,
-  \item \code{"coefficients"} - estimated coefficients,
-  \item \code{"class"} - predicted class labels (only for binomial models).
+\item \code{"link"} (default) - linear predictor scale,
+\item \code{"response"} - original response scale,
+\item \code{"coefficients"} - estimated coefficients,
+\item \code{"class"} - predicted class labels (only for binomial models).
 }}
 
 \item{lambda}{Numeric value(s). Specific lambda value(s) at which predictions are required.
@@ -32,28 +32,32 @@ If missing, predictions are computed for the full lambda sequence.}
 \item{...}{Additional arguments passed to lower-level methods.}
 }
 \value{
-A vector, matrix, or list depending on the \code{type} requested.
+A vector or a matrix (one column per value of \code{lambda}) depending on \code{type}.
 }
 \description{
 Generates predictions from a fitted \code{\link{islasso.path}} model at one or more lambda values.
 Supports various output types including linear predictors, response scale, class labels, and coefficients.
 }
-\examples{
-\dontrun{
-  set.seed(1)
-  n <- 100; p <- 30
-  beta <- c(runif(10, -3, 3), rep(0, p - 10))
-  sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-  fit <- islasso.path(y ~ ., data = sim$data, family = gaussian())
-  optimal <- GoF.islasso.path(fit)
-  pred <- predict(fit, type = "response", lambda = optimal$lambda.min)
+\details{
+For values of \code{lambda} not in the path, the coefficients are linearly
+interpolated on the \eqn{\log\lambda} scale.
 }
+\examples{
+set.seed(1)
+n <- 100; p <- 30
+beta <- c(runif(10, -3, 3), rep(0, p - 10))
+sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
+fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
+optimal <- GoF.islasso.path(fit, plot = FALSE)
+pred <- predict(fit, newdata = sim$data[1:5, ], type = "response",
+                lambda = optimal$lambda.min[c("AIC", "BIC")])
+pred
 
 }
 \seealso{
 \code{\link{islasso.path}}, \code{\link{summary.islasso.path}}, \code{\link{coef.islasso.path}},
-         \code{\link{GoF.islasso.path}}, \code{\link{fitted.islasso.path}}, \code{\link{logLik.islasso.path}},
-         \code{\link{residuals.islasso.path}}, \code{\link{deviance.islasso.path}}
+\code{\link{GoF.islasso.path}}, \code{\link{fitted.islasso.path}}, \code{\link{logLik.islasso.path}},
+\code{\link{residuals.islasso.path}}, \code{\link{deviance.islasso.path}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

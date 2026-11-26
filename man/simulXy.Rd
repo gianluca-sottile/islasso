@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary.R
 \name{simulXy}
 \alias{simulXy}
-\title{Simulate Model Matrix and Response Vector}
+\title{Simulate a Model Matrix and a Response Vector}
 \usage{
 simulXy(
   n,
@@ -22,54 +22,57 @@ simulXy(
 )
 }
 \arguments{
-\item{n}{Integer. Number of observations.}
+\item{n}{number of observations.}
 
-\item{p}{Integer. Total number of covariates in the model matrix.}
+\item{p}{number of covariates.}
 
-\item{interc}{Numeric. Intercept to include in the linear predictor. Default is \code{0}.}
+\item{interc}{the intercept of the linear predictor (default 0).}
 
-\item{beta}{Numeric vector of length \code{p}. Regression coefficients in the linear predictor.}
+\item{beta}{vector of \code{p} regression coefficients; if missing, a proportion \code{prop} of
+coefficients is drawn uniformly in \code{lim.b} and the others are zero.}
 
-\item{family}{Distribution and link function. Allowed: \code{gaussian()}, \code{binomial()}, \code{poisson()} and , \code{Gamma()}. Can be a string, function, or family object.}
+\item{family}{a family object, function or name: \code{gaussian}, \code{binomial}, \code{poisson} or \code{Gamma}
+(with any of their links).}
 
-\item{prop}{Numeric in \code{[0,1]}. Used only if \code{beta} is missing; proportion of non-zero coefficients in \code{p}. Default is \code{0.1}.}
+\item{prop}{proportion of non-null coefficients when \code{beta} is missing (default 0.1).}
 
-\item{lim.b}{Numeric vector of length 2. Range for coefficients if \code{beta} is missing. Default: \code{c(-3, 3)}.}
+\item{lim.b}{range of the non-null coefficients when \code{beta} is missing.}
 
-\item{sigma}{Standard deviation of Gaussian response. Default is \code{1}.}
+\item{sigma}{standard deviation of the Gaussian response.}
 
-\item{size}{Integer. Number of trials for binomial response. Default is \code{1}.}
+\item{size}{number of trials of the binomial response; with \code{size > 1} the response is a
+two-column matrix of failures and successes.}
 
-\item{rho}{Numeric. Correlation coefficient for generating covariates. Used to create AR(1)-type covariance: \code{rho^|i-j|}. Default is \code{0}.}
+\item{rho}{correlation parameter: \eqn{cor(X_j, X_k) = \rho^{|j-k|}}.}
 
-\item{scale.data}{Logical. Whether to scale columns of the model matrix. Default is \code{TRUE}.}
+\item{scale.data}{logical: should the columns of the model matrix be standardised?}
 
-\item{seed}{Optional. Integer seed for reproducibility.}
+\item{seed}{optional seed; the state of the random number generator of the session is
+restored on exit.}
 
-\item{X}{Optional. Custom model matrix. If supplied, it overrides the internally generated \code{X}.}
+\item{X}{optional model matrix replacing the generated one.}
 
-\item{dispersion}{Dispersion parameter of Gamma response. Default is \code{0.1}.}
+\item{dispersion}{dispersion parameter of the Gamma response (default 0.1).}
 }
 \value{
-A list with components:
-\item{X}{Model matrix of dimension \code{n x p}}
-\item{y}{Simulated response vector}
-\item{beta}{True regression coefficients used}
-\item{eta}{Linear predictor}
+A list with components
+\item{data}{a data frame with the response \code{y} (columns \code{y.failure}, \code{y.success} when
+\code{size > 1}) and the covariates \code{X1}, ..., \code{Xp};}
+\item{beta0}{the intercept;}
+\item{beta}{the regression coefficients.}
 }
 \description{
-Generates synthetic covariates and response vector from a specified distribution for simulation studies or method validation.
+Generates covariates (multivariate normal with AR(1) correlation) and a response from a
+Gaussian, binomial, Poisson or Gamma regression model, for simulation studies and examples.
 }
 \examples{
 n <- 100; p <- 100
 beta <- c(runif(10, -3, 3), rep(0, p - 10))
 sim <- simulXy(n = n, p = p, beta = beta, seed = 1234)
-o <- islasso(y ~ ., data = sim$data, family = gaussian())
-summary(o, pval = 0.05)
-
+str(sim$data[, 1:5])
 }
 \seealso{
-\code{\link{islasso}}, \code{\link{islasso.path}}
+\code{\link[=islasso]{islasso()}}, \code{\link[=islasso.path]{islasso.path()}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

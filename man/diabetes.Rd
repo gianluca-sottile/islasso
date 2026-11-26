@@ -7,9 +7,9 @@
 \format{
 A data frame with 442 rows and 3 columns:
 \describe{
-  \item{x}{Matrix with 10 numeric columns (standardized)}
-  \item{y}{Numeric response vector}
-  \item{x2}{Matrix with 64 columns including interactions}
+\item{x}{Matrix with 10 numeric columns (standardized)}
+\item{y}{Numeric response vector}
+\item{x2}{Matrix with 64 columns including interactions}
 }
 }
 \source{
@@ -31,7 +31,7 @@ summary(diabetes$y)
   fit <- islasso(y ~ ., data = data.frame(y = diabetes$y, diabetes$x2),
                  family = gaussian())
   summary(fit, pval = 0.05)
-  lambda.aic <- aic.islasso(fit, interval = c(1, 100))
+  lambda.aic <- aic.islasso(fit, interval = c(1, 100), trace = FALSE)
   fit.aic <- update(fit, lambda = lambda.aic)
   summary(fit.aic, pval = 0.05)
 }

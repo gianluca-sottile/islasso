@@ -28,12 +28,13 @@
 #' data(Prostate)
 #' summary(Prostate)
 #' cor(Prostate$lpsa, Prostate$lcavol)
-#' \dontrun{
-#'   fit <- islasso(lpsa ~ ., data = Prostate, family = gaussian())
-#'   summary(fit, pval = 0.05)
-#'   lambda.aic <- aic.islasso(fit, method = "AIC")
-#'   fit.aic <- update(fit, lambda = lambda.aic)
-#'   summary(fit.aic, pval = 0.05)
+#' \donttest{
+#' fit <- islasso(lpsa ~ ., data = Prostate, family = gaussian(),
+#'                control = is.control(seed = 1))
+#' summary(fit, pval = 0.05)
+#' lambda.aic <- aic.islasso(fit, method = "AIC", trace = FALSE)
+#' fit.aic <- update(fit, lambda = lambda.aic)
+#' summary(fit.aic, pval = 0.05)
 #' }
 #'
 #' @keywords datasets
@@ -64,9 +65,8 @@ NULL
 #' table(breast$status)
 #'
 #' \dontrun{
-#'   fit <- islasso.path(status ~ ., data = breast, family = binomial(),
-#'                       alpha = 0, control = is.control(trace = 2L))
-#'   temp <- GoF.islasso.path(fit)
+#'   fit <- islasso.path(status ~ ., data = breast, family = binomial(), alpha = 0)
+#'   temp <- GoF.islasso.path(fit, plot = FALSE)
 #'   lambda.aic <- temp$lambda.min["AIC"]
 #'   fit.aic <- islasso(status ~ ., data = breast, family = binomial(),
 #'                      alpha = 0, lambda = lambda.aic)
@@ -107,7 +107,7 @@ NULL
 #'   fit <- islasso(y ~ ., data = data.frame(y = diabetes$y, diabetes$x2),
 #'                  family = gaussian())
 #'   summary(fit, pval = 0.05)
-#'   lambda.aic <- aic.islasso(fit, interval = c(1, 100))
+#'   lambda.aic <- aic.islasso(fit, interval = c(1, 100), trace = FALSE)
 #'   fit.aic <- update(fit, lambda = lambda.aic)
 #'   summary(fit.aic, pval = 0.05)
 #' }

@@ -8,7 +8,7 @@
 #' @param parm A specification of which parameters are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.
 #' @param level The confidence level required.
 #' @param type.ci Character. Only Wald-type confidence intervals are implemented yet! Set \code{type.ci = "wald"} to use estimates and standard errors to build the confidence interval.
-#' @param trace Logical. If \code{TRUE} (default), a bar shows the iterations status.
+#' @param trace Not used (kept for compatibility).
 #' @param ... Additional arguments for methods.
 #'
 #' @description
@@ -246,14 +246,14 @@ printHyp <- function (L, b, nms) {
 #'     \item A numeric matrix or vector with each row specifying a linear combination of coefficients,
 #'     \item Or a character vector with symbolic expressions (e.g. \code{"X1 + X2 = 3"}).
 #'   }
-#' @param b Right-hand side vector for the null hypotheses \code{A \%*\% beta = b}. If omitted, defaults to zeros.
+#' @param b Right-hand side vector for the null hypotheses `A %*% beta = b`. If omitted, defaults to zeros.
 #' @param ci Optional 2-column matrix of confidence intervals for coefficients.
 #' @param ... Currently unused.
 #'
 #' @details
 #' The method tests the null hypothesis \eqn{H_0: A \beta = b}, where \eqn{A} and \eqn{b} define a linear constraint on model coefficients.
 #'
-#' Symbolic expressions support natural syntax: coefficients may be added/subtracted, constants may be multiplied (e.g. \code{"2 * X1 + 3 * X2 = 7"}).
+#' Symbolic expressions support natural syntax: coefficients may be added/subtracted, constants may be multiplied (e.g. `"2 * X1 + 3 * X2 = 7"`).
 #' Equations with omitted \code{=} assume zero on the right-hand side. See examples for syntax flexibility.
 #'
 #' @return An object of class \code{"anova.islasso"} containing:

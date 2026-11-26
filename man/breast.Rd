@@ -24,9 +24,8 @@ str(breast)
 table(breast$status)
 
 \dontrun{
-  fit <- islasso.path(status ~ ., data = breast, family = binomial(),
-                      alpha = 0, control = is.control(trace = 2L))
-  temp <- GoF.islasso.path(fit)
+  fit <- islasso.path(status ~ ., data = breast, family = binomial(), alpha = 0)
+  temp <- GoF.islasso.path(fit, plot = FALSE)
   lambda.aic <- temp$lambda.min["AIC"]
   fit.aic <- islasso(status ~ ., data = breast, family = binomial(),
                      alpha = 0, lambda = lambda.aic)

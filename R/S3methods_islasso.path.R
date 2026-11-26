@@ -52,6 +52,9 @@ print.islasso.path <- function(x, digits = max(3L, getOption("digits") - 3L), ..
 #' @param lambda Numeric. Value of the regularization parameter at which the summary should be extracted.
 #' @param ... Currently unused.
 #'
+#' @details Between two values of the path, estimates, standard errors and the other quantities
+#' are linearly interpolated on the \eqn{\log\lambda} scale.
+#'
 #' @return An object of class \code{"summary.islasso.path"} containing filtered estimates and significance metrics.
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
@@ -62,10 +65,9 @@ print.islasso.path <- function(x, digits = max(3L, getOption("digits") - 3L), ..
 #'          \code{\link{deviance.islasso.path}}
 #'
 #' @examples
-#' \dontrun{
-#' # Assuming object `o` is from islasso.path
+#' sim <- simulXy(n = 100, p = 20, beta = c(1, -1, 0.5, rep(0, 17)), seed = 1)
+#' o <- islasso.path(y ~ ., data = sim$data, nlambda = 20)
 #' summary(o, pval = 0.1, lambda = 5)
-#' }
 #'
 #' @export
 summary.islasso.path <- function(object, pval = 1, use.t = FALSE, lambda, ...) {
@@ -282,7 +284,7 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #' This function visualizes the behavior of the solution path across a sequence of lambda values,
 #' helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.
 #'
-#' @return Produces plots. Does not return an object.
+#' @return A \code{ggplot} object (printed when not assigned).
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
@@ -290,16 +292,16 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #'          \code{\link{coef.islasso.path}}, \code{\link{fitted.islasso.path}}, \code{\link{predict.islasso.path}}
 #'
 #' @examples
-#' \dontrun{
-#'   n <- 100; p <- 30
-#'   beta <- c(runif(10, -2, 2), rep(0, p - 10))
-#'   sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-#'   fit <- islasso.path(y ~ ., data = sim$data, family = gaussian())
-#'
-#'   plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
-#'   plot(fit, yvar = "se", gof = "AICc")
-#'   plot(fit, yvar = "gradient", gof = "AICc")
-#'   plot(fit, yvar = "gof", gof = "AICc")
+#' \donttest{
+#' set.seed(1)
+#' n <- 100; p <- 30
+#' beta <- c(runif(10, -2, 2), rep(0, p - 10))
+#' sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
+#' fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
+#' plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
+#' plot(fit, yvar = "se", gof = "AICc")
+#' plot(fit, yvar = "gradient", gof = "AICc")
+#' plot(fit, yvar = "gof", gof = "AICc")
 #' }
 #'
 #' @export
@@ -657,7 +659,10 @@ create_gof_plot <- function(object, loglambda, id.best, gof, dots) {
 #'               If missing, predictions are computed for the full lambda sequence.
 #' @param ... Additional arguments passed to lower-level methods.
 #'
-#' @return A vector, matrix, or list depending on the \code{type} requested.
+#' @details For values of \code{lambda} not in the path, the coefficients are linearly
+#' interpolated on the \eqn{\log\lambda} scale.
+#'
+#' @return A vector or a matrix (one column per value of \code{lambda}) depending on \code{type}.
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
@@ -666,15 +671,15 @@ create_gof_plot <- function(object, loglambda, id.best, gof, dots) {
 #'          \code{\link{residuals.islasso.path}}, \code{\link{deviance.islasso.path}}
 #'
 #' @examples
-#' \dontrun{
-#'   set.seed(1)
-#'   n <- 100; p <- 30
-#'   beta <- c(runif(10, -3, 3), rep(0, p - 10))
-#'   sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-#'   fit <- islasso.path(y ~ ., data = sim$data, family = gaussian())
-#'   optimal <- GoF.islasso.path(fit)
-#'   pred <- predict(fit, type = "response", lambda = optimal$lambda.min)
-#' }
+#' set.seed(1)
+#' n <- 100; p <- 30
+#' beta <- c(runif(10, -3, 3), rep(0, p - 10))
+#' sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
+#' fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
+#' optimal <- GoF.islasso.path(fit, plot = FALSE)
+#' pred <- predict(fit, newdata = sim$data[1:5, ], type = "response",
+#'                 lambda = optimal$lambda.min[c("AIC", "BIC")])
+#' pred
 #'
 #' @export
 predict.islasso.path <- function(object,

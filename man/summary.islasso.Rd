@@ -18,22 +18,30 @@
 
 \item{type.pval}{Character. Type of p-value approximation. Only \code{"wald"} (default) is implemented.}
 
-\item{...}{Additional arguments (not currently used).}
+\item{...}{Additional arguments; \code{digits} is used by the print method.}
 }
 \value{
 An object of class \code{"summary.islasso"} containing:
-  \item{coefficients}{Coefficient estimates and related statistics}
-  \item{pval}{Threshold used to filter coefficients}
-  \item{call}{Original model call}
+\item{coefficients}{matrix with estimates, standard errors, pseudo hat values, Wald statistics and p-values;}
+\item{dispersion, df, res, aic, lambda, nulldev, dev, df.null, df.res, family, iter}{model summaries;}
+\item{pval}{threshold used to filter the printed coefficients;}
+\item{unpenalized}{logical vector of the unpenalized coefficients (always printed);}
+\item{call}{the original model call.}
 }
 \description{
 Provides a concise summary of a fitted \code{\link{islasso}} model, including p-values and optional filtering.
 }
-\examples{
-\dontrun{
-# Assuming object `o` from an islasso fit
-summary(o, pval = 0.1)  # Show coefficients with p <= 0.1
+\details{
+The column \code{Df} reports the pseudo hat values \eqn{h_j}, whose sum is the
+effective number of parameters (see \code{\link{islasso}}). The Wald statistics are the ratios of
+the estimates to their standard errors; with \code{use.t = TRUE} (Gaussian family only) the
+p-values use a t distribution with the residual degrees of freedom.
 }
+\examples{
+sim <- simulXy(n = 100, p = 20, beta = c(1, -1, 0.5, rep(0, 17)), seed = 1)
+o <- islasso(y ~ ., data = sim$data, lambda = 8)
+summary(o, pval = 0.1)            # coefficients with p-value <= 0.1
+summary(o, which = c("X1", "X4"))
 
 }
 \seealso{

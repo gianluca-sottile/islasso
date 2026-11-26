@@ -31,22 +31,29 @@ print.islasso <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 #' @param which Optional. Specifies a subset of coefficients to test. If missing, all parameters are evaluated.
 #' @param use.t Logical. If \code{TRUE}, p-values are computed using the t-distribution and residual degrees of freedom.
 #' @param type.pval Character. Type of p-value approximation. Only \code{"wald"} (default) is implemented.
-#' @param ... Additional arguments (not currently used).
+#' @param ... Additional arguments; \code{digits} is used by the print method.
+#'
+#' @details The column \code{Df} reports the pseudo hat values \eqn{h_j}, whose sum is the
+#' effective number of parameters (see \code{\link{islasso}}). The Wald statistics are the ratios of
+#' the estimates to their standard errors; with \code{use.t = TRUE} (Gaussian family only) the
+#' p-values use a t distribution with the residual degrees of freedom.
 #'
 #' @return An object of class \code{"summary.islasso"} containing:
-#'   \item{coefficients}{Coefficient estimates and related statistics}
-#'   \item{pval}{Threshold used to filter coefficients}
-#'   \item{call}{Original model call}
+#'   \item{coefficients}{matrix with estimates, standard errors, pseudo hat values, Wald statistics and p-values;}
+#'   \item{dispersion, df, res, aic, lambda, nulldev, dev, df.null, df.res, family, iter}{model summaries;}
+#'   \item{pval}{threshold used to filter the printed coefficients;}
+#'   \item{unpenalized}{logical vector of the unpenalized coefficients (always printed);}
+#'   \item{call}{the original model call.}
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
 #' @seealso \code{\link{islasso.fit}}, \code{\link{residuals.islasso}}, \code{\link{logLik.islasso}}, \code{\link{predict.islasso}}, \code{\link{deviance.islasso}}
 #'
 #' @examples
-#' \dontrun{
-#' # Assuming object `o` from an islasso fit
-#' summary(o, pval = 0.1)  # Show coefficients with p <= 0.1
-#' }
+#' sim <- simulXy(n = 100, p = 20, beta = c(1, -1, 0.5, rep(0, 17)), seed = 1)
+#' o <- islasso(y ~ ., data = sim$data, lambda = 8)
+#' summary(o, pval = 0.1)            # coefficients with p-value <= 0.1
+#' summary(o, which = c("X1", "X4"))
 #'
 #' @export
 summary.islasso <- function(object, pval = 1, which, use.t = FALSE,
@@ -206,18 +213,22 @@ print.summary.islasso <- function(x, digits = max(3L, getOption("digits") - 3L),
 #' model fit, and variance structure.
 #'
 #' @param x An object of class \code{"islasso"}, typically created via \code{\link{islasso}}.
-#' @param ... Additional graphical parameters passed to the underlying \code{plot()} functions.
+#' @param ... Graphical parameters: \code{cex} (point size), \code{pch} (point shape), \code{col}
+#'   (colour of the reference lines) and \code{lwd} (their width).
 #'
 #' @details
-#' Generates a 2x2 grid of diagnostic plots:
+#' Draws a 2x2 grid of \pkg{ggplot2} diagnostic plots:
 #' \itemize{
-#'   \item Top-left: Deviance residuals vs fitted values.
-#'   \item Top-right: Normal Q-Q plot of standardized deviance residuals (red line = reference).
-#'   \item Bottom-left: Squared standardized Pearson residuals vs fitted values.
-#'   \item Bottom-right: Working response vector vs linear predictor.
+#'   \item Top-left: standardized deviance residuals (adjusted for leverage) vs linear predictor.
+#'   \item Top-right: normal Q-Q plot of the standardized deviance residuals (red line = reference).
+#'   \item Bottom-left: squared standardized Pearson residuals vs fitted values (variance function).
+#'   \item Bottom-right: working response vs linear predictor (link function).
 #' }
+#' The leverages are the diagonal elements of \eqn{W^{1/2} X \tilde U'^{-1} X^\top W^{1/2}}, computed
+#' from the derivative of the smoothed estimating equation; their sum is the effective number of
+#' parameters.
 #'
-#' These plots help assess the assumptions of linearity, homoscedasticity, and residual normality in penalized regression.
+#' @return Invisibly, a list with the four \code{ggplot} objects.
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
@@ -225,13 +236,10 @@ print.summary.islasso <- function(x, digits = max(3L, getOption("digits") - 3L),
 #' \code{\link{logLik.islasso}}, \code{\link{predict.islasso}}, \code{\link{deviance.islasso}}
 #'
 #' @examples
-#' \dontrun{
-#'   set.seed(1)
-#'   n <- 100; p <- 100
-#'   beta <- c(runif(20, -3, 3), rep(0, p - 20))
-#'   sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-#'   fit <- islasso(y ~ ., data = sim$data, family = gaussian(), lambda = 2)
-#'   plot(fit)
+#' \donttest{
+#' sim <- simulXy(n = 100, p = 20, beta = c(1, -1, 0.5, rep(0, 17)), seed = 1)
+#' fit <- islasso(y ~ ., data = sim$data, family = gaussian(), lambda = 8)
+#' plot(fit)
 #' }
 #'
 #' @export
@@ -342,15 +350,17 @@ plot.islasso <- function(x, ...) {
 #'     \item \code{"class"}: predicted class (only for \code{binomial()} family);
 #'     \item \code{"terms"}: contribution of each term to the linear predictor.
 #'   }
-#' @param se.fit Logical. Whether to compute standard errors/confidence intervals.
-#' @param ci Optional. Precomputed matrix of confidence intervals (2 columns).
+#' @param se.fit Logical. If \code{TRUE}, Wald confidence intervals (at level \code{level}) are
+#'   returned together with the predictions (on the scale of \code{type}).
+#' @param ci Optional. Precomputed matrix of confidence intervals for the coefficients (2 columns),
+#'   e.g. from \code{\link{confint.islasso}}.
 #' @param type.ci Type of interval. Only \code{"wald"} is implemented.
 #' @param level Confidence level for intervals. Default is \code{0.95}.
 #' @param terms If \code{type = "terms"}, optionally specify which terms to extract.
 #' @param na.action Function to handle missing values in \code{newdata}. Default: \code{na.pass}.
 #' @param ... Additional arguments passed to downstream methods.
 #'
-#' @return A numeric vector, matrix, or list depending on \code{type}.
+#' @return A numeric vector or, with \code{se.fit = TRUE} or \code{type = "terms"}, a matrix.
 #'
 #' @author Gianluca Sottile \email{gianluca.sottile@unipa.it}
 #'
@@ -362,13 +372,14 @@ plot.islasso <- function(x, ...) {
 #' beta <- c(runif(20, -3, 3), rep(0, p - 20))
 #' sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
 #' fit <- islasso(y ~ ., data = sim$data, family = gaussian(), lambda = 2)
-#' predict(fit, type = "response")
+#' head(predict(fit, type = "response"))
+#' predict(fit, newdata = sim$data[1:3, ], se.fit = TRUE)
 #'
 #' @export
 predict.islasso <- function(object, newdata = NULL,
                             type = c("link", "response", "coefficients", "class", "terms"),
                             se.fit = FALSE, ci = NULL,
-                            type.ci = c("wald", "score"),
+                            type.ci = "wald",
                             level = 0.95,
                             terms = NULL,
                             na.action = na.pass, ...) {

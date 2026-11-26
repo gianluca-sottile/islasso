@@ -18,11 +18,11 @@
 
 \item{yvar}{Character. Specifies what to display on the y-axis. Choices are:
 \itemize{
-  \item \code{"coefficients"} - coefficient paths over \code{log(lambda)},
-  \item \code{"se"} - standard errors over \code{log(lambda)},
-  \item \code{"gradient"} - gradient values over \code{log(lambda)},
-  \item \code{"weight"} - mixture weights used in smoothing,
-  \item \code{"gof"} - goodness-of-fit values.
+\item \code{"coefficients"} - coefficient paths over \code{log(lambda)},
+\item \code{"se"} - standard errors over \code{log(lambda)},
+\item \code{"gradient"} - gradient values over \code{log(lambda)},
+\item \code{"weight"} - mixture weights used in smoothing,
+\item \code{"gof"} - goodness-of-fit values.
 }}
 
 \item{gof}{Character. Criterion used for highlighting active variables.
@@ -37,7 +37,7 @@ Choices: \code{"none"}, \code{"AIC"}, \code{"BIC"}, \code{"AICc"}, \code{"eBIC"}
 \code{gof_col}, \code{gof_lwd}.}
 }
 \value{
-Produces plots. Does not return an object.
+A \code{ggplot} object (printed when not assigned).
 }
 \description{
 Generates plots of coefficient profiles, standard errors, gradients, weights, or goodness-of-fit criteria
@@ -48,22 +48,22 @@ This function visualizes the behavior of the solution path across a sequence of 
 helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.
 }
 \examples{
-\dontrun{
-  n <- 100; p <- 30
-  beta <- c(runif(10, -2, 2), rep(0, p - 10))
-  sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
-  fit <- islasso.path(y ~ ., data = sim$data, family = gaussian())
-
-  plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
-  plot(fit, yvar = "se", gof = "AICc")
-  plot(fit, yvar = "gradient", gof = "AICc")
-  plot(fit, yvar = "gof", gof = "AICc")
+\donttest{
+set.seed(1)
+n <- 100; p <- 30
+beta <- c(runif(10, -2, 2), rep(0, p - 10))
+sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
+fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
+plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
+plot(fit, yvar = "se", gof = "AICc")
+plot(fit, yvar = "gradient", gof = "AICc")
+plot(fit, yvar = "gof", gof = "AICc")
 }
 
 }
 \seealso{
 \code{\link{islasso.path}}, \code{\link{GoF.islasso.path}}, \code{\link{summary.islasso.path}},
-         \code{\link{coef.islasso.path}}, \code{\link{fitted.islasso.path}}, \code{\link{predict.islasso.path}}
+\code{\link{coef.islasso.path}}, \code{\link{fitted.islasso.path}}, \code{\link{predict.islasso.path}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

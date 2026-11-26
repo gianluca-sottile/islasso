@@ -2,7 +2,7 @@
 % Please edit documentation in R/islasso.R
 \name{is.control}
 \alias{is.control}
-\title{Control Settings for islasso Model Fitting}
+\title{Control Parameters for islasso Fitting}
 \usage{
 is.control(
   sigma2 = -1,
@@ -16,48 +16,71 @@ is.control(
   g = 0.5,
   b0 = NULL,
   V0 = NULL,
-  c = 0.5
+  c = 0.5,
+  inner = c("mm", "newton"),
+  solver = c("auto", "dense", "woodbury"),
+  ncores = 1L,
+  ...
 )
 }
 \arguments{
-\item{sigma2}{Numeric. Fixed value of the dispersion parameter. If \code{-1} (default), it is estimated from data.}
+\item{sigma2}{fixed value of the dispersion parameter; if negative (default) it is
+estimated (Pearson statistic over the residual degrees of freedom). Ignored for the
+binomial, Poisson and negative binomial families, where it is 1.}
 
-\item{tol}{Numeric. Tolerance level to declare convergence. Default is \code{1e-5}.}
+\item{tol}{tolerance of the convergence criteria (default \code{1e-5}).}
 
-\item{itmax}{Integer. Maximum number of iterations. Default is \code{1000}.}
+\item{itmax}{maximum number of iterations (default 1000).}
 
-\item{stand}{Logical. If \code{TRUE} (default), standardizes covariates before fitting. Returned coefficients remain on the original scale.}
+\item{stand}{logical: should the covariates be standardised (default \code{TRUE})? With
+\code{stand = TRUE} the penalty acts on the standardised coefficients, as in \pkg{glmnet};
+estimates are always returned on the original scale.}
 
-\item{trace}{Integer. Controls verbosity of the iterative procedure:
-\itemize{
-  \item \code{0} - no printing,
-  \item \code{1} - compact printing,
-  \item \code{2} - detailed printing,
-  \item \code{3} - compact printing with Fisher scoring info (only for GLM).
-}}
+\item{trace}{integer: 0 (default) silent, 1 compact and 2 detailed printing of the iterations.}
 
-\item{nfolds}{Integer. Number of folds for CV if \code{lambda} is missing in \code{islasso}. Defaults to \code{5}.}
+\item{nfolds}{number of folds for the cross-validation used when \code{lambda} is missing.}
 
-\item{seed}{Optional. Integer seed for reproducibility in cross-validation.}
+\item{seed}{optional integer seed for the cross-validation folds (the random number
+generator state of the session is restored afterwards).}
 
-\item{adaptive}{Logical. If \code{TRUE}, fits an adaptive LASSO. (Experimental)}
+\item{adaptive}{logical: adaptive lasso with weights based on the pseudo hat values
+(experimental).}
 
-\item{g}{Numeric in \code{[0,1]}. Governs BIC selection: \code{g = 0} is standard BIC; \code{g = 0.5} is extended BIC.}
+\item{g}{numeric in [0, 1]: the parameter of the extended BIC (\code{g = 0} gives the BIC).}
 
-\item{b0}{Optional. Starting values for regression coefficients. If \code{NULL}, uses \code{glmnet} estimates.}
+\item{b0}{optional starting values for the coefficients (original scale, intercept first).}
 
-\item{V0}{Optional. Initial covariance matrix. Defaults to identity matrix if \code{NULL}.}
+\item{V0}{optional starting covariance matrix (or a number for its diagonal) on the
+standardised scale; default \code{0.01}.}
 
-\item{c}{Numeric. Controls the weight in the induced smoothed LASSO. Default is \code{0.5}; use \code{-1} to recompute at every iteration.}
+\item{c}{the mixture weight of the induced smoothing (default 0.5), a number in [0, 1]
+or a vector with one value per coefficient; a negative value means that the weights are
+re-estimated at each iteration.}
+
+\item{inner}{the algorithm solving the smoothed estimating equation at fixed standard
+errors: \code{"mm"} (default, monotone majorise-minimise iterations, the undamped version of
+the fixed-point iterations of islasso 1.6) or \code{"newton"} (Newton's method with line search).}
+
+\item{solver}{linear algebra: \code{"auto"} (default) uses \code{"woodbury"} when the number of
+columns exceeds twice the number of observations and \code{"dense"} otherwise.}
+
+\item{ncores}{number of cores used by \code{\link[=islasso.path]{islasso.path()}} to fit the models for the different
+values of \code{lambda} in parallel (socket cluster of package 'parallel'); default 1.}
+
+\item{...}{further arguments, ignored (allows \code{do.call(is.control, control)}).}
 }
 \value{
-A list of control parameters for use in \code{\link{islasso}}.
+A list with the control parameters.
 }
 \description{
-Auxiliary function used to configure and customize the fitting process of \code{\link{islasso}} models.
+Collects the parameters controlling the fitting process of \code{\link[=islasso]{islasso()}} and
+\code{\link[=islasso.path]{islasso.path()}}.
+}
+\examples{
+is.control(tol = 1e-6, seed = 1)
 }
 \seealso{
-\code{\link{islasso}}, \code{\link{islasso.path}}
+\code{\link[=islasso]{islasso()}}, \code{\link[=islasso.path]{islasso.path()}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}

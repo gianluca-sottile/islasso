@@ -10,7 +10,7 @@
   type = c("link", "response", "coefficients", "class", "terms"),
   se.fit = FALSE,
   ci = NULL,
-  type.ci = c("wald", "score"),
+  type.ci = "wald",
   level = 0.95,
   terms = NULL,
   na.action = na.pass,
@@ -24,16 +24,18 @@
 
 \item{type}{Character. Specifies the prediction scale:
 \itemize{
-  \item \code{"link"} (default): linear predictor scale;
-  \item \code{"response"}: original response scale;
-  \item \code{"coefficients"}: estimated coefficients;
-  \item \code{"class"}: predicted class (only for \code{binomial()} family);
-  \item \code{"terms"}: contribution of each term to the linear predictor.
+\item \code{"link"} (default): linear predictor scale;
+\item \code{"response"}: original response scale;
+\item \code{"coefficients"}: estimated coefficients;
+\item \code{"class"}: predicted class (only for \code{binomial()} family);
+\item \code{"terms"}: contribution of each term to the linear predictor.
 }}
 
-\item{se.fit}{Logical. Whether to compute standard errors/confidence intervals.}
+\item{se.fit}{Logical. If \code{TRUE}, Wald confidence intervals (at level \code{level}) are
+returned together with the predictions (on the scale of \code{type}).}
 
-\item{ci}{Optional. Precomputed matrix of confidence intervals (2 columns).}
+\item{ci}{Optional. Precomputed matrix of confidence intervals for the coefficients (2 columns),
+e.g. from \code{\link{confint.islasso}}.}
 
 \item{type.ci}{Type of interval. Only \code{"wald"} is implemented.}
 
@@ -46,7 +48,7 @@
 \item{...}{Additional arguments passed to downstream methods.}
 }
 \value{
-A numeric vector, matrix, or list depending on \code{type}.
+A numeric vector or, with \code{se.fit = TRUE} or \code{type = "terms"}, a matrix.
 }
 \description{
 Computes predictions from a fitted \code{\link{islasso}} model object. Multiple output types supported, including response scale, linear predictor, and coefficient values.
@@ -57,7 +59,8 @@ n <- 100; p <- 100
 beta <- c(runif(20, -3, 3), rep(0, p - 20))
 sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
 fit <- islasso(y ~ ., data = sim$data, family = gaussian(), lambda = 2)
-predict(fit, type = "response")
+head(predict(fit, type = "response"))
+predict(fit, newdata = sim$data[1:3, ], se.fit = TRUE)
 
 }
 \seealso{

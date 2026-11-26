@@ -25,18 +25,21 @@ An object of class \code{"summary.islasso.path"} containing filtered estimates a
 \description{
 Extracts coefficient estimates, standard errors and p-values from an \code{\link{islasso.path}} fit at a given regularization level \code{lambda}.
 }
-\examples{
-\dontrun{
-# Assuming object `o` is from islasso.path
-summary(o, pval = 0.1, lambda = 5)
+\details{
+Between two values of the path, estimates, standard errors and the other quantities
+are linearly interpolated on the \eqn{\log\lambda} scale.
 }
+\examples{
+sim <- simulXy(n = 100, p = 20, beta = c(1, -1, 0.5, rep(0, 17)), seed = 1)
+o <- islasso.path(y ~ ., data = sim$data, nlambda = 20)
+summary(o, pval = 0.1, lambda = 5)
 
 }
 \seealso{
 \code{\link{islasso.path}}, \code{\link{GoF.islasso.path}}, \code{\link{coef.islasso.path}},
-         \code{\link{fitted.islasso.path}}, \code{\link{predict.islasso.path}},
-         \code{\link{residuals.islasso.path}}, \code{\link{logLik.islasso.path}},
-         \code{\link{deviance.islasso.path}}
+\code{\link{fitted.islasso.path}}, \code{\link{predict.islasso.path}},
+\code{\link{residuals.islasso.path}}, \code{\link{logLik.islasso.path}},
+\code{\link{deviance.islasso.path}}
 }
 \author{
 Gianluca Sottile \email{gianluca.sottile@unipa.it}
