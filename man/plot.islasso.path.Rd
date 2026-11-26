@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{islasso.path}(
   x,
-  yvar = c("coefficients", "se", "gradient", "weight", "gof"),
+  yvar = c("coefficients", "se", "score", "gradient", "weight", "gof"),
   gof = c("none", "AIC", "BIC", "AICc", "eBIC", "GCV", "GIC"),
   label = FALSE,
   legend = FALSE,
@@ -20,7 +20,11 @@
 \itemize{
 \item \code{"coefficients"} - coefficient paths over \code{log(lambda)},
 \item \code{"se"} - standard errors over \code{log(lambda)},
-\item \code{"gradient"} - gradient values over \code{log(lambda)},
+\item \code{"score"} - standardized scores \eqn{x_j^\top W(z - X\hat\beta)/\lambda_j} over
+\code{log(lambda)}, the induced-smoothing analogue of the lasso optimality conditions
+(dashed lines at \eqn{\pm 1}),
+\item \code{"gradient"} - gradient of the smoothed estimating equation over \code{log(lambda)}
+(a convergence diagnostic),
 \item \code{"weight"} - mixture weights used in smoothing,
 \item \code{"gof"} - goodness-of-fit values.
 }}
@@ -46,6 +50,16 @@ from a fitted \code{\link{islasso.path}} model.
 \details{
 This function visualizes the behavior of the solution path across a sequence of lambda values,
 helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.
+All the profiles are drawn against \eqn{\log\lambda}.
+
+The standardized score of a covariate (computed on the standardized scale on which the penalty
+acts) equals, at the solution, the smoothed sign \eqn{P_j} (lasso) or
+\eqn{\alpha P_j + (1-\alpha)\hat\beta_j} (elastic net): it is close to \eqn{\pm 1} for the
+covariates with sizeable effects and strictly inside \eqn{(-1, 1)} for those shrunk towards zero,
+as the subgradient conditions of the lasso. The gradient, instead, is the residual of the smoothed
+estimating equation: it is zero up to the convergence tolerance, and its irregular values for
+large \eqn{\lambda} reflect the very large curvature of the smoothed penalty when the standard
+errors of null coefficients are tiny, not features of the model.
 }
 \examples{
 \donttest{
@@ -56,6 +70,7 @@ sim <- simulXy(n = n, p = p, beta = beta, seed = 1, family = gaussian())
 fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
 plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
 plot(fit, yvar = "se", gof = "AICc")
+plot(fit, yvar = "score", gof = "AICc")
 plot(fit, yvar = "gradient", gof = "AICc")
 plot(fit, yvar = "gof", gof = "AICc")
 }

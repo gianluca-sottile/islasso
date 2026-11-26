@@ -268,7 +268,11 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #'   \itemize{
 #'     \item \code{"coefficients"} - coefficient paths over \code{log(lambda)},
 #'     \item \code{"se"} - standard errors over \code{log(lambda)},
-#'     \item \code{"gradient"} - gradient values over \code{log(lambda)},
+#'     \item \code{"score"} - standardized scores \eqn{x_j^\top W(z - X\hat\beta)/\lambda_j} over
+#'       \code{log(lambda)}, the induced-smoothing analogue of the lasso optimality conditions
+#'       (dashed lines at \eqn{\pm 1}),
+#'     \item \code{"gradient"} - gradient of the smoothed estimating equation over \code{log(lambda)}
+#'       (a convergence diagnostic),
 #'     \item \code{"weight"} - mixture weights used in smoothing,
 #'     \item \code{"gof"} - goodness-of-fit values.
 #'   }
@@ -283,6 +287,16 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #' @details
 #' This function visualizes the behavior of the solution path across a sequence of lambda values,
 #' helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.
+#' All the profiles are drawn against \eqn{\log\lambda}.
+#'
+#' The standardized score of a covariate (computed on the standardized scale on which the penalty
+#' acts) equals, at the solution, the smoothed sign \eqn{P_j} (lasso) or
+#' \eqn{\alpha P_j + (1-\alpha)\hat\beta_j} (elastic net): it is close to \eqn{\pm 1} for the
+#' covariates with sizeable effects and strictly inside \eqn{(-1, 1)} for those shrunk towards zero,
+#' as the subgradient conditions of the lasso. The gradient, instead, is the residual of the smoothed
+#' estimating equation: it is zero up to the convergence tolerance, and its irregular values for
+#' large \eqn{\lambda} reflect the very large curvature of the smoothed penalty when the standard
+#' errors of null coefficients are tiny, not features of the model.
 #'
 #' @return A \code{ggplot} object (printed when not assigned).
 #'
@@ -300,13 +314,14 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #' fit <- islasso.path(y ~ ., data = sim$data, family = gaussian(), nlambda = 30)
 #' plot(fit, yvar = "coefficients", gof = "AICc", label = TRUE)
 #' plot(fit, yvar = "se", gof = "AICc")
+#' plot(fit, yvar = "score", gof = "AICc")
 #' plot(fit, yvar = "gradient", gof = "AICc")
 #' plot(fit, yvar = "gof", gof = "AICc")
 #' }
 #'
 #' @export
 plot.islasso.path <- function(x,
-                              yvar = c("coefficients", "se", "gradient", "weight", "gof"),
+                              yvar = c("coefficients", "se", "score", "gradient", "weight", "gof"),
                               gof = c("none", "AIC", "BIC", "AICc", "eBIC", "GCV", "GIC"),
                               label = FALSE,
                               legend = FALSE,
@@ -371,11 +386,21 @@ plot.islasso.path <- function(x,
     if (intercept) weight1 <- weight1[, -1]
     p <- create_weight_plot(weight1, coef1, loglambda, label, id.best, gof, dots,
                             active, unactive, legend, nlambda)
+  } else if (yvar == "score") {
+    if (is.null(object$Score))
+      stop("the object has no standardized scores: refit it with islasso >= 1.7.0", call. = FALSE)
+    score1 <- object$Score
+    if (intercept) score1 <- score1[, -1, drop = FALSE]
+    if (is.null(dots$ylab)) dots$ylab <- "Standardized score"
+    p <- create_coef_plot(score1, loglambda, label, id.best, gof, dots,
+                          active, unactive, legend, nlambda) +
+      geom_hline(yintercept = c(-1, 1), linetype = "dashed", col = "gray50")
   } else if (yvar == "gradient") {
-    grad <- object$Gradient #calculate_gradient(object, lambda, nlambda, intercept)
-    if (intercept) grad <- grad[, -1]
-    p <- create_gradient_plot(grad, coef1, lambda, label, id.best, gof, dots,
-                              active, unactive, legend, nlambda)
+    grad <- object$Gradient
+    if (intercept) grad <- grad[, -1, drop = FALSE]
+    if (is.null(dots$ylab)) dots$ylab <- "Gradient"
+    p <- create_coef_plot(grad, loglambda, label, id.best, gof, dots,
+                          active, unactive, legend, nlambda)
   } else if (yvar == "gof") {
     p <- create_gof_plot(object, loglambda, id.best, gof, dots)
   }
@@ -536,86 +561,6 @@ create_weight_plot <- function(weight1, coef1, loglambda, label, id.best, gof, d
   return(p)
 }
 
-calculate_gradient <- function(object, lambda, nlambda, intercept) {
-  # Gradient calculation function
-  fn0 <- function(x, y, b, s = 1, c = .5, lambda, alpha, unpenalized, family, offset, weights) {
-    eta <- x %*% b + offset
-    mu <- family$linkinv(eta)
-    v <- family$variance(mu)
-    m.e <- family$mu.eta(eta)
-    r <- y - mu
-    rv <- r / v * m.e * weights
-    grad <- drop(t(rv) %*% x)
-
-    bsc <- (b / s)
-    r <- alpha * (c*(2 * pnorm(bsc, 0, 1) - 1) + (1 - c)*(2 * pnorm(bsc, 0, 1E-5) - 1)) + (1 - alpha) * b
-    if (any(unpenalized)) r[unpenalized] <- 0
-    return(- grad + lambda * r)
-  }
-
-  # Calculate gradients for all lambda values
-  grad <- t(sapply(seq_len(nlambda), function(i) {
-    fn0(x = model.matrix(object), y = object$y, b = object$Coef[i, ],
-        s = object$SE[i, ], c = object$Weight[i, ],
-        lambda = lambda[i], alpha = object$alpha,
-        unpenalized = object$Input$unpenalized, family = object$family,
-        offset = object$offset, weights = object$prior.weights)
-  }))
-
-  if (intercept) grad <- grad[, -1]
-  return(grad)
-}
-
-create_gradient_plot <- function(grad, coef1, lambda, label, id.best, gof, dots,
-                                 active, unactive, legend, nlambda) {
-  # Set default axis labels if not provided
-  if (is.null(dots$xlab)) dots$xlab <- expression(lambda)
-  if (is.null(dots$ylab)) dots$ylab <- "Gradient"
-  if (is.null(dots$xlim)) dots$xlim <- range(lambda) + c(0, exp(label))
-
-  # Create the plot
-  p <- data.frame(
-    lambda = lambda,
-    value = c(grad),
-    varname = factor(rep(names(unactive), each = nlambda), levels = names(unactive))
-  ) |>
-    ggplot() +
-    geom_line(aes(x = lambda, y = value, linetype = varname),
-              color = rep(dots$col, each = nlambda), linewidth = dots$lwd) +
-    scale_linetype_manual(values = rep(dots$lty, each = nlambda)) +
-    geom_hline(yintercept = 0.0, linetype = "dotted", col = "gray50") +
-    theme_bw() +
-    xlab(dots$xlab) +
-    ylab(dots$ylab) +
-    theme(legend.position = "none",
-          axis.text = element_text(size = dots$cex.axis),
-          axis.title = element_text(size = dots$cex.lab)) +
-    xlim(dots$xlim)
-
-  # Add labels if requested
-  if (label) {
-    p <- p + annotate("text",
-                      x = rep(max(lambda) + exp(label), sum(active)),
-                      y = grad[nlambda, active],
-                      label = colnames(coef1)[active], size = 5L)
-  }
-
-  # Add vertical line for best model if gof criterion specified
-  if (gof != "none") {
-    p <- p + geom_vline(xintercept = lambda[id.best[gof]],
-                        col = dots$gof_col, linetype = dots$gof_lty)
-  }
-
-  # Add legend if requested
-  if (legend && gof != "none") {
-    p <- p + annotate("text",
-                      x = quantile(lambda, probs = .975),
-                      y = max(grad),
-                      label = paste0("min.", gof), size = 4L, color = dots$gof_col)
-  }
-
-  return(p)
-}
 
 create_gof_plot <- function(object, loglambda, id.best, gof, dots) {
   # Set default axis labels if not provided

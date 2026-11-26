@@ -88,7 +88,12 @@ without intercept) of the coefficients left unpenalized. The intercept is never 
 \value{
 An object of class \code{"islasso.path"}, a list with components
 \item{Coef, SE, Weight, Gradient}{matrices (one row per value of \code{lambda}, in increasing
-order) of estimates, standard errors, mixture weights and gradients;}
+order) of estimates, standard errors, mixture weights and gradients of the smoothed
+estimating equation (a convergence diagnostic, numerically close to zero);}
+\item{Score}{matrix of standardized scores \eqn{x_j^\top W(z - X\hat\beta)/\lambda_j} (standardized
+covariates), equal at the solution to \eqn{\alpha P_j + (1-\alpha)\hat\beta_j}: the
+induced-smoothing analogue of the lasso optimality conditions, in \eqn{[-1, 1]} for the lasso
+(0 for unpenalized columns);}
 \item{Info}{matrix with columns \code{lambda}, \code{df}, \code{phi}, \code{deviance}, \code{logLik}, \code{iter}, \code{err}, \code{conv};}
 \item{GoF}{matrix of information criteria (AIC, BIC, AICc, eBIC, GCV, GIC);}
 \item{Linear.predictors, Fitted.values, Residuals}{matrices with one row per value of \code{lambda};}

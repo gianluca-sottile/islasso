@@ -41,7 +41,12 @@
 #'
 #' @return An object of class `"islasso.path"`, a list with components
 #'   \item{Coef, SE, Weight, Gradient}{matrices (one row per value of `lambda`, in increasing
-#'     order) of estimates, standard errors, mixture weights and gradients;}
+#'     order) of estimates, standard errors, mixture weights and gradients of the smoothed
+#'     estimating equation (a convergence diagnostic, numerically close to zero);}
+#'   \item{Score}{matrix of standardized scores \eqn{x_j^\top W(z - X\hat\beta)/\lambda_j} (standardized
+#'     covariates), equal at the solution to \eqn{\alpha P_j + (1-\alpha)\hat\beta_j}: the
+#'     induced-smoothing analogue of the lasso optimality conditions, in \eqn{[-1, 1]} for the lasso
+#'     (0 for unpenalized columns);}
 #'   \item{Info}{matrix with columns `lambda`, `df`, `phi`, `deviance`, `logLik`, `iter`, `err`, `conv`;}
 #'   \item{GoF}{matrix of information criteria (AIC, BIC, AICc, eBIC, GCV, GIC);}
 #'   \item{Linear.predictors, Fitted.values, Residuals}{matrices with one row per value of `lambda`;}
@@ -211,8 +216,13 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     w <- prep$weights * me^2 / family$variance(mu)
     w[!is.finite(w)] <- 0
     pz <- .is_penalty_R(theta, fit$se.used, cm_k, fit$lam, prep$alpha)
-    gstd <- -drop(crossprod(Xs, w * (prep$y - mu) / me)) + pz$gradient
+    score <- drop(crossprod(Xs, w * (prep$y - mu) / me))
+    gstd <- -score + pz$gradient
+    # standardized score x_j' W (z - X beta) / lambda_j (= alpha P_j + (1 - alpha) beta_j at the
+    # solution); 0 for the unpenalized columns
+    zscore <- ifelse(fit$lam > 0, score / pmax(fit$lam, .Machine$double.xmin), 0)
     list(theta = theta, coef = beta, se = se, w = cm_k, grad = .is_grad_back(gstd, st$xm, st$xs, intercept),
+         score = zscore,
          info = c(lambda[k], df, fit$dispersion, dev, -ll / 2, fit$iter, fit$tol, fit$conv),
          gof = .is_gof(if (llfam) ll + 2 * disp else ll, dev, df, nok, nvars, setting$g),
          eta = eta, mu = mu, res = (prep$y - mu) / me)
@@ -254,6 +264,7 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
   fits <- fits[ok]
   stack <- function(name) do.call(rbind, lapply(fits, `[[`, name))
   out_coef <- stack("coef"); out_se <- stack("se"); out_w <- stack("w"); out_grad <- stack("grad")
+  out_score <- stack("score")
   out_info <- stack("info"); out_gof <- stack("gof")
   out_eta <- stack("eta"); out_mu <- stack("mu"); out_res <- stack("res")
   if (any(out_info[, 8L] == 1))
@@ -271,7 +282,7 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     Coef = mk(out_coef), SE = mk(out_se), Residuals = out_res[keep, , drop = FALSE],
     Fitted.values = out_mu[keep, , drop = FALSE], Info = out_info, GoF = out_gof,
     Linear.predictors = out_eta[keep, , drop = FALSE], prior.weights = prep$weights,
-    Weight = mk(out_w), Gradient = mk(out_grad), y = prep$y, model = NULL, call = match.call(),
+    Weight = mk(out_w), Gradient = mk(out_grad), Score = mk(out_score), y = prep$y, model = NULL, call = match.call(),
     family = family, formula = NULL, terms = NULL, data = NULL, offset = prep$offset,
     control = setting, contrasts = NULL, xlevels = NULL, alpha = prep$alpha,
     Input = list(n = nobs, p = nvars, intercept = intercept, unpenalized = unp, n.trials = prep$n)

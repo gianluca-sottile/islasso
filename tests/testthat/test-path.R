@@ -72,3 +72,13 @@ test_that("parallel path gives the same results", {
   expect_equal(o1$Coef, o2$Coef)
   expect_equal(o1$Info, o2$Info)
 })
+
+test_that("standardized scores behave as the lasso optimality conditions", {
+  d <- sim_gaus()
+  o <- islasso.path(y ~ ., data = d$data, nlambda = 10)
+  expect_equal(dim(o$Score), dim(o$Coef))
+  expect_true(all(o$Score[, 1] == 0))                       # unpenalized intercept
+  expect_true(all(abs(o$Score[, -1]) <= 1 + 1e-3))         # lasso: |score| <= 1 (up to tolerance)
+  big <- abs(o$Coef[, -1] / o$SE[, -1]) > 5                 # clearly non-null estimates
+  expect_true(all(abs(o$Score[, -1][big]) > 0.99))          # their score is close to +-1
+})

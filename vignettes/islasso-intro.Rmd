@@ -136,12 +136,12 @@ lmb.best <- GoF.islasso.path(out, plot = FALSE)
 lmb.best$lambda.min
 ```
 
-The regularization path is also very useful to have more insights about coefficients, standard errors and gradient profile
+The regularization path is also very useful to have more insights about coefficients, standard errors and standardized scores $x_j^\top(y - X\hat\beta)/\lambda$, which play the role of the lasso optimality conditions: they are close to $\pm 1$ for the relevant covariates and inside $(-1, 1)$ for those shrunk towards zero
 
 ```{r, fig.width = 7, fig.height = 3.5}
 plot(out, yvar = "coefficients", gof = "AIC")
 plot(out, yvar = "se", gof = "AIC")
-plot(out, yvar = "gradient", gof = "AIC")
+plot(out, yvar = "score", gof = "AIC")
 ```
 
 Once selected the best lambda value minimizing for example the AIC criterion, the last step of the strategy consists on fitting a new islasso model.
