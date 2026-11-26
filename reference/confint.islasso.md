@@ -55,7 +55,7 @@ confint method for islasso objects
 
 ## Author
 
-Maintainer: Gianluca Sottile \<gianluca.sottile@unipa.it\>
+Maintainer: Gianluca Sottile <gianluca.sottile@unipa.it>
 
 ## Examples
 

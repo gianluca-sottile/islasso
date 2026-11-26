@@ -1,9 +1,11 @@
 # Optimal Tuning Parameter by Information Criteria
 
-Selects the tuning parameter \`lambda\` of an \[islasso()\] model by
-minimising an information criterion (AIC, BIC/eBIC, AICc, GCV or GIC;
-see \[islasso.path()\] for the definitions), as an alternative to
-cross-validation.
+Selects the tuning parameter `lambda` of an
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md)
+model by minimising an information criterion (AIC, BIC/eBIC, AICc, GCV
+or GIC; see
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
+for the definitions), as an alternative to cross-validation.
 
 ## Usage
 
@@ -30,7 +32,7 @@ aic.islasso(
 
 - object:
 
-  a fitted model of class \`"islasso"\` (optional if \`y\` and \`X\` are
+  a fitted model of class `"islasso"` (optional if `y` and `X` are
   given).
 
 - method:
@@ -39,22 +41,24 @@ aic.islasso(
 
 - interval:
 
-  the search interval for \`lambda\`; by default the range of the glmnet
-  path used to obtain the starting values of \`object\`.
+  the search interval for `lambda`; by default the range of the glmnet
+  path used to obtain the starting values of `object`.
 
 - g:
 
-  numeric in \\0, 1\\: the parameter of the extended BIC (\`g = 0\`
-  gives the BIC).
+  numeric in \[0, 1\]: the parameter of the extended BIC (`g = 0` gives
+  the BIC).
 
 - y, X:
 
   response and model matrix (without the column of ones), used if
-  \`object\` is missing.
+  `object` is missing.
 
 - intercept, family, alpha, offset, weights, unpenalized, control:
 
-  as in \[islasso.fit()\], used if \`object\` is missing.
+  as in
+  [`islasso.fit()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md),
+  used if `object` is missing.
 
 - trace:
 
@@ -62,17 +66,20 @@ aic.islasso(
 
 ## Value
 
-The value of \`lambda\` minimising the criterion.
+The value of `lambda` minimising the criterion.
 
 ## Details
 
 The criterion is minimised over \\\log\lambda\\ with
-\[stats::optimize()\]; the degrees of freedom are the effective number
-of parameters (trace of the pseudo hat matrix).
+[`stats::optimize()`](https://rdrr.io/r/stats/optimize.html); the
+degrees of freedom are the effective number of parameters (trace of the
+pseudo hat matrix).
 
 ## See also
 
-\[islasso()\], \[islasso.path()\], \[GoF.islasso.path()\]
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md),
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md),
+[`GoF.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/GoF.islasso.path.md)
 
 ## Author
 

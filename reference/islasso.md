@@ -39,27 +39,36 @@ islasso.fit(
 
 - formula:
 
-  a symbolic description of the model (see \[stats::formula()\]).
+  a symbolic description of the model (see
+  [`stats::formula()`](https://rdrr.io/r/stats/formula.html)).
 
 - family:
 
   the error distribution and link function: a family object, a family
-  function or its name. Any family accepted by \[stats::glm()\] can be
-  used, for instance \`gaussian()\`, \`binomial()\` (links logit,
-  probit, cauchit, log, cloglog), \`poisson()\`, \`Gamma()\`,
-  \`inverse.gaussian()\`, the \`quasi\*\` families and
-  \`MASS::negative.binomial()\` with known \`theta\`.
+  function or its name. Any family accepted by
+  [`stats::glm()`](https://rdrr.io/r/stats/glm.html) can be used, for
+  instance [`gaussian()`](https://rdrr.io/r/stats/family.html),
+  [`binomial()`](https://rdrr.io/r/stats/family.html) (links logit,
+  probit, cauchit, log, cloglog),
+  [`poisson()`](https://rdrr.io/r/stats/family.html),
+  [`Gamma()`](https://rdrr.io/r/stats/family.html),
+  [`inverse.gaussian()`](https://rdrr.io/r/stats/family.html), the
+  `quasi*` families and
+  [`MASS::negative.binomial()`](https://rdrr.io/pkg/MASS/man/negative.binomial.html)
+  with known `theta`.
 
 - lambda:
 
   the tuning parameter (a non-negative number). If missing, it is chosen
-  by cross-validation with \[glmnet::cv.glmnet()\] (see \`nfolds\` and
-  \`seed\` in \[is.control()\]).
+  by cross-validation with
+  [`glmnet::cv.glmnet()`](https://glmnet.stanford.edu/reference/cv.glmnet.html)
+  (see `nfolds` and `seed` in
+  [`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md)).
 
 - alpha:
 
-  the elastic-net mixing parameter, \\0 \le \alpha \le 1\\: \`alpha =
-  1\` is the lasso, \`alpha = 0\` the ridge penalty.
+  the elastic-net mixing parameter, \\0 \le \alpha \le 1\\: `alpha = 1`
+  is the lasso, `alpha = 0` the ridge penalty.
 
 - data:
 
@@ -86,25 +95,26 @@ islasso.fit(
 - contrasts:
 
   an optional list of contrasts for the factors (see
-  \[stats::model.matrix()\]).
+  [`stats::model.matrix()`](https://rdrr.io/r/stats/model.matrix.html)).
 
 - control:
 
-  a list of control parameters, see \[is.control()\].
+  a list of control parameters, see
+  [`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md).
 
 - X, y:
 
-  for \`islasso.fit()\`: the model matrix (without the column of ones)
-  and the response.
+  for `islasso.fit()`: the model matrix (without the column of ones) and
+  the response.
 
 - intercept:
 
-  for \`islasso.fit()\`: logical, should an (unpenalized) intercept be
+  for `islasso.fit()`: logical, should an (unpenalized) intercept be
   included?
 
 ## Value
 
-An object of class \`"islasso"\`, a list with components including
+An object of class `"islasso"`, a list with components including
 
 - coefficients, se:
 
@@ -116,12 +126,12 @@ An object of class \`"islasso"\`, a list with components including
 
 - fitted.values, linear.predictors, residuals, weights, prior.weights:
 
-  as in \[stats::glm()\] (\`residuals\` are the working residuals and
-  \`weights\` the working weights);
+  as in [`stats::glm()`](https://rdrr.io/r/stats/glm.html) (`residuals`
+  are the working residuals and `weights` the working weights);
 
 - deviance, null.deviance, aic, rank, df.residual, df.null:
 
-  deviance-based summaries; \`rank\` is the effective number of
+  deviance-based summaries; `rank` is the effective number of
   parameters, the sum of the pseudo hat values;
 
 - converged, iter:
@@ -136,7 +146,7 @@ An object of class \`"islasso"\`, a list with components including
 - internal:
 
   other internal quantities (full covariance matrix, pseudo hat values
-  \`hi\`, gradient, mixture weights, standardisation constants, ...).
+  `hi`, gradient, mixture weights, standardisation constants, ...).
 
 ## Details
 
@@ -158,19 +168,21 @@ computed alternately until the standard errors stabilise.
 
 At fixed standard errors, \\\tilde U\\ is the gradient of a smooth
 convex function, which is minimised by a monotone majorise-minimise
-algorithm (default) or by Newton's method with line search (\`inner =
-"newton"\` in \[is.control()\]). When the number of columns exceeds
-twice the number of observations, the linear algebra uses the Woodbury
-identity, with cost \\O(n^2 p)\\ instead of \\O(p^3)\\. Generalised
-linear models are fitted by iteratively reweighted least squares, so any
-family with the usual components (\`linkinv\`, \`mu.eta\`, \`variance\`,
-\`dev.resids\`) is supported.
+algorithm (default) or by Newton's method with line search
+(`inner = "newton"` in
+[`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md)).
+When the number of columns exceeds twice the number of observations, the
+linear algebra uses the Woodbury identity, with cost \\O(n^2 p)\\
+instead of \\O(p^3)\\. Generalised linear models are fitted by
+iteratively reweighted least squares, so any family with the usual
+components (`linkinv`, `mu.eta`, `variance`, `dev.resids`) is supported.
 
-With \`stand = TRUE\` (default in \[is.control()\]) the covariates are
-standardised (weighted mean and standard deviation with divisor \\\sum
-w\\, as in glmnet) and the penalty acts on the standardised
-coefficients; the results are reported on the original scale. The scale
-of \`lambda\` is that of the deviance: \\\lambda = \sum_i
+With `stand = TRUE` (default in
+[`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md))
+the covariates are standardised (weighted mean and standard deviation
+with divisor \\\sum w\\, as in glmnet) and the penalty acts on the
+standardised coefficients; the results are reported on the original
+scale. The scale of `lambda` is that of the deviance: \\\lambda = \sum_i
 w_i\\\lambda\_{glmnet}\\.
 
 Since the smoothed penalty is never exactly flat, no estimate is exactly
@@ -180,14 +192,14 @@ to (practically) zero the induced-smoothing fixed point drives the
 standard error towards zero as well, while the Wald ratio stays stable:
 their standard errors depend on the convergence tolerance and should not
 be used to build confidence intervals. See
-\`vignette("islasso-methodology", package = "islasso")\`.
+[`vignette("islasso-methodology", package = "islasso")`](https://gianluca-sottile.github.io/islasso/articles/islasso-methodology.md).
 
 ## References
 
 Cilluffo G., Sottile G., La Grutta S., Muggeo V.M.R. (2020). The induced
 smoothed lasso: a practical framework for hypothesis testing in high
-dimensional regression. \*Statistical Methods in Medical Research\*,
-\*\*29\*\*(3), 765–777.
+dimensional regression. *Statistical Methods in Medical Research*,
+**29**(3), 765–777.
 [doi:10.1177/0962280219842890](https://doi.org/10.1177/0962280219842890)
 
 Sottile G., Cilluffo G., Muggeo V.M.R. (2019). The R package islasso:
@@ -195,14 +207,21 @@ estimation and hypothesis testing in lasso regression. Technical report.
 [doi:10.13140/RG.2.2.16360.11521](https://doi.org/10.13140/RG.2.2.16360.11521)
 
 Brown B.M., Wang Y.G. (2005). Standard errors and covariance matrices
-for smoothed rank estimators. \*Biometrika\*, \*\*92\*\*(1), 149–158.
+for smoothed rank estimators. *Biometrika*, **92**(1), 149–158.
 [doi:10.1093/biomet/92.1.149](https://doi.org/10.1093/biomet/92.1.149)
 
 ## See also
 
-\[summary.islasso()\], \[confint.islasso()\], \[predict.islasso()\],
-\[anova.islasso()\], \[plot.islasso()\], \[aic.islasso()\],
-\[relax.islasso()\], \[islasso.path()\], \[is.control()\], \[simulXy()\]
+[`summary.islasso()`](https://gianluca-sottile.github.io/islasso/reference/summary.islasso.md),
+[`confint.islasso()`](https://gianluca-sottile.github.io/islasso/reference/confint.islasso.md),
+[`predict.islasso()`](https://gianluca-sottile.github.io/islasso/reference/predict.islasso.md),
+[`anova.islasso()`](https://gianluca-sottile.github.io/islasso/reference/anova.islasso.md),
+[`plot.islasso()`](https://gianluca-sottile.github.io/islasso/reference/plot.islasso.md),
+[`aic.islasso()`](https://gianluca-sottile.github.io/islasso/reference/aic.islasso.md),
+[`relax.islasso()`](https://gianluca-sottile.github.io/islasso/reference/relax.islasso.md),
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md),
+[`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md),
+[`simulXy()`](https://gianluca-sottile.github.io/islasso/reference/simulXy.md)
 
 ## Author
 

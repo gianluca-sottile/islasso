@@ -8,22 +8,33 @@ formula) and Wald tests are available for all the coefficients.
 
 ## Details
 
-Main functions: \[islasso()\] fits a model at a given value of the
-tuning parameter (chosen by cross-validation if missing),
-\[islasso.path()\] fits a regularisation path, with
-\[GoF.islasso.path()\] and \[aic.islasso()\] selecting the tuning
-parameter by information criteria; \[relax.islasso()\] refits a relaxed
-model. Methods for \[summary()\]\[summary.islasso\],
-\[confint()\]\[confint.islasso\], \[anova()\]\[anova.islasso\] (general
-linear hypotheses), \[predict()\]\[predict.islasso\] and
-\[plot()\]\[plot.islasso\] are available.
+Main functions:
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md)
+fits a model at a given value of the tuning parameter (chosen by
+cross-validation if missing),
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
+fits a regularisation path, with
+[`GoF.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/GoF.islasso.path.md)
+and
+[`aic.islasso()`](https://gianluca-sottile.github.io/islasso/reference/aic.islasso.md)
+selecting the tuning parameter by information criteria;
+[`relax.islasso()`](https://gianluca-sottile.github.io/islasso/reference/relax.islasso.md)
+refits a relaxed model. Methods for
+[summary()](https://gianluca-sottile.github.io/islasso/reference/summary.islasso.md),
+[confint()](https://gianluca-sottile.github.io/islasso/reference/confint.islasso.md),
+[anova()](https://gianluca-sottile.github.io/islasso/reference/anova.islasso.md)
+(general linear hypotheses),
+[predict()](https://gianluca-sottile.github.io/islasso/reference/predict.islasso.md)
+and
+[plot()](https://gianluca-sottile.github.io/islasso/reference/plot.islasso.md)
+are available.
 
 ## References
 
 Cilluffo G., Sottile G., La Grutta S., Muggeo V.M.R. (2020). The induced
 smoothed lasso: a practical framework for hypothesis testing in high
-dimensional regression. \*Statistical Methods in Medical Research\*,
-\*\*29\*\*(3), 765–777.
+dimensional regression. *Statistical Methods in Medical Research*,
+**29**(3), 765–777.
 [doi:10.1177/0962280219842890](https://doi.org/10.1177/0962280219842890)
 
 Sottile G., Cilluffo G., Muggeo V.M.R. (2019). The R package islasso:

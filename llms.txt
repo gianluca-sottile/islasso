@@ -7,19 +7,28 @@ downloads](https://cranlogs.r-pkg.org/badges/islasso)](https://cran.r-project.or
 
 ## 📦 Installation
 
-You can install the development version of `islasso` from GitHub:
+The released version from CRAN:
 
 ``` r
 
-# install.packages("devtools")
-devtools::install_github("gianluca-sottile/islasso")
+install.packages("islasso")
 ```
 
-Once installed, load the package:
+The development version from GitHub, with the vignettes:
+
+``` r
+
+# install.packages("remotes")
+remotes::install_github("gianluca-sottile/islasso",
+                        build_vignettes = TRUE, dependencies = TRUE)
+```
+
+Then load the package and browse the vignettes:
 
 ``` r
 
 library(islasso)
+browseVignettes("islasso")
 ```
 
 ## 🔍 Description

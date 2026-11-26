@@ -1,7 +1,9 @@
 # Control Parameters for islasso Fitting
 
-Collects the parameters controlling the fitting process of \[islasso()\]
-and \[islasso.path()\].
+Collects the parameters controlling the fitting process of
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md)
+and
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md).
 
 ## Usage
 
@@ -37,7 +39,7 @@ is.control(
 
 - tol:
 
-  tolerance of the convergence criteria (default \`1e-5\`).
+  tolerance of the convergence criteria (default `1e-5`).
 
 - itmax:
 
@@ -45,10 +47,9 @@ is.control(
 
 - stand:
 
-  logical: should the covariates be standardised (default \`TRUE\`)?
-  With \`stand = TRUE\` the penalty acts on the standardised
-  coefficients, as in glmnet; estimates are always returned on the
-  original scale.
+  logical: should the covariates be standardised (default `TRUE`)? With
+  `stand = TRUE` the penalty acts on the standardised coefficients, as
+  in glmnet; estimates are always returned on the original scale.
 
 - trace:
 
@@ -57,7 +58,7 @@ is.control(
 
 - nfolds:
 
-  number of folds for the cross-validation used when \`lambda\` is
+  number of folds for the cross-validation used when `lambda` is
   missing.
 
 - seed:
@@ -72,8 +73,8 @@ is.control(
 
 - g:
 
-  numeric in \\0, 1\\: the parameter of the extended BIC (\`g = 0\`
-  gives the BIC).
+  numeric in \[0, 1\]: the parameter of the extended BIC (`g = 0` gives
+  the BIC).
 
 - b0:
 
@@ -83,36 +84,37 @@ is.control(
 - V0:
 
   optional starting covariance matrix (or a number for its diagonal) on
-  the standardised scale; default \`0.01\`.
+  the standardised scale; default `0.01`.
 
 - c:
 
   the mixture weight of the induced smoothing (default 0.5), a number in
-  \\0, 1\\ or a vector with one value per coefficient; a negative value
+  \[0, 1\] or a vector with one value per coefficient; a negative value
   means that the weights are re-estimated at each iteration.
 
 - inner:
 
   the algorithm solving the smoothed estimating equation at fixed
-  standard errors: \`"mm"\` (default, monotone majorise-minimise
+  standard errors: `"mm"` (default, monotone majorise-minimise
   iterations, the undamped version of the fixed-point iterations of
-  islasso 1.6) or \`"newton"\` (Newton's method with line search).
+  islasso 1.6) or `"newton"` (Newton's method with line search).
 
 - solver:
 
-  linear algebra: \`"auto"\` (default) uses \`"woodbury"\` when the
-  number of columns exceeds twice the number of observations and
-  \`"dense"\` otherwise.
+  linear algebra: `"auto"` (default) uses `"woodbury"` when the number
+  of columns exceeds twice the number of observations and `"dense"`
+  otherwise.
 
 - ncores:
 
-  number of cores used by \[islasso.path()\] to fit the models for the
-  different values of \`lambda\` in parallel (socket cluster of package
-  'parallel'); default 1.
+  number of cores used by
+  [`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
+  to fit the models for the different values of `lambda` in parallel
+  (socket cluster of package 'parallel'); default 1.
 
 - ...:
 
-  further arguments, ignored (allows \`do.call(is.control, control)\`).
+  further arguments, ignored (allows `do.call(is.control, control)`).
 
 ## Value
 
@@ -120,7 +122,8 @@ A list with the control parameters.
 
 ## See also
 
-\[islasso()\], \[islasso.path()\]
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md),
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
 
 ## Author
 

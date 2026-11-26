@@ -84,36 +84,36 @@ parameter, with warm starts.</p>
 
 
 <dl><dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
-<dd><p>a symbolic description of the model (see [stats::formula()]).</p></dd>
+<dd><p>a symbolic description of the model (see <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">stats::formula()</a></code>).</p></dd>
 
 
 <dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
 <dd><p>the error distribution and link function: a family object, a family
-function or its name. Any family accepted by [stats::glm()] can be used, for instance
-`gaussian()`, `binomial()` (links logit, probit, cauchit, log, cloglog), `poisson()`,
-`Gamma()`, `inverse.gaussian()`, the `quasi*` families and `MASS::negative.binomial()`
-with known `theta`.</p></dd>
+function or its name. Any family accepted by <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">stats::glm()</a></code> can be used, for instance
+<code><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian()</a></code>, <code><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial()</a></code> (links logit, probit, cauchit, log, cloglog), <code><a href="https://rdrr.io/r/stats/family.html" class="external-link">poisson()</a></code>,
+<code><a href="https://rdrr.io/r/stats/family.html" class="external-link">Gamma()</a></code>, <code><a href="https://rdrr.io/r/stats/family.html" class="external-link">inverse.gaussian()</a></code>, the <code>quasi*</code> families and <code><a href="https://rdrr.io/pkg/MASS/man/negative.binomial.html" class="external-link">MASS::negative.binomial()</a></code>
+with known <code>theta</code>.</p></dd>
 
 
 <dt id="arg-lambda">lambda<a class="anchor" aria-label="anchor" href="#arg-lambda"></a></dt>
 <dd><p>optional vector of values of the tuning parameter; by default a sequence
-of `nlambda` values, log-equispaced between `lambda.min.ratio * lambda.max` and
-`lambda.max`, the smallest value giving (practically) null penalized coefficients.</p></dd>
+of <code>nlambda</code> values, log-equispaced between <code>lambda.min.ratio * lambda.max</code> and
+<code>lambda.max</code>, the smallest value giving (practically) null penalized coefficients.</p></dd>
 
 
 <dt id="arg-nlambda">nlambda<a class="anchor" aria-label="anchor" href="#arg-nlambda"></a></dt>
-<dd><p>number of values of `lambda` (default 100).</p></dd>
+<dd><p>number of values of <code>lambda</code> (default 100).</p></dd>
 
 
 <dt id="arg-lambda-min-ratio">lambda.min.ratio<a class="anchor" aria-label="anchor" href="#arg-lambda-min-ratio"></a></dt>
-<dd><p>ratio between the smallest and the largest value of `lambda`;
-default `1e-2` if the number of observations is smaller than the number of covariates and
-`1e-4` otherwise.</p></dd>
+<dd><p>ratio between the smallest and the largest value of <code>lambda</code>;
+default <code>1e-2</code> if the number of observations is smaller than the number of covariates and
+<code>1e-4</code> otherwise.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>the elastic-net mixing parameter, \(0 \le \alpha \le 1\): `alpha = 1` is the
-lasso, `alpha = 0` the ridge penalty.</p></dd>
+<dd><p>the elastic-net mixing parameter, \(0 \le \alpha \le 1\): <code>alpha = 1</code> is the
+lasso, <code>alpha = 0</code> the ridge penalty.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
@@ -133,7 +133,7 @@ lasso, `alpha = 0` the ridge penalty.</p></dd>
 
 
 <dt id="arg-contrasts">contrasts<a class="anchor" aria-label="anchor" href="#arg-contrasts"></a></dt>
-<dd><p>an optional list of contrasts for the factors (see [stats::model.matrix()]).</p></dd>
+<dd><p>an optional list of contrasts for the factors (see <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">stats::model.matrix()</a></code>).</p></dd>
 
 
 <dt id="arg-unpenalized">unpenalized<a class="anchor" aria-label="anchor" href="#arg-unpenalized"></a></dt>
@@ -142,52 +142,52 @@ without intercept) of the coefficients left unpenalized. The intercept is never 
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
-<dd><p>a list of control parameters, see [is.control()].</p></dd>
+<dd><p>a list of control parameters, see <code><a href="is.control.html">is.control()</a></code>.</p></dd>
 
 
 <dt id="arg-x-y">X, y<a class="anchor" aria-label="anchor" href="#arg-x-y"></a></dt>
-<dd><p>for `islasso.fit()`: the model matrix (without the column of ones) and the response.</p></dd>
+<dd><p>for <code><a href="islasso.html">islasso.fit()</a></code>: the model matrix (without the column of ones) and the response.</p></dd>
 
 
 <dt id="arg-intercept">intercept<a class="anchor" aria-label="anchor" href="#arg-intercept"></a></dt>
-<dd><p>for `islasso.fit()`: logical, should an (unpenalized) intercept be included?</p></dd>
+<dd><p>for <code><a href="islasso.html">islasso.fit()</a></code>: logical, should an (unpenalized) intercept be included?</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An object of class `"islasso.path"`, a list with components</p>
+    <p>An object of class <code>"islasso.path"</code>, a list with components</p>
 <dl><dt>Coef, SE, Weight, Gradient</dt>
-<dd><p>matrices (one row per value of `lambda`, in increasing
-    order) of estimates, standard errors, mixture weights and gradients;</p></dd>
+<dd><p>matrices (one row per value of <code>lambda</code>, in increasing
+order) of estimates, standard errors, mixture weights and gradients;</p></dd>
 
-  <dt>Info</dt>
-<dd><p>matrix with columns `lambda`, `df`, `phi`, `deviance`, `logLik`, `iter`, `err`, `conv`;</p></dd>
+<dt>Info</dt>
+<dd><p>matrix with columns <code>lambda</code>, <code>df</code>, <code>phi</code>, <code>deviance</code>, <code>logLik</code>, <code>iter</code>, <code>err</code>, <code>conv</code>;</p></dd>
 
-  <dt>GoF</dt>
+<dt>GoF</dt>
 <dd><p>matrix of information criteria (AIC, BIC, AICc, eBIC, GCV, GIC);</p></dd>
 
-  <dt>Linear.predictors, Fitted.values, Residuals</dt>
-<dd><p>matrices with one row per value of `lambda`;</p></dd>
+<dt>Linear.predictors, Fitted.values, Residuals</dt>
+<dd><p>matrices with one row per value of <code>lambda</code>;</p></dd>
 
-  <dt>Input</dt>
-<dd><p>list with `n`, `p`, `intercept`, `unpenalized`;</p></dd>
+<dt>Input</dt>
+<dd><p>list with <code>n</code>, <code>p</code>, <code>intercept</code>, <code>unpenalized</code>;</p></dd>
 
-  <dt>call, family, prior.weights, y, offset, alpha, control, formula, model, terms, data,
-    xlevels, contrasts</dt>
+<dt>call, family, prior.weights, y, offset, alpha, control, formula, model, terms, data,
+xlevels, contrasts</dt>
 <dd><p>the inputs.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Each model of the path is fitted as [islasso()] would do at the same value of `lambda`
+    <p>Each model of the path is fitted as <code><a href="islasso.html">islasso()</a></code> would do at the same value of <code>lambda</code>
 (starting values from the <span class="pkg">glmnet</span> path, standard errors started at their default
 values), so that the path and a single fit agree; with the Gaussian family the matrix
 \(X^\top W X\) is computed once for the whole path. The models are independent and can be
-fitted in parallel with `control = is.control(ncores = )` (socket cluster of the 'parallel'
+fitted in parallel with <code>control = is.control(ncores = )</code> (socket cluster of the 'parallel'
 package; worthwhile for large problems, since starting the workers takes about a second). Every model
-is kept in the output, together with its convergence flag (column `conv` of `Info`), except
+is kept in the output, together with its convergence flag (column <code>conv</code> of <code>Info</code>), except
 those for which the algorithm failed (a warning is given).
-The information criteria stored in `GoF` are
+The information criteria stored in <code>GoF</code> are
 \(AIC = -2\ell + 2\,df\), \(BIC = -2\ell + \log(n)\,df\),
 \(AICc = AIC + 2\,df(df+1)/(n-df-1)\), \(eBIC = -2\ell + \{\log(n) + 2g\log(p)\}\,df\),
 \(GCV = n\,D/(n-df)^2\) (with \(D\) the deviance) and \(GIC = -2\ell + \log\log(n)\log(p)\,df\),
@@ -198,12 +198,12 @@ where \(df\) is the effective number of parameters (sum of the pseudo hat values
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Cilluffo G., Sottile G., La Grutta S., Muggeo V.M.R. (2020). The induced smoothed lasso: a
 practical framework for hypothesis testing in high dimensional regression.
-*Statistical Methods in Medical Research*, **29**(3), 765–777. <a href="https://doi.org/10.1177/0962280219842890" class="external-link">doi:10.1177/0962280219842890</a></p>
+<em>Statistical Methods in Medical Research</em>, <strong>29</strong>(3), 765–777. <a href="https://doi.org/10.1177/0962280219842890" class="external-link">doi:10.1177/0962280219842890</a></p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>[plot.islasso.path()], [predict.islasso.path()], [summary.islasso.path()],
-  [GoF.islasso.path()], [islasso()], [is.control()]</p></div>
+    <div class="dont-index"><p><code><a href="plot.islasso.path.html">plot.islasso.path()</a></code>, <code><a href="predict.islasso.path.html">predict.islasso.path()</a></code>, <code><a href="summary.islasso.path.html">summary.islasso.path()</a></code>,
+<code><a href="GoF.islasso.path.html">GoF.islasso.path()</a></code>, <code><a href="islasso.html">islasso()</a></code>, <code><a href="is.control.html">is.control()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>

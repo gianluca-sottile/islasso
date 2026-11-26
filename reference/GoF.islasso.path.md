@@ -1,8 +1,11 @@
 # Select the Tuning Parameter by Information Criteria
 
-Finds, along an \[islasso.path()\] fit, the values of \`lambda\`
-minimising the information criteria AIC, BIC, AICc, eBIC, GCV and GIC
-(see \[islasso.path()\] for their definitions).
+Finds, along an
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
+fit, the values of `lambda` minimising the information criteria AIC,
+BIC, AICc, eBIC, GCV and GIC (see
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
+for their definitions).
 
 ## Usage
 
@@ -14,7 +17,7 @@ GoF.islasso.path(object, plot = TRUE, ...)
 
 - object:
 
-  a fitted model of class \`"islasso.path"\`.
+  a fitted model of class `"islasso.path"`.
 
 - plot:
 
@@ -38,11 +41,11 @@ A list with components
 
 - lambda.min:
 
-  the values of \`lambda\` minimising each criterion;
+  the values of `lambda` minimising each criterion;
 
 - plot:
 
-  the \`ggplot\` object (if \`plot = TRUE\`).
+  the `ggplot` object (if `plot = TRUE`).
 
 ## Details
 
@@ -51,8 +54,9 @@ the pseudo hat matrix), which is not necessarily an integer.
 
 ## See also
 
-\[islasso.path()\], \[summary.islasso.path()\],
-\[predict.islasso.path()\]
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md),
+[`summary.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/summary.islasso.path.md),
+[`predict.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/predict.islasso.path.md)
 
 ## Author
 

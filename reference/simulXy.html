@@ -82,21 +82,21 @@ Gaussian, binomial, Poisson or Gamma regression model, for simulation studies an
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>vector of `p` regression coefficients; if missing, a proportion `prop` of
-coefficients is drawn uniformly in `lim.b` and the others are zero.</p></dd>
+<dd><p>vector of <code>p</code> regression coefficients; if missing, a proportion <code>prop</code> of
+coefficients is drawn uniformly in <code>lim.b</code> and the others are zero.</p></dd>
 
 
 <dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
-<dd><p>a family object, function or name: `gaussian`, `binomial`, `poisson` or `Gamma`
+<dd><p>a family object, function or name: <code>gaussian</code>, <code>binomial</code>, <code>poisson</code> or <code>Gamma</code>
 (with any of their links).</p></dd>
 
 
 <dt id="arg-prop">prop<a class="anchor" aria-label="anchor" href="#arg-prop"></a></dt>
-<dd><p>proportion of non-null coefficients when `beta` is missing (default 0.1).</p></dd>
+<dd><p>proportion of non-null coefficients when <code>beta</code> is missing (default 0.1).</p></dd>
 
 
 <dt id="arg-lim-b">lim.b<a class="anchor" aria-label="anchor" href="#arg-lim-b"></a></dt>
-<dd><p>range of the non-null coefficients when `beta` is missing.</p></dd>
+<dd><p>range of the non-null coefficients when <code>beta</code> is missing.</p></dd>
 
 
 <dt id="arg-sigma">sigma<a class="anchor" aria-label="anchor" href="#arg-sigma"></a></dt>
@@ -104,7 +104,7 @@ coefficients is drawn uniformly in `lim.b` and the others are zero.</p></dd>
 
 
 <dt id="arg-size">size<a class="anchor" aria-label="anchor" href="#arg-size"></a></dt>
-<dd><p>number of trials of the binomial response; with `size &gt; 1` the response is a
+<dd><p>number of trials of the binomial response; with <code>size &gt; 1</code> the response is a
 two-column matrix of failures and successes.</p></dd>
 
 
@@ -133,8 +133,8 @@ restored on exit.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with components</p>
 <dl><dt>data</dt>
-<dd><p>a data frame with the response `y` (columns `y.failure`, `y.success` when
-  `size &gt; 1`) and the covariates `X1`, ..., `Xp`;</p></dd>
+<dd><p>a data frame with the response <code>y</code> (columns <code>y.failure</code>, <code>y.success</code> when
+<code>size &gt; 1</code>) and the covariates <code>X1</code>, ..., <code>Xp</code>;</p></dd>
 
 <dt>beta0</dt>
 <dd><p>the intercept;</p></dd>
@@ -145,7 +145,7 @@ restored on exit.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>[islasso()], [islasso.path()]</p></div>
+    <div class="dont-index"><p><code><a href="islasso.html">islasso()</a></code>, <code><a href="islasso.path.html">islasso.path()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>

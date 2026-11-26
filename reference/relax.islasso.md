@@ -1,8 +1,10 @@
 # Relaxed islasso Fit
 
-Refits an \[islasso()\] model leaving unpenalized a subset of
-covariates, chosen by their p-values or given explicitly, while the
-other covariates are (practically) removed by a large penalty.
+Refits an
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md)
+model leaving unpenalized a subset of covariates, chosen by their
+p-values or given explicitly, while the other covariates are
+(practically) removed by a large penalty.
 
 ## Usage
 
@@ -14,17 +16,17 @@ relax.islasso(fit, id = NULL, pval = 0.05, ...)
 
 - fit:
 
-  a fitted model of class \`"islasso"\`.
+  a fitted model of class `"islasso"`.
 
 - id:
 
   optional names or indices (with respect to the covariates, intercept
   excluded) of the covariates to leave unpenalized; by default those
-  with p-value not greater than \`pval\`.
+  with p-value not greater than `pval`.
 
 - pval:
 
-  the significance level used when \`id\` is missing (default 0.05).
+  the significance level used when `id` is missing (default 0.05).
 
 - ...:
 
@@ -32,17 +34,18 @@ relax.islasso(fit, id = NULL, pval = 0.05, ...)
 
 ## Value
 
-An object of class \`"islasso"\`.
+An object of class `"islasso"`.
 
 ## Details
 
-The refit uses a value of \`lambda\` equal to 100 times the smallest
-value that shrinks all the penalized coefficients to zero, so that the
+The refit uses a value of `lambda` equal to 100 times the smallest value
+that shrinks all the penalized coefficients to zero, so that the
 unselected covariates have (practically) null estimates.
 
 ## See also
 
-\[islasso()\], \[summary.islasso()\]
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md),
+[`summary.islasso()`](https://gianluca-sottile.github.io/islasso/reference/summary.islasso.md)
 
 ## Examples
 

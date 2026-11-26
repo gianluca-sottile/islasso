@@ -41,23 +41,22 @@ simulXy(
 
 - beta:
 
-  vector of \`p\` regression coefficients; if missing, a proportion
-  \`prop\` of coefficients is drawn uniformly in \`lim.b\` and the
-  others are zero.
+  vector of `p` regression coefficients; if missing, a proportion `prop`
+  of coefficients is drawn uniformly in `lim.b` and the others are zero.
 
 - family:
 
-  a family object, function or name: \`gaussian\`, \`binomial\`,
-  \`poisson\` or \`Gamma\` (with any of their links).
+  a family object, function or name: `gaussian`, `binomial`, `poisson`
+  or `Gamma` (with any of their links).
 
 - prop:
 
-  proportion of non-null coefficients when \`beta\` is missing (default
+  proportion of non-null coefficients when `beta` is missing (default
   0.1).
 
 - lim.b:
 
-  range of the non-null coefficients when \`beta\` is missing.
+  range of the non-null coefficients when `beta` is missing.
 
 - sigma:
 
@@ -65,7 +64,7 @@ simulXy(
 
 - size:
 
-  number of trials of the binomial response; with \`size \> 1\` the
+  number of trials of the binomial response; with `size > 1` the
   response is a two-column matrix of failures and successes.
 
 - rho:
@@ -95,9 +94,8 @@ A list with components
 
 - data:
 
-  a data frame with the response \`y\` (columns \`y.failure\`,
-  \`y.success\` when \`size \> 1\`) and the covariates \`X1\`, ...,
-  \`Xp\`;
+  a data frame with the response `y` (columns `y.failure`, `y.success`
+  when `size > 1`) and the covariates `X1`, ..., `Xp`;
 
 - beta0:
 
@@ -109,7 +107,8 @@ A list with components
 
 ## See also
 
-\[islasso()\], \[islasso.path()\]
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md),
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
 
 ## Author
 

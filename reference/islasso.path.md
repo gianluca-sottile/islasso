@@ -42,38 +42,45 @@ islasso.path.fit(
 
 - formula:
 
-  a symbolic description of the model (see \[stats::formula()\]).
+  a symbolic description of the model (see
+  [`stats::formula()`](https://rdrr.io/r/stats/formula.html)).
 
 - family:
 
   the error distribution and link function: a family object, a family
-  function or its name. Any family accepted by \[stats::glm()\] can be
-  used, for instance \`gaussian()\`, \`binomial()\` (links logit,
-  probit, cauchit, log, cloglog), \`poisson()\`, \`Gamma()\`,
-  \`inverse.gaussian()\`, the \`quasi\*\` families and
-  \`MASS::negative.binomial()\` with known \`theta\`.
+  function or its name. Any family accepted by
+  [`stats::glm()`](https://rdrr.io/r/stats/glm.html) can be used, for
+  instance [`gaussian()`](https://rdrr.io/r/stats/family.html),
+  [`binomial()`](https://rdrr.io/r/stats/family.html) (links logit,
+  probit, cauchit, log, cloglog),
+  [`poisson()`](https://rdrr.io/r/stats/family.html),
+  [`Gamma()`](https://rdrr.io/r/stats/family.html),
+  [`inverse.gaussian()`](https://rdrr.io/r/stats/family.html), the
+  `quasi*` families and
+  [`MASS::negative.binomial()`](https://rdrr.io/pkg/MASS/man/negative.binomial.html)
+  with known `theta`.
 
 - lambda:
 
   optional vector of values of the tuning parameter; by default a
-  sequence of \`nlambda\` values, log-equispaced between
-  \`lambda.min.ratio \* lambda.max\` and \`lambda.max\`, the smallest
-  value giving (practically) null penalized coefficients.
+  sequence of `nlambda` values, log-equispaced between
+  `lambda.min.ratio * lambda.max` and `lambda.max`, the smallest value
+  giving (practically) null penalized coefficients.
 
 - nlambda:
 
-  number of values of \`lambda\` (default 100).
+  number of values of `lambda` (default 100).
 
 - lambda.min.ratio:
 
-  ratio between the smallest and the largest value of \`lambda\`;
-  default \`1e-2\` if the number of observations is smaller than the
-  number of covariates and \`1e-4\` otherwise.
+  ratio between the smallest and the largest value of `lambda`; default
+  `1e-2` if the number of observations is smaller than the number of
+  covariates and `1e-4` otherwise.
 
 - alpha:
 
-  the elastic-net mixing parameter, \\0 \le \alpha \le 1\\: \`alpha =
-  1\` is the lasso, \`alpha = 0\` the ridge penalty.
+  the elastic-net mixing parameter, \\0 \le \alpha \le 1\\: `alpha = 1`
+  is the lasso, `alpha = 0` the ridge penalty.
 
 - data:
 
@@ -94,7 +101,7 @@ islasso.path.fit(
 - contrasts:
 
   an optional list of contrasts for the factors (see
-  \[stats::model.matrix()\]).
+  [`stats::model.matrix()`](https://rdrr.io/r/stats/model.matrix.html)).
 
 - unpenalized:
 
@@ -104,31 +111,34 @@ islasso.path.fit(
 
 - control:
 
-  a list of control parameters, see \[is.control()\].
+  a list of control parameters, see
+  [`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md).
 
 - X, y:
 
-  for \`islasso.fit()\`: the model matrix (without the column of ones)
-  and the response.
+  for
+  [`islasso.fit()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md):
+  the model matrix (without the column of ones) and the response.
 
 - intercept:
 
-  for \`islasso.fit()\`: logical, should an (unpenalized) intercept be
-  included?
+  for
+  [`islasso.fit()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md):
+  logical, should an (unpenalized) intercept be included?
 
 ## Value
 
-An object of class \`"islasso.path"\`, a list with components
+An object of class `"islasso.path"`, a list with components
 
 - Coef, SE, Weight, Gradient:
 
-  matrices (one row per value of \`lambda\`, in increasing order) of
+  matrices (one row per value of `lambda`, in increasing order) of
   estimates, standard errors, mixture weights and gradients;
 
 - Info:
 
-  matrix with columns \`lambda\`, \`df\`, \`phi\`, \`deviance\`,
-  \`logLik\`, \`iter\`, \`err\`, \`conv\`;
+  matrix with columns `lambda`, `df`, `phi`, `deviance`, `logLik`,
+  `iter`, `err`, `conv`;
 
 - GoF:
 
@@ -136,11 +146,11 @@ An object of class \`"islasso.path"\`, a list with components
 
 - Linear.predictors, Fitted.values, Residuals:
 
-  matrices with one row per value of \`lambda\`;
+  matrices with one row per value of `lambda`;
 
 - Input:
 
-  list with \`n\`, \`p\`, \`intercept\`, \`unpenalized\`;
+  list with `n`, `p`, `intercept`, `unpenalized`;
 
 - call, family, prior.weights, y, offset, alpha, control, formula,
   model, terms, data, xlevels, contrasts:
@@ -149,37 +159,41 @@ An object of class \`"islasso.path"\`, a list with components
 
 ## Details
 
-Each model of the path is fitted as \[islasso()\] would do at the same
-value of \`lambda\` (starting values from the glmnet path, standard
-errors started at their default values), so that the path and a single
-fit agree; with the Gaussian family the matrix \\X^\top W X\\ is
-computed once for the whole path. The models are independent and can be
-fitted in parallel with \`control = is.control(ncores = )\` (socket
+Each model of the path is fitted as
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md)
+would do at the same value of `lambda` (starting values from the glmnet
+path, standard errors started at their default values), so that the path
+and a single fit agree; with the Gaussian family the matrix \\X^\top W
+X\\ is computed once for the whole path. The models are independent and
+can be fitted in parallel with `control = is.control(ncores = )` (socket
 cluster of the 'parallel' package; worthwhile for large problems, since
 starting the workers takes about a second). Every model is kept in the
-output, together with its convergence flag (column \`conv\` of
-\`Info\`), except those for which the algorithm failed (a warning is
-given). The information criteria stored in \`GoF\` are \\AIC = -2\ell +
-2\\df\\, \\BIC = -2\ell + \log(n)\\df\\, \\AICc = AIC +
-2\\df(df+1)/(n-df-1)\\, \\eBIC = -2\ell + \\\log(n) + 2g\log(p)\\\\df\\,
-\\GCV = n\\D/(n-df)^2\\ (with \\D\\ the deviance) and \\GIC = -2\ell +
-\log\log(n)\log(p)\\df\\, where \\df\\ is the effective number of
-parameters (sum of the pseudo hat values) and \\-2\ell\\ is replaced by
-the deviance when \\p \ge n\\ or the family has no likelihood.
+output, together with its convergence flag (column `conv` of `Info`),
+except those for which the algorithm failed (a warning is given). The
+information criteria stored in `GoF` are \\AIC = -2\ell + 2\\df\\, \\BIC
+= -2\ell + \log(n)\\df\\, \\AICc = AIC + 2\\df(df+1)/(n-df-1)\\, \\eBIC
+= -2\ell + \\\log(n) + 2g\log(p)\\\\df\\, \\GCV = n\\D/(n-df)^2\\ (with
+\\D\\ the deviance) and \\GIC = -2\ell + \log\log(n)\log(p)\\df\\, where
+\\df\\ is the effective number of parameters (sum of the pseudo hat
+values) and \\-2\ell\\ is replaced by the deviance when \\p \ge n\\ or
+the family has no likelihood.
 
 ## References
 
 Cilluffo G., Sottile G., La Grutta S., Muggeo V.M.R. (2020). The induced
 smoothed lasso: a practical framework for hypothesis testing in high
-dimensional regression. \*Statistical Methods in Medical Research\*,
-\*\*29\*\*(3), 765–777.
+dimensional regression. *Statistical Methods in Medical Research*,
+**29**(3), 765–777.
 [doi:10.1177/0962280219842890](https://doi.org/10.1177/0962280219842890)
 
 ## See also
 
-\[plot.islasso.path()\], \[predict.islasso.path()\],
-\[summary.islasso.path()\], \[GoF.islasso.path()\], \[islasso()\],
-\[is.control()\]
+[`plot.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/plot.islasso.path.md),
+[`predict.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/predict.islasso.path.md),
+[`summary.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/summary.islasso.path.md),
+[`GoF.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/GoF.islasso.path.md),
+[`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md),
+[`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md)
 
 ## Author
 
