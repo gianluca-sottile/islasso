@@ -64,6 +64,10 @@ islasso.fit(
   [`glmnet::cv.glmnet()`](https://glmnet.stanford.edu/reference/cv.glmnet.html)
   (see `nfolds` and `seed` in
   [`is.control()`](https://gianluca-sottile.github.io/islasso/reference/is.control.md)).
+  With `lambda = 0` the model is not penalized (same estimates as
+  [`glm()`](https://rdrr.io/r/stats/glm.html)) and the model matrix must
+  have full column rank: aliased terms (`NA` coefficients in
+  [`glm()`](https://rdrr.io/r/stats/glm.html)) give an error.
 
 - alpha:
 

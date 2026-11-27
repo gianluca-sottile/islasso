@@ -96,7 +96,9 @@ with known <code>theta</code>.</p></dd>
 
 <dt id="arg-lambda">lambda<a class="anchor" aria-label="anchor" href="#arg-lambda"></a></dt>
 <dd><p>the tuning parameter (a non-negative number). If missing, it is chosen by
-cross-validation with <code><a href="https://glmnet.stanford.edu/reference/cv.glmnet.html" class="external-link">glmnet::cv.glmnet()</a></code> (see <code>nfolds</code> and <code>seed</code> in <code><a href="is.control.html">is.control()</a></code>).</p></dd>
+cross-validation with <code><a href="https://glmnet.stanford.edu/reference/cv.glmnet.html" class="external-link">glmnet::cv.glmnet()</a></code> (see <code>nfolds</code> and <code>seed</code> in <code><a href="is.control.html">is.control()</a></code>).
+With <code>lambda = 0</code> the model is not penalized (same estimates as <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>) and the model matrix
+must have full column rank: aliased terms (<code>NA</code> coefficients in <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>) give an error.</p></dd>
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>

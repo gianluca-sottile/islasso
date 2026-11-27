@@ -72,6 +72,10 @@
 
 ### Bug fixes
 
+- `lambda = 0` with a rank-deficient model matrix (e.g. high-order
+  interactions of factors with empty cells) and linearly dependent
+  unpenalized columns now give an informative error naming the aliased
+  terms, instead of a generic numerical failure.
 - Models without intercept and `stand = TRUE` were centred, changing the
   model.
 - The probit inverse link had a wrong clamping threshold (8.1e6 instead
