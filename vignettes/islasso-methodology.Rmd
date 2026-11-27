@@ -129,9 +129,10 @@ For the lasso the optimality conditions read $x_j^\top(y - X\hat\beta) = \lambda
 when $\hat\beta_j \neq 0$ and $|x_j^\top(y - X\hat\beta)| \le \lambda$ otherwise. In the induced smoothed
 lasso the sign is replaced by its smooth version, so that at the solution the standardized score
 $$
-s_j(\lambda) = \frac{x_j^\top W(z - X\hat\beta)}{\lambda} = \alpha P_j(\hat\beta_j) + (1-\alpha)\hat\beta_j
+s_j(\lambda) = \frac{1}{\alpha}\left\{\frac{x_j^\top W(z - X\hat\beta)}{\lambda} - (1-\alpha)\hat\beta_j\right\} = P_j(\hat\beta_j)
 $$
-(computed on the standardized covariates) is close to $\pm 1$ for the covariates with a clear effect and
+(computed on the standardized covariates; for the lasso, $\alpha = 1$, simply $x_j^\top W(z - X\hat\beta)/\lambda$)
+is close to $\pm 1$ for the covariates with a clear effect and
 strictly inside $(-1, 1)$ for those shrunk towards zero: it moves towards $\pm 1$ as $\lambda$ decreases
 to the value at which the covariate becomes relevant. The scores are stored in the `Score` component of
 `islasso.path()` and plotted with `yvar = "score"`:
@@ -142,7 +143,9 @@ path3 <- islasso.path(y ~ ., data = sim3$data, nlambda = 40)
 plot(path3, yvar = "score", gof = "BIC", label = TRUE)
 ```
 
-They complement the coefficient profiles (`yvar = "coefficients"`), which shrink smoothly towards zero
+The same reading holds for the elastic net ($0 < \alpha < 1$), since the ridge part of the
+penalty is removed from the score; for the ridge penalty ($\alpha = 0$) there is no sign term and
+the score is not defined. They complement the coefficient profiles (`yvar = "coefficients"`), which shrink smoothly towards zero
 without ever reaching it. The gradient of the smoothed estimating equation (`yvar = "gradient"`), instead,
 is zero at the solution up to numerical precision and is only a check of convergence.
 

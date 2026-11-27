@@ -92,3 +92,12 @@ test_that("the gradient of the smoothed equation is numerically zero", {
   f <- islasso(y ~ ., data = d$data, lambda = 20)
   expect_lt(max(abs(f$internal$gradient)), 1e-6)
 })
+
+test_that("standardized scores for the elastic net and the ridge penalty", {
+  d <- sim_gaus()
+  o <- islasso.path(y ~ ., data = d$data, nlambda = 8, alpha = 0.5)
+  expect_true(all(abs(o$Score[, -1]) <= 1 + 1e-3))
+  o0 <- islasso.path(y ~ ., data = d$data, nlambda = 4, alpha = 0)
+  expect_true(all(is.na(o0$Score)))
+  expect_error(plot(o0, yvar = "score"), "ridge")
+})

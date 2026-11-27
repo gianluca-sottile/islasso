@@ -21,7 +21,8 @@
   permanently from the path.
 - For the Gaussian family the whole induced-smoothing iteration runs in compiled code.
 - `islasso.path()` stores the standardized scores (`Score`), and `plot.islasso.path()` gains
-  `yvar = "score"`, the induced-smoothing analogue of the lasso optimality conditions; all the
+  `yvar = "score"`, the induced-smoothing analogue of the lasso / elastic-net optimality conditions
+  (not defined for the ridge penalty); all the
   profiles (including the gradient) are drawn against log(lambda).
 - The solution of the smoothed estimating equation is refined by a few Newton steps at the end of
   the iterations, so that the gradient (`Gradient` in `islasso.path()`, `internal$gradient` in

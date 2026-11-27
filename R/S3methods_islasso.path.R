@@ -268,9 +268,9 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #'   \itemize{
 #'     \item \code{"coefficients"} - coefficient paths over \code{log(lambda)},
 #'     \item \code{"se"} - standard errors over \code{log(lambda)},
-#'     \item \code{"score"} - standardized scores \eqn{x_j^\top W(z - X\hat\beta)/\lambda_j} over
-#'       \code{log(lambda)}, the induced-smoothing analogue of the lasso optimality conditions
-#'       (dashed lines at \eqn{\pm 1}),
+#'     \item \code{"score"} - standardized scores over \code{log(lambda)}, the induced-smoothing
+#'       analogue of the lasso / elastic-net optimality conditions (dashed lines at \eqn{\pm 1});
+#'       not available for the ridge penalty (\code{alpha = 0}),
 #'     \item \code{"gradient"} - gradient of the smoothed estimating equation over \code{log(lambda)}
 #'       (a convergence check, numerically zero),
 #'     \item \code{"weight"} - mixture weights used in smoothing,
@@ -289,11 +289,13 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #' helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.
 #' All the profiles are drawn against \eqn{\log\lambda}.
 #'
-#' The standardized score of a covariate (computed on the standardized scale on which the penalty
-#' acts) equals, at the solution, the smoothed sign \eqn{P_j} (lasso) or
-#' \eqn{\alpha P_j + (1-\alpha)\hat\beta_j} (elastic net): it is close to \eqn{\pm 1} for the
-#' covariates with sizeable effects and strictly inside \eqn{(-1, 1)} for those shrunk towards zero,
-#' as the subgradient conditions of the lasso. The gradient, instead, is the residual of the smoothed
+#' The standardized score of a covariate,
+#' \eqn{s_j = \{x_j^\top W(z - X\hat\beta)/\lambda - (1-\alpha)\hat\beta_j\}/\alpha} (computed on the
+#' standardized scale on which the penalty acts), equals at the solution the smoothed sign
+#' \eqn{P_j}: it is close to \eqn{\pm 1} for the covariates with sizeable effects and strictly inside
+#' \eqn{(-1, 1)} for those shrunk towards zero, as the subgradient conditions of the lasso and of the
+#' elastic net (for \eqn{\alpha = 1} it is simply \eqn{x_j^\top W(z - X\hat\beta)/\lambda}). With the
+#' ridge penalty (\eqn{\alpha = 0}) there is no sign term and the score is not defined. The gradient, instead, is the residual of the smoothed
 #' estimating equation at the solution: it is zero up to numerical precision and is useful only as
 #' a check of convergence.
 #'
@@ -388,6 +390,8 @@ plot.islasso.path <- function(x,
   } else if (yvar == "score") {
     if (is.null(object$Score))
       stop("the object has no standardized scores: refit it with islasso >= 1.7.0", call. = FALSE)
+    if (isTRUE(object$alpha == 0))
+      stop("the standardized score is not defined for the ridge penalty (alpha = 0)", call. = FALSE)
     score1 <- object$Score
     if (intercept) score1 <- score1[, -1, drop = FALSE]
     if (is.null(dots$ylab)) dots$ylab <- "Standardized score"

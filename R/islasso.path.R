@@ -43,10 +43,11 @@
 #'   \item{Coef, SE, Weight, Gradient}{matrices (one row per value of `lambda`, in increasing
 #'     order) of estimates, standard errors, mixture weights and gradients of the smoothed
 #'     estimating equation (a convergence diagnostic, numerically close to zero);}
-#'   \item{Score}{matrix of standardized scores \eqn{x_j^\top W(z - X\hat\beta)/\lambda_j} (standardized
-#'     covariates), equal at the solution to \eqn{\alpha P_j + (1-\alpha)\hat\beta_j}: the
-#'     induced-smoothing analogue of the lasso optimality conditions, in \eqn{[-1, 1]} for the lasso
-#'     (0 for unpenalized columns);}
+#'   \item{Score}{matrix of standardized scores
+#'     \eqn{\{x_j^\top W(z - X\hat\beta)/\lambda_j - (1-\alpha)\hat\beta_j\}/\alpha} (standardized
+#'     covariates), equal at the solution to the smoothed sign \eqn{P_j \in [-1, 1]}: the
+#'     induced-smoothing analogue of the lasso / elastic-net optimality conditions (0 for unpenalized
+#'     columns, `NA` for the ridge penalty, `alpha = 0`);}
 #'   \item{Info}{matrix with columns `lambda`, `df`, `phi`, `deviance`, `logLik`, `iter`, `err`, `conv`;}
 #'   \item{GoF}{matrix of information criteria (AIC, BIC, AICc, eBIC, GCV, GIC);}
 #'   \item{Linear.predictors, Fitted.values, Residuals}{matrices with one row per value of `lambda`;}
@@ -220,9 +221,13 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
     pz <- .is_penalty_R(theta, fit$se.used, cm_k, fit$lam, prep$alpha)
     score <- drop(crossprod(Xs, w * (prep$y - mu) / me))
     gstd <- -score + pz$gradient
-    # standardized score x_j' W (z - X beta) / lambda_j (= alpha P_j + (1 - alpha) beta_j at the
-    # solution); 0 for the unpenalized columns
-    zscore <- ifelse(fit$lam > 0, score / pmax(fit$lam, .Machine$double.xmin), 0)
+    # standardized score {x_j' W (z - X beta) / lambda_j - (1 - alpha) beta_j} / alpha, equal at the
+    # solution to the smoothed sign P_j in [-1, 1] (lasso: x_j' W (z - X beta) / lambda_j); 0 for the
+    # unpenalized columns, NA for the ridge penalty (alpha = 0), for which it is not defined
+    zscore <- if (prep$alpha > 0) {
+      ifelse(fit$lam > 0,
+             (score / pmax(fit$lam, .Machine$double.xmin) - (1 - prep$alpha) * theta) / prep$alpha, 0)
+    } else rep(NA_real_, length(theta))
     list(theta = theta, coef = beta, se = se, w = cm_k, grad = .is_grad_back(gstd, st$xm, st$xs, intercept),
          score = zscore,
          info = c(lambda[k], df, fit$dispersion, dev, -ll / 2, fit$iter, fit$tol, fit$conv),
