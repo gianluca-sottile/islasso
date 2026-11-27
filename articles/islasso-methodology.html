@@ -210,7 +210,35 @@ of freedom in the information criteria (AIC, BIC, …).</p>
 <span><span class="co">#&gt; [1] 13.22173</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="standard-errors-of-the-coefficients-shrunk-to-zero">5. Standard errors of the coefficients shrunk to zero<a class="anchor" aria-label="anchor" href="#standard-errors-of-the-coefficients-shrunk-to-zero"></a>
+<h2 id="standardized-scores-along-the-path">5. Standardized scores along the path<a class="anchor" aria-label="anchor" href="#standardized-scores-along-the-path"></a>
+</h2>
+<p>For the lasso the optimality conditions read <span class="math inline">x_j^\top(y - X\hat\beta) =
+\lambda\,\mathrm{sign}(\hat\beta_j)</span> when <span class="math inline">\hat\beta_j \neq 0</span> and <span class="math inline">|x_j^\top(y - X\hat\beta)| \le \lambda</span>
+otherwise. In the induced smoothed lasso the sign is replaced by its
+smooth version, so that at the solution the standardized score <span class="math display">
+s_j(\lambda) = \frac{x_j^\top W(z - X\hat\beta)}{\lambda} = \alpha
+P_j(\hat\beta_j) + (1-\alpha)\hat\beta_j
+</span> (computed on the standardized covariates) is close to <span class="math inline">\pm 1</span> for the covariates with a clear effect
+and strictly inside <span class="math inline">(-1, 1)</span> for those
+shrunk towards zero: it moves towards <span class="math inline">\pm
+1</span> as <span class="math inline">\lambda</span> decreases to the
+value at which the covariate becomes relevant. The scores are stored in
+the <code>Score</code> component of <code><a href="../reference/islasso.path.html">islasso.path()</a></code> and
+plotted with <code>yvar = "score"</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulXy.html">simulXy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span>, p <span class="op">=</span> <span class="fl">20</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">17</span><span class="op">)</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">path3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.path.html">islasso.path</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">sim3</span><span class="op">$</span><span class="va">data</span>, nlambda <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">path3</span>, yvar <span class="op">=</span> <span class="st">"score"</span>, gof <span class="op">=</span> <span class="st">"BIC"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="islasso-methodology_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672"></p>
+<p>They complement the coefficient profiles
+(<code>yvar = "coefficients"</code>), which shrink smoothly towards zero
+without ever reaching it. The gradient of the smoothed estimating
+equation (<code>yvar = "gradient"</code>), instead, is zero at the
+solution up to numerical precision and is only a check of
+convergence.</p>
+</div>
+<div class="section level2">
+<h2 id="standard-errors-of-the-coefficients-shrunk-to-zero">6. Standard errors of the coefficients shrunk to zero<a class="anchor" aria-label="anchor" href="#standard-errors-of-the-coefficients-shrunk-to-zero"></a>
 </h2>
 <p>No estimate is exactly zero, and the Wald statistic <span class="math inline">\hat\beta_j/s_j</span> is the tool to judge the
 covariates. For coefficients that are shrunk to (practically) zero, the
@@ -221,7 +249,7 @@ small values: their standard errors (and thus confidence intervals)
 depend on the convergence tolerance and on the numerical constants of
 the algorithm, whereas the Wald statistics, hence the p-values, are
 stable:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">f1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.html">islasso</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span>, lambda <span class="op">=</span> <span class="fl">10</span>, control <span class="op">=</span> <span class="fu"><a href="../reference/is.control.html">is.control</a></span><span class="op">(</span>tol <span class="op">=</span> <span class="fl">1e-4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">f2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.html">islasso</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span>, lambda <span class="op">=</span> <span class="fl">10</span>, control <span class="op">=</span> <span class="fu"><a href="../reference/is.control.html">is.control</a></span><span class="op">(</span>tol <span class="op">=</span> <span class="fl">1e-6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">noise</span> <span class="op">&lt;-</span> <span class="fl">5</span><span class="op">:</span><span class="fl">21</span></span>

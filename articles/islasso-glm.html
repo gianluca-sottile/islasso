@@ -108,14 +108,14 @@ statistic divided by the residual degrees of freedom, <span class="math inline">
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -2.4789 -0.7513 -0.2861  0.7826  2.3453 </span></span>
+<span><span class="co">#&gt; -2.4788 -0.7513 -0.2861  0.7826  2.3453 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;             Estimate Std. Error     Df z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  -0.1715     0.1104  1.000  -1.553 0.120357    </span></span>
+<span><span class="co">#&gt; (Intercept)  -0.1715     0.1104  1.000  -1.553 0.120355    </span></span>
 <span><span class="co">#&gt; X1            0.6401     0.1298  1.000   4.931 8.16e-07 ***</span></span>
 <span><span class="co">#&gt; X2           -0.6386     0.1250  1.000  -5.109 3.23e-07 ***</span></span>
 <span><span class="co">#&gt; X3            0.3796     0.1101  0.999   3.446 0.000569 ***</span></span>
-<span><span class="co">#&gt; X4            0.2622     0.1044  0.992   2.512 0.012005 *  </span></span>
+<span><span class="co">#&gt; X4            0.2622     0.1044  0.992   2.512 0.012004 *  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -130,7 +130,7 @@ statistic divided by the residual degrees of freedom, <span class="math inline">
 <span><span class="va">fit.cloglog</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.html">islasso</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">d</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"cloglog"</span><span class="op">)</span>, lambda <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit.cloglog</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
 <span><span class="co">#&gt; (Intercept)          X1          X2          X3          X4 </span></span>
-<span><span class="co">#&gt;  -0.6236215   0.7818604  -0.6849379   0.4068574   0.2655697</span></span></code></pre></div>
+<span><span class="co">#&gt;  -0.6236216   0.7818604  -0.6849384   0.4068576   0.2655701</span></span></code></pre></div>
 <p>With a (practically) null tuning parameter the estimates coincide
 with those of <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">

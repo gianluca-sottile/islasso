@@ -40,14 +40,14 @@ summary(fit.probit, pval = 0.05)
 #> 
 #> Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -2.4789 -0.7513 -0.2861  0.7826  2.3453 
+#> -2.4788 -0.7513 -0.2861  0.7826  2.3453 
 #> 
 #>             Estimate Std. Error     Df z value Pr(>|z|)    
-#> (Intercept)  -0.1715     0.1104  1.000  -1.553 0.120357    
+#> (Intercept)  -0.1715     0.1104  1.000  -1.553 0.120355    
 #> X1            0.6401     0.1298  1.000   4.931 8.16e-07 ***
 #> X2           -0.6386     0.1250  1.000  -5.109 3.23e-07 ***
 #> X3            0.3796     0.1101  0.999   3.446 0.000569 ***
-#> X4            0.2622     0.1044  0.992   2.512 0.012005 *  
+#> X4            0.2622     0.1044  0.992   2.512 0.012004 *  
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
@@ -62,7 +62,7 @@ summary(fit.probit, pval = 0.05)
 fit.cloglog <- islasso(y ~ ., data = d, family = binomial(link = "cloglog"), lambda = 4)
 coef(fit.cloglog)[1:5]
 #> (Intercept)          X1          X2          X3          X4 
-#>  -0.6236215   0.7818604  -0.6849379   0.4068574   0.2655697
+#>  -0.6236216   0.7818604  -0.6849384   0.4068576   0.2655701
 ```
 
 With a (practically) null tuning parameter the estimates coincide with

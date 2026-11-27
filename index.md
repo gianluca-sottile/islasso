@@ -66,6 +66,8 @@ confint(mod, parm = 2:6)
 
 path <- islasso.path(y ~ ., data = sim$data, nlambda = 50)
 GoF.islasso.path(path)$lambda.min
+plot(path, yvar = "coefficients", gof = "BIC")
+plot(path, yvar = "score", gof = "BIC", label = TRUE)   # lasso-type optimality conditions
 ```
 
 ## 📚 Documentation

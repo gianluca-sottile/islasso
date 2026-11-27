@@ -155,7 +155,7 @@ more (<code>inner = "mm"</code>, default) or use Newton’s method
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulXy.html">simulXy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n</span>, p <span class="op">=</span> <span class="va">p</span>, beta <span class="op">=</span> <span class="va">beta</span>, seed <span class="op">=</span> <span class="fl">1</span>, rho <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.html">islasso</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span>, lambda <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   3.516   0.064   1.349</span></span>
+<span><span class="co">#&gt;   6.483   0.099   2.363</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">internal</span><span class="op">$</span><span class="va">mode</span>   <span class="co"># 1 = Woodbury back end</span></span>
 <span><span class="co">#&gt; [1] 1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, pval <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
@@ -164,8 +164,8 @@ more (<code>inner = "mm"</code>, default) or use Newton’s method
 <span><span class="co">#&gt; islasso(formula = y ~ ., lambda = 10, data = sim$data)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Residuals:</span></span>
-<span><span class="co">#&gt;      Min       1Q   Median       3Q      Max </span></span>
-<span><span class="co">#&gt; -1.33508 -0.44950  0.03032  0.35238  1.51862 </span></span>
+<span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span><span class="co">#&gt; -1.3351 -0.4495  0.0303  0.3523  1.5187 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;             Estimate Std. Error     Df z value Pr(&gt;|z|)    </span></span>
 <span><span class="co">#&gt; (Intercept)   0.1169     0.1122  1.000   1.042  0.29742    </span></span>
@@ -173,7 +173,7 @@ more (<code>inner = "mm"</code>, default) or use Newton’s method
 <span><span class="co">#&gt; X2           -0.6826     0.1633  1.000  -4.179 2.93e-05 ***</span></span>
 <span><span class="co">#&gt; X3            0.4499     0.1565  0.976   2.874  0.00405 ** </span></span>
 <span><span class="co">#&gt; X4           -0.7858     0.1540  1.000  -5.102 3.36e-07 ***</span></span>
-<span><span class="co">#&gt; X5            0.5313     0.1359  0.999   3.911 9.21e-05 ***</span></span>
+<span><span class="co">#&gt; X5            0.5313     0.1359  0.999   3.910 9.22e-05 ***</span></span>
 <span><span class="co">#&gt; X116         -0.3691     0.1301  0.982  -2.838  0.00454 ** </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
@@ -181,7 +181,7 @@ more (<code>inner = "mm"</code>, default) or use Newton’s method
 <span><span class="co">#&gt; (Dispersion parameter for gaussian family taken to be 0.755663)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     Null deviance: 695.983  on 59.00  degrees of freedom</span></span>
-<span><span class="co">#&gt; Residual deviance:  19.513  on 25.82  degrees of freedom</span></span>
+<span><span class="co">#&gt; Residual deviance:  19.514  on 25.82  degrees of freedom</span></span>
 <span><span class="co">#&gt; AIC: 87.868</span></span>
 <span><span class="co">#&gt; Lambda: 10</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -191,9 +191,9 @@ more (<code>inner = "mm"</code>, default) or use Newton’s method
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="va">fit.d</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/islasso.html">islasso</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span>, lambda <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                             control <span class="op">=</span> <span class="fu"><a href="../reference/is.control.html">is.control</a></span><span class="op">(</span>solver <span class="op">=</span> <span class="st">"dense"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;  20.953   0.108   5.332</span></span>
+<span><span class="co">#&gt;  37.834   0.183   9.993</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit.d</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1.486589e-13</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 2.691736e-13</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="practical-advice">Practical advice<a class="anchor" aria-label="anchor" href="#practical-advice"></a>

@@ -39,6 +39,15 @@
   gains `yvar = "score"`, the induced-smoothing analogue of the lasso
   optimality conditions; all the profiles (including the gradient) are
   drawn against log(lambda).
+- The solution of the smoothed estimating equation is refined by a few
+  Newton steps at the end of the iterations, so that the gradient
+  (`Gradient` in
+  [`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md),
+  `internal$gradient` in
+  [`islasso()`](https://gianluca-sottile.github.io/islasso/reference/islasso.md))
+  is numerically zero; before, for coefficients shrunk to zero it could
+  show residuals of the order of the convergence tolerance times the
+  (very large) curvature of the penalty.
 - No more large arrays on the stack (possible crashes with large n \* p
   in 1.6.x).
 

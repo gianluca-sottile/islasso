@@ -31,7 +31,7 @@ beta <- c(2, -2, 1.5, -1.5, 1, rep(0, p - 5))
 sim <- simulXy(n = n, p = p, beta = beta, seed = 1, rho = 0.3)
 system.time(fit <- islasso(y ~ ., data = sim$data, lambda = 10))
 #>    user  system elapsed 
-#>   3.516   0.064   1.349
+#>   6.483   0.099   2.363
 fit$internal$mode   # 1 = Woodbury back end
 #> [1] 1
 summary(fit, pval = 0.01)
@@ -40,8 +40,8 @@ summary(fit, pval = 0.01)
 #> islasso(formula = y ~ ., lambda = 10, data = sim$data)
 #> 
 #> Residuals:
-#>      Min       1Q   Median       3Q      Max 
-#> -1.33508 -0.44950  0.03032  0.35238  1.51862 
+#>     Min      1Q  Median      3Q     Max 
+#> -1.3351 -0.4495  0.0303  0.3523  1.5187 
 #> 
 #>             Estimate Std. Error     Df z value Pr(>|z|)    
 #> (Intercept)   0.1169     0.1122  1.000   1.042  0.29742    
@@ -49,7 +49,7 @@ summary(fit, pval = 0.01)
 #> X2           -0.6826     0.1633  1.000  -4.179 2.93e-05 ***
 #> X3            0.4499     0.1565  0.976   2.874  0.00405 ** 
 #> X4           -0.7858     0.1540  1.000  -5.102 3.36e-07 ***
-#> X5            0.5313     0.1359  0.999   3.911 9.21e-05 ***
+#> X5            0.5313     0.1359  0.999   3.910 9.22e-05 ***
 #> X116         -0.3691     0.1301  0.982  -2.838  0.00454 ** 
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -57,7 +57,7 @@ summary(fit, pval = 0.01)
 #> (Dispersion parameter for gaussian family taken to be 0.755663)
 #> 
 #>     Null deviance: 695.983  on 59.00  degrees of freedom
-#> Residual deviance:  19.513  on 25.82  degrees of freedom
+#> Residual deviance:  19.514  on 25.82  degrees of freedom
 #> AIC: 87.868
 #> Lambda: 10
 #> 
@@ -72,9 +72,9 @@ per step):
 system.time(fit.d <- islasso(y ~ ., data = sim$data, lambda = 10,
                              control = is.control(solver = "dense")))
 #>    user  system elapsed 
-#>  20.953   0.108   5.332
+#>  37.834   0.183   9.993
 max(abs(coef(fit) - coef(fit.d)))
-#> [1] 1.486589e-13
+#> [1] 2.691736e-13
 ```
 
 ## Practical advice

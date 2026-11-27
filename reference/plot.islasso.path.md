@@ -40,7 +40,7 @@ plot(
     1\\),
 
   - `"gradient"` - gradient of the smoothed estimating equation over
-    `log(lambda)` (a convergence diagnostic),
+    `log(lambda)` (a convergence check, numerically zero),
 
   - `"weight"` - mixture weights used in smoothing,
 
@@ -82,11 +82,8 @@ sign \\P_j\\ (lasso) or \\\alpha P_j + (1-\alpha)\hat\beta_j\\ (elastic
 net): it is close to \\\pm 1\\ for the covariates with sizeable effects
 and strictly inside \\(-1, 1)\\ for those shrunk towards zero, as the
 subgradient conditions of the lasso. The gradient, instead, is the
-residual of the smoothed estimating equation: it is zero up to the
-convergence tolerance, and its irregular values for large \\\lambda\\
-reflect the very large curvature of the smoothed penalty when the
-standard errors of null coefficients are tiny, not features of the
-model.
+residual of the smoothed estimating equation at the solution: it is zero
+up to numerical precision and is useful only as a check of convergence.
 
 ## See also
 

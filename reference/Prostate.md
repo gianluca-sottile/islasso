@@ -99,7 +99,7 @@ summary(fit, pval = 0.05)
 #> -1.65715 -0.39409  0.00099  0.39133  1.54191 
 #> 
 #>             Estimate Std. Error    Df z value Pr(>|z|)    
-#> (Intercept)  0.47074    0.93596 1.000   0.503  0.61500    
+#> (Intercept)  0.47075    0.93597 1.000   0.503  0.61500    
 #> lcavol       0.51990    0.07748 1.000   6.710 1.94e-11 ***
 #> lweight      0.38162    0.16334 0.982   2.336  0.01947 *  
 #> svi          0.58280    0.21558 0.992   2.703  0.00686 ** 
@@ -125,22 +125,22 @@ summary(fit.aic, pval = 0.05)
 #> 
 #> Residuals:
 #>      Min       1Q   Median       3Q      Max 
-#> -1.72467 -0.38645  0.00495  0.39934  1.59691 
+#> -1.72467 -0.38645  0.00495  0.39934  1.59690 
 #> 
 #>             Estimate Std. Error    Df z value Pr(>|z|)    
-#> (Intercept)  0.62438    1.21793 1.000   0.513  0.60819    
-#> lcavol       0.56757    0.08617 1.000   6.587  4.5e-11 ***
-#> lweight      0.44003    0.16866 0.998   2.609  0.00908 ** 
-#> svi          0.71445    0.23998 0.999   2.977  0.00291 ** 
+#> (Intercept)  0.62438    1.21792 1.000   0.513  0.60819    
+#> lcavol       0.56756    0.08617 1.000   6.587  4.5e-11 ***
+#> lweight      0.44002    0.16866 0.998   2.609  0.00908 ** 
+#> svi          0.71444    0.23998 0.999   2.977  0.00291 ** 
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> (Dispersion parameter for gaussian family taken to be 0.5019418)
+#> (Dispersion parameter for gaussian family taken to be 0.5019419)
 #> 
 #>     Null deviance: 127.918  on 96.00  degrees of freedom
 #> Residual deviance:  44.277  on 88.21  degrees of freedom
 #> AIC: 218.78
-#> Lambda: 0.80946
+#> Lambda: 0.80954
 #> 
 #> Number of IS iterations: 37
 #> 

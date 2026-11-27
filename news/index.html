@@ -50,6 +50,7 @@
 <li>For the Gaussian family the whole induced-smoothing iteration runs in compiled code.</li>
 <li>
 <code><a href="../reference/islasso.path.html">islasso.path()</a></code> stores the standardized scores (<code>Score</code>), and <code><a href="../reference/plot.islasso.path.html">plot.islasso.path()</a></code> gains <code>yvar = "score"</code>, the induced-smoothing analogue of the lasso optimality conditions; all the profiles (including the gradient) are drawn against log(lambda).</li>
+<li>The solution of the smoothed estimating equation is refined by a few Newton steps at the end of the iterations, so that the gradient (<code>Gradient</code> in <code><a href="../reference/islasso.path.html">islasso.path()</a></code>, <code>internal$gradient</code> in <code><a href="../reference/islasso.html">islasso()</a></code>) is numerically zero; before, for coefficients shrunk to zero it could show residuals of the order of the convergence tolerance times the (very large) curvature of the penalty.</li>
 <li>No more large arrays on the stack (possible crashes with large n * p in 1.6.x).</li>
 </ul></div>
 <div class="section level3">

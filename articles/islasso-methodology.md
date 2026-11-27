@@ -124,7 +124,38 @@ fit$rank
 #> [1] 13.22173
 ```
 
-## 5. Standard errors of the coefficients shrunk to zero
+## 5. Standardized scores along the path
+
+For the lasso the optimality conditions read x_j^\top(y - X\hat\beta) =
+\lambda\\\mathrm{sign}(\hat\beta_j) when \hat\beta_j \neq 0 and
+\|x_j^\top(y - X\hat\beta)\| \le \lambda otherwise. In the induced
+smoothed lasso the sign is replaced by its smooth version, so that at
+the solution the standardized score s_j(\lambda) = \frac{x_j^\top W(z -
+X\hat\beta)}{\lambda} = \alpha P_j(\hat\beta_j) + (1-\alpha)\hat\beta_j
+(computed on the standardized covariates) is close to \pm 1 for the
+covariates with a clear effect and strictly inside (-1, 1) for those
+shrunk towards zero: it moves towards \pm 1 as \lambda decreases to the
+value at which the covariate becomes relevant. The scores are stored in
+the `Score` component of
+[`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
+and plotted with `yvar = "score"`:
+
+``` r
+
+sim3 <- simulXy(n = 100, p = 20, beta = c(1.5, -1, 0.5, rep(0, 17)), seed = 3)
+path3 <- islasso.path(y ~ ., data = sim3$data, nlambda = 40)
+plot(path3, yvar = "score", gof = "BIC", label = TRUE)
+```
+
+![](islasso-methodology_files/figure-html/unnamed-chunk-5-1.png)
+
+They complement the coefficient profiles (`yvar = "coefficients"`),
+which shrink smoothly towards zero without ever reaching it. The
+gradient of the smoothed estimating equation (`yvar = "gradient"`),
+instead, is zero at the solution up to numerical precision and is only a
+check of convergence.
+
+## 6. Standard errors of the coefficients shrunk to zero
 
 No estimate is exactly zero, and the Wald statistic \hat\beta_j/s_j is
 the tool to judge the covariates. For coefficients that are shrunk to
