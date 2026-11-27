@@ -32,6 +32,8 @@
 #'   with known `theta`.
 #' @param lambda the tuning parameter (a non-negative number). If missing, it is chosen by
 #'   cross-validation with [glmnet::cv.glmnet()] (see `nfolds` and `seed` in [is.control()]).
+#'   With `lambda = 0` the model is not penalized (same estimates as [glm()]) and the model matrix
+#'   must have full column rank: aliased terms (`NA` coefficients in [glm()]) give an error.
 #' @param alpha the elastic-net mixing parameter, \eqn{0 \le \alpha \le 1}: `alpha = 1` is the
 #'   lasso, `alpha = 0` the ridge penalty.
 #' @param data an optional data frame containing the variables in the model.
@@ -190,6 +192,10 @@ islasso.fit <- function(X, y, family = gaussian, lambda, alpha = 1, intercept = 
   prep$xs <- st$xs
   start <- .is_start(prep, st$X, if (missing(lambda)) NULL else lambda)
   lambda <- start$lambda
+  if (!is.numeric(lambda) || length(lambda) != 1L || !is.finite(lambda) || lambda < 0)
+    stop("'lambda' must be a single non-negative number", call. = FALSE)
+  .is_check_aliased(prep$X, prep$weights, if (lambda == 0) rep(TRUE, prep$nvars) else prep$unpenalized,
+                    all = lambda == 0)
   lam <- lambda * as.numeric(!prep$unpenalized)
   theta <- start$beta
   theta[theta == 0] <- 1e-5

@@ -116,6 +116,27 @@
        setting = setting)
 }
 
+# The columns with zero penalty (unpenalized ones, or all of them when lambda = 0) must be
+# linearly independent, otherwise the estimating equation is singular (as for glm(), whose
+# aliased coefficients are NA).  Stop with an informative message naming the aliased columns.
+.is_check_aliased <- function(X, weights, free, all = FALSE) {
+  if (!any(free)) return(invisible(NULL))
+  ok <- weights > 0
+  Xf <- X[ok, free, drop = FALSE] * sqrt(weights[ok])
+  q <- qr(Xf, tol = 1e-7)
+  if (q$rank < ncol(Xf)) {
+    al <- colnames(Xf)[q$pivot[-seq_len(q$rank)]]
+    msg <- if (all)
+      "with lambda = 0 the model is not penalized, but the model matrix is rank deficient"
+    else "the unpenalized columns of the model matrix are linearly dependent"
+    stop(sprintf(paste0("%s: the coefficients of %s are not identifiable (they are NA in glm()); ",
+                        "remove these terms%s"),
+                 msg, paste(sQuote(al), collapse = ", "),
+                 if (all) " or use a positive 'lambda'" else " or penalize them"), call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 # run code with a temporary seed, restoring the RNG state afterwards
 .is_with_seed <- function(seed, expr) {
   if (is.null(seed)) return(expr)

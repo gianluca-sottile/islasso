@@ -146,6 +146,18 @@ test_that("errors are informative", {
   expect_error(islasso(y ~ ., data = d, family = poisson(), lambda = 1), "negative")
 })
 
+test_that("lambda = 0: glm fit, informative error with aliased columns", {
+  d <- sim_gaus()$data
+  f0 <- islasso(y ~ ., data = d, lambda = 0)
+  expect_equal(unname(coef(f0)), unname(coef(lm(y ~ ., data = d))), tolerance = 1e-6)
+  d$dup <- d[[2]] + d[[3]]
+  expect_error(islasso(y ~ ., data = d, lambda = 0), "rank deficient.*dup")
+  expect_error(islasso.path(y ~ ., data = d, lambda = c(0, 1)), "rank deficient")
+  expect_error(islasso(y ~ ., data = d, lambda = 1, unpenalized = c(names(d)[2:3], "dup")),
+               "linearly dependent")
+  expect_s3_class(islasso(y ~ ., data = d, lambda = 1), "islasso")
+})
+
 test_that("anova overall test with a singular covariance of the hypotheses", {
   d <- simulXy(n = 60, p = 60, beta = c(rep(1, 5), rep(0, 55)), seed = 2)
   fit <- islasso(y ~ . - 1, data = d$data, lambda = 10)

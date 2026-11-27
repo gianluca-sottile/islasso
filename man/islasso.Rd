@@ -59,7 +59,9 @@ function or its name. Any family accepted by \code{\link[stats:glm]{stats::glm()
 with known \code{theta}.}
 
 \item{lambda}{the tuning parameter (a non-negative number). If missing, it is chosen by
-cross-validation with \code{\link[glmnet:cv.glmnet]{glmnet::cv.glmnet()}} (see \code{nfolds} and \code{seed} in \code{\link[=is.control]{is.control()}}).}
+cross-validation with \code{\link[glmnet:cv.glmnet]{glmnet::cv.glmnet()}} (see \code{nfolds} and \code{seed} in \code{\link[=is.control]{is.control()}}).
+With \code{lambda = 0} the model is not penalized (same estimates as \code{\link[=glm]{glm()}}) and the model matrix
+must have full column rank: aliased terms (\code{NA} coefficients in \code{\link[=glm]{glm()}}) give an error.}
 
 \item{alpha}{the elastic-net mixing parameter, \eqn{0 \le \alpha \le 1}: \code{alpha = 1} is the
 lasso, \code{alpha = 0} the ridge penalty.}

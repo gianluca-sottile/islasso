@@ -147,6 +147,7 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
   nvars <- prep$nvars
   setting <- prep$setting
   unp <- prep$unpenalized
+  .is_check_aliased(prep$X, prep$weights, unp)
 
   null <- .is_null_fit(Xs, prep, unp)
   if (is.null(lambda)) {
@@ -157,6 +158,7 @@ islasso.path.fit <- function(X, y, family = gaussian(), lambda = NULL, nlambda =
   } else {
     if (!is.numeric(lambda) || any(lambda < 0)) stop("'lambda' must be non-negative", call. = FALSE)
     lambda <- sort(unique(lambda), decreasing = TRUE)
+    if (any(lambda == 0)) .is_check_aliased(prep$X, prep$weights, rep(TRUE, nvars), all = TRUE)
   }
   nlambda <- length(lambda)
 
