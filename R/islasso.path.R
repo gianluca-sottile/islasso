@@ -78,6 +78,8 @@
 #'
 #' \donttest{
 #' plot(o, yvar = "coefficients", gof = "AIC")
+#' # standardized scores: +-1 for the relevant covariates, inside (-1, 1) for the others
+#' plot(o, yvar = "score", gof = "AIC", label = TRUE)
 #'
 #' # Poisson
 #' beta <- c(1, 1, 1, rep(0, p - 3))

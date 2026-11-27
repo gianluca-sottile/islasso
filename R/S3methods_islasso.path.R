@@ -272,7 +272,7 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #'       \code{log(lambda)}, the induced-smoothing analogue of the lasso optimality conditions
 #'       (dashed lines at \eqn{\pm 1}),
 #'     \item \code{"gradient"} - gradient of the smoothed estimating equation over \code{log(lambda)}
-#'       (a convergence diagnostic),
+#'       (a convergence check, numerically zero),
 #'     \item \code{"weight"} - mixture weights used in smoothing,
 #'     \item \code{"gof"} - goodness-of-fit values.
 #'   }
@@ -294,9 +294,8 @@ print.summary.islasso.path <- function(x, digits = max(3L, getOption("digits") -
 #' \eqn{\alpha P_j + (1-\alpha)\hat\beta_j} (elastic net): it is close to \eqn{\pm 1} for the
 #' covariates with sizeable effects and strictly inside \eqn{(-1, 1)} for those shrunk towards zero,
 #' as the subgradient conditions of the lasso. The gradient, instead, is the residual of the smoothed
-#' estimating equation: it is zero up to the convergence tolerance, and its irregular values for
-#' large \eqn{\lambda} reflect the very large curvature of the smoothed penalty when the standard
-#' errors of null coefficients are tiny, not features of the model.
+#' estimating equation at the solution: it is zero up to numerical precision and is useful only as
+#' a check of convergence.
 #'
 #' @return A \code{ggplot} object (printed when not assigned).
 #'

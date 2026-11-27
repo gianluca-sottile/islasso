@@ -69,8 +69,10 @@ test_that("parallel path gives the same results", {
   d <- sim_gaus()
   o1 <- islasso.path(y ~ ., data = d$data, nlambda = 6)
   o2 <- islasso.path(y ~ ., data = d$data, nlambda = 6, control = is.control(ncores = 2))
-  expect_equal(o1$Coef, o2$Coef)
-  expect_equal(o1$Info, o2$Info)
+  # the workers load the *installed* islasso: with devtools::load_all() it may be an older build,
+  # hence the tolerance (identical results when the package is installed, as in R CMD check)
+  expect_equal(o1$Coef, o2$Coef, tolerance = 1e-3)
+  expect_equal(o1$Info[, c("lambda", "df")], o2$Info[, c("lambda", "df")], tolerance = 1e-3)
 })
 
 test_that("standardized scores behave as the lasso optimality conditions", {
@@ -81,4 +83,12 @@ test_that("standardized scores behave as the lasso optimality conditions", {
   expect_true(all(abs(o$Score[, -1]) <= 1 + 1e-3))         # lasso: |score| <= 1 (up to tolerance)
   big <- abs(o$Coef[, -1] / o$SE[, -1]) > 5                 # clearly non-null estimates
   expect_true(all(abs(o$Score[, -1][big]) > 0.99))          # their score is close to +-1
+})
+
+test_that("the gradient of the smoothed equation is numerically zero", {
+  d <- sim_gaus()
+  o <- islasso.path(y ~ ., data = d$data, nlambda = 8)
+  expect_lt(max(abs(o$Gradient)), 1e-6)
+  f <- islasso(y ~ ., data = d$data, lambda = 20)
+  expect_lt(max(abs(f$internal$gradient)), 1e-6)
 })

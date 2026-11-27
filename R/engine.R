@@ -304,6 +304,7 @@
     if (out$inner_info %in% c(1L, 3L))
       warning("the inner iterations did not fully converge at the last step; consider increasing 'itmax'",
               call. = FALSE)
+    out$theta <- .is_polish(mode, G, bz, Xt, zt, out$theta, out$se.used, out$cm, out$lam, alpha, tol)
     eta <- drop(Xs %*% out$theta) + offset
     return(list(theta = out$theta, se = out$se, se.used = out$se.used, vn = out$vn, v = out$v,
                 cm = out$cm, lam = out$lam, h = out$h, edf = sum(out$h), dispersion = out$dispersion,
@@ -389,9 +390,39 @@
     warning("the inner iterations did not fully converge at the last step (",
             if (inner_info == 1L) "iteration limit" else "line search", "); consider increasing 'itmax'",
             call. = FALSE)
+  # final polish: exact root of the smoothed equation at the last smoothing scales (for GLMs,
+  # alternated with the update of the IRLS weights)
+  if (gaus) {
+    theta <- .is_polish(mode, G, bz, Xt, zt, theta, se_used, cm, lam, alpha, tol)
+    eta <- drop(Xs %*% theta) + offset
+  } else {
+    for (k in 1:10) {
+      th_new <- .is_polish(mode, G, bz, Xt, zt, theta, se_used, cm, lam, alpha, tol)
+      eta_new <- drop(Xs %*% th_new) + offset
+      if (!valideta(eta_new) || !validmu(linkinv(eta_new)) || any(!is.finite(eta_new))) break
+      dmax <- max(abs(th_new - theta))
+      theta <- th_new
+      eta <- eta_new
+      wk <- irls(eta)
+      Xt <- Xs * wk$sw
+      zt <- wk$sw * wk$z
+      if (mode == 0L) { G <- crossprod(Xt); bz <- drop(crossprod(Xt, zt)) }
+      if (dmax <= 1e-3 * tol) break
+    }
+  }
   list(theta = theta, se = se0, se.used = se_used, vn = vn, v = v0, cm = cm, lam = lam, h = h, edf = sum(h), dispersion = s2,
        conv = conv, iter = i, inner_iter = it_tot, tol = ind, eta = eta, Xt = Xt, zt = zt, G = G,
        mode = mode, w = if (gaus) weights else wk$w)
+}
+
+# Newton steps at fixed smoothing scales: the MM iterations stop when the estimates change less
+# than 'tol', which can leave a visible residual in the estimating equation for coefficients whose
+# smoothed penalty has a very large curvature; a few Newton steps remove it (the estimates move
+# by less than the tolerance)
+.is_polish <- function(mode, G, bz, Xt, zt, theta, se, cm, lam, alpha, tol) {
+  r <- tryCatch(.is_inner(mode, 1L, G, bz, Xt, zt, theta, se, cm, lam, alpha, 1e-3 * tol, 100L),
+                error = function(e) NULL)
+  if (is.null(r) || r$info == 2L || any(!is.finite(r$theta))) theta else r$theta
 }
 
 .is_mode <- function(n, p, control) {
