@@ -69,9 +69,9 @@ from a fitted <code><a href="islasso.path.html">islasso.path</a></code> model.</
 <dt id="arg-yvar">yvar<a class="anchor" aria-label="anchor" href="#arg-yvar"></a></dt>
 <dd><p>Character. Specifies what to display on the y-axis. Choices are:</p><ul><li><p><code>"coefficients"</code> - coefficient paths over <code>log(lambda)</code>,</p></li>
 <li><p><code>"se"</code> - standard errors over <code>log(lambda)</code>,</p></li>
-<li><p><code>"score"</code> - standardized scores \(x_j^\top W(z - X\hat\beta)/\lambda_j\) over
-<code>log(lambda)</code>, the induced-smoothing analogue of the lasso optimality conditions
-(dashed lines at \(\pm 1\)),</p></li>
+<li><p><code>"score"</code> - standardized scores over <code>log(lambda)</code>, the induced-smoothing
+analogue of the lasso / elastic-net optimality conditions (dashed lines at \(\pm 1\));
+not available for the ridge penalty (<code>alpha = 0</code>),</p></li>
 <li><p><code>"gradient"</code> - gradient of the smoothed estimating equation over <code>log(lambda)</code>
 (a convergence check, numerically zero),</p></li>
 <li><p><code>"weight"</code> - mixture weights used in smoothing,</p></li>
@@ -107,11 +107,13 @@ Choices: <code>"none"</code>, <code>"AIC"</code>, <code>"BIC"</code>, <code>"AIC
     <p>This function visualizes the behavior of the solution path across a sequence of lambda values,
 helping diagnose coefficient shrinkage, influence of penalty, and variable selection stability.
 All the profiles are drawn against \(\log\lambda\).</p>
-<p>The standardized score of a covariate (computed on the standardized scale on which the penalty
-acts) equals, at the solution, the smoothed sign \(P_j\) (lasso) or
-\(\alpha P_j + (1-\alpha)\hat\beta_j\) (elastic net): it is close to \(\pm 1\) for the
-covariates with sizeable effects and strictly inside \((-1, 1)\) for those shrunk towards zero,
-as the subgradient conditions of the lasso. The gradient, instead, is the residual of the smoothed
+<p>The standardized score of a covariate,
+\(s_j = \{x_j^\top W(z - X\hat\beta)/\lambda - (1-\alpha)\hat\beta_j\}/\alpha\) (computed on the
+standardized scale on which the penalty acts), equals at the solution the smoothed sign
+\(P_j\): it is close to \(\pm 1\) for the covariates with sizeable effects and strictly inside
+\((-1, 1)\) for those shrunk towards zero, as the subgradient conditions of the lasso and of the
+elastic net (for \(\alpha = 1\) it is simply \(x_j^\top W(z - X\hat\beta)/\lambda\)). With the
+ridge penalty (\(\alpha = 0\)) there is no sign term and the score is not defined. The gradient, instead, is the residual of the smoothed
 estimating equation at the solution: it is zero up to numerical precision and is useful only as
 a check of convergence.</p>
     </div>

@@ -36,9 +36,10 @@
 - [`islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/islasso.path.md)
   stores the standardized scores (`Score`), and
   [`plot.islasso.path()`](https://gianluca-sottile.github.io/islasso/reference/plot.islasso.path.md)
-  gains `yvar = "score"`, the induced-smoothing analogue of the lasso
-  optimality conditions; all the profiles (including the gradient) are
-  drawn against log(lambda).
+  gains `yvar = "score"`, the induced-smoothing analogue of the lasso /
+  elastic-net optimality conditions (not defined for the ridge penalty);
+  all the profiles (including the gradient) are drawn against
+  log(lambda).
 - The solution of the smoothed estimating equation is refined by a few
   Newton steps at the end of the iterations, so that the gradient
   (`Gradient` in

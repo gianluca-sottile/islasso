@@ -162,10 +162,11 @@ order) of estimates, standard errors, mixture weights and gradients of the smoot
 estimating equation (a convergence diagnostic, numerically close to zero);</p></dd>
 
 <dt>Score</dt>
-<dd><p>matrix of standardized scores \(x_j^\top W(z - X\hat\beta)/\lambda_j\) (standardized
-covariates), equal at the solution to \(\alpha P_j + (1-\alpha)\hat\beta_j\): the
-induced-smoothing analogue of the lasso optimality conditions, in \([-1, 1]\) for the lasso
-(0 for unpenalized columns);</p></dd>
+<dd><p>matrix of standardized scores
+\(\{x_j^\top W(z - X\hat\beta)/\lambda_j - (1-\alpha)\hat\beta_j\}/\alpha\) (standardized
+covariates), equal at the solution to the smoothed sign \(P_j \in [-1, 1]\): the
+induced-smoothing analogue of the lasso / elastic-net optimality conditions (0 for unpenalized
+columns, <code>NA</code> for the ridge penalty, <code>alpha = 0</code>);</p></dd>
 
 <dt>Info</dt>
 <dd><p>matrix with columns <code>lambda</code>, <code>df</code>, <code>phi</code>, <code>deviance</code>, <code>logLik</code>, <code>iter</code>, <code>err</code>, <code>conv</code>;</p></dd>

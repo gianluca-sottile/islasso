@@ -34,10 +34,10 @@ plot(
 
   - `"se"` - standard errors over `log(lambda)`,
 
-  - `"score"` - standardized scores \\x_j^\top W(z -
-    X\hat\beta)/\lambda_j\\ over `log(lambda)`, the induced-smoothing
-    analogue of the lasso optimality conditions (dashed lines at \\\pm
-    1\\),
+  - `"score"` - standardized scores over `log(lambda)`, the
+    induced-smoothing analogue of the lasso / elastic-net optimality
+    conditions (dashed lines at \\\pm 1\\); not available for the ridge
+    penalty (`alpha = 0`),
 
   - `"gradient"` - gradient of the smoothed estimating equation over
     `log(lambda)` (a convergence check, numerically zero),
@@ -76,12 +76,15 @@ sequence of lambda values, helping diagnose coefficient shrinkage,
 influence of penalty, and variable selection stability. All the profiles
 are drawn against \\\log\lambda\\.
 
-The standardized score of a covariate (computed on the standardized
-scale on which the penalty acts) equals, at the solution, the smoothed
-sign \\P_j\\ (lasso) or \\\alpha P_j + (1-\alpha)\hat\beta_j\\ (elastic
-net): it is close to \\\pm 1\\ for the covariates with sizeable effects
-and strictly inside \\(-1, 1)\\ for those shrunk towards zero, as the
-subgradient conditions of the lasso. The gradient, instead, is the
+The standardized score of a covariate, \\s_j = \\x_j^\top W(z -
+X\hat\beta)/\lambda - (1-\alpha)\hat\beta_j\\/\alpha\\ (computed on the
+standardized scale on which the penalty acts), equals at the solution
+the smoothed sign \\P_j\\: it is close to \\\pm 1\\ for the covariates
+with sizeable effects and strictly inside \\(-1, 1)\\ for those shrunk
+towards zero, as the subgradient conditions of the lasso and of the
+elastic net (for \\\alpha = 1\\ it is simply \\x_j^\top W(z -
+X\hat\beta)/\lambda\\). With the ridge penalty (\\\alpha = 0\\) there is
+no sign term and the score is not defined. The gradient, instead, is the
 residual of the smoothed estimating equation at the solution: it is zero
 up to numerical precision and is useful only as a check of convergence.
 
